@@ -1,0 +1,39 @@
+{
+  "case": {
+    "c1": 1.0,
+    "c2": 0.0,
+    "lam": 1.5,
+    "a": 3.0,
+    "b": 6.0,
+    "h0": 1.0
+  },
+  "signatures": {
+    "open_exp": 0.48355879945924585,
+    "J_exp": -0.43200349542938987,
+    "inplane_exp": 0.9603419920998092,
+    "Jr14_plateau": 1.3397230711137091,
+    "Jr14_spread": 1.015141956627876,
+    "P_measured": 0.6830409731811764
+  },
+  "energy_release": {
+    "W_inf_theory": 0.6944444444444446,
+    "W_ff_measured": 0.6779299865719458,
+    "W_ff_std": 0.003651651040079689,
+    "G_spec_theory": 0.6944444444444446,
+    "G_spec_measured": 0.6779299865719458,
+    "G_domain_J": 0.6948126978785983,
+    "P_pred_from_G_spec": 0.6649038006690545,
+    "P_pred_from_GJ": 0.6650800715414485,
+    "P_pred_from_measured_W": 0.6569502520987336,
+    "P_measured": 0.6830409731811764,
+    "rel_err_P_vs_pred": 0.027277889664446924,
+    "rel_err_P_vs_predGJ": 0.027005622944166825,
+    "rel_err_GJ_vs_spec": 0.000530284945181325
+  },
+  "tag": "NH_lam15",
+  "material": "NeoHookean",
+  "solve_time_s": 44.576295614242554,
+  "n_newton": 64,
+  "n_cells": 15360,
+  "w_over_h0": 9.0
+}

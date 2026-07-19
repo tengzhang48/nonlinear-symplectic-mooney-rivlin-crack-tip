@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated manuscript and this software record."
+title: "Nonlinear symplectic Mooney-Rivlin crack-tip companion"
+type: software
+authors:
+  - family-names: Zhang
+    given-names: Teng
+    affiliation: Syracuse University
+repository-code: "https://github.com/tengzhang48/nonlinear-symplectic-mooney-rivlin-crack-tip"
+license: MIT
+version: 1.0.0
+date-released: 2026-07-19
+keywords:
+  - fracture mechanics
+  - soft materials
+  - Mooney-Rivlin
+  - finite elasticity
+  - symplectic methods
+  - finite elements
+preferred-citation:
+  type: article
+  title: "Crack-tip fields and the energy release rate of a Mooney–Rivlin sheet in plane stress: a symplectic analysis"
+  authors:
+    - family-names: Zhang
+      given-names: Teng
+      affiliation: Syracuse University
+  year: 2026

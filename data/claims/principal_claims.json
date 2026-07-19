@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "constitutive_scope": {
+    "model": "incompressible plane-stress Mooney-Rivlin",
+    "energy": "W = c1 (I1 - 3) + c2 (I2 - 3)",
+    "leading_constraint_requires": "c1 > 0 and c2 > 0",
+    "control": "c2 = 0 is used as a neo-Hookean control"
+  },
+  "claims": [
+    {
+      "id": "leading-map",
+      "status": "established",
+      "statement": "y2 = P r^(1/2) sin(theta/2) and y1-c0 = P^(-1/2) r^(5/4) g(theta) at leading order",
+      "evidence": ["analysis/leading_field.py", "verification/verify_equations.py"]
+    },
+    {
+      "id": "smooth-g",
+      "status": "established",
+      "statement": "smooth-branch selection gives g(0)=4 sqrt(2)/5 and g(pi)=2.033311...",
+      "evidence": ["analysis/check_g_selection.py", "data/analytic/mr_leading_profile.npz"]
+    },
+    {
+      "id": "jacobian-plateau",
+      "status": "established-and-fem-tested",
+      "statement": "J r^(1/4) = sqrt(P/2), independent of theta at leading order",
+      "evidence": ["analysis/leading_field.py", "data/fem/strip/summary.csv", "tests/check_claims.py"]
+    },
+    {
+      "id": "energy-release",
+      "status": "established",
+      "statement": "G = (pi/2) c1 P^2",
+      "evidence": ["analysis/energy_release_rate.py", "verification/verify_equations.py"]
+    },
+    {
+      "id": "pure-shear-amplitude",
+      "status": "established-and-fem-tested",
+      "statement": "G = h(c1+c2)(lambda^2+lambda^(-2)-2), fixing P(lambda)",
+      "evidence": ["analysis/energy_release_rate.py", "data/fem/strip/summary.csv", "tests/check_claims.py"]
+    },
+    {
+      "id": "tip-shape",
+      "status": "established-and-secondary-fem-tested",
+      "statement": "y2 is proportional to |y1-c0|^(2/5) for c2>0; the c2=0 control is near the 1/2 class",
+      "evidence": ["fem/check_new_signatures.py", "data/fem/disk/", "figures/rendered/fig_tip_shape.pdf"]
+    },
+    {
+      "id": "leading-stress",
+      "status": "established-and-secondary-fem-tested",
+      "statement": "sigma22 r = G/pi at leading order; this relation is class-universal and is shared by the c2=0 control",
+      "evidence": ["fem/check_new_signatures.py", "data/fem/disk/", "figures/rendered/fig_sigma_G.pdf"]
+    },
+    {
+      "id": "full-coupled-spectrum",
+      "status": "open",
+      "statement": "A completed five-block finite-compliance spectrum and normalized extraction integrals are not established in this repository",
+      "evidence": ["CODE_MAP.md", "analysis/symplectic_dae.py"]
+    }
+  ]
+}

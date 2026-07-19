@@ -1,0 +1,39 @@
+{
+  "case": {
+    "c1": 1.0,
+    "c2": 1.0,
+    "lam": 2.2,
+    "a": 3.0,
+    "b": 6.0,
+    "h0": 1.0
+  },
+  "signatures": {
+    "open_exp": 0.48014293507110845,
+    "J_exp": -0.25222738771024844,
+    "inplane_exp": 1.25297006749649,
+    "Jr14_plateau": 0.9904231454465593,
+    "Jr14_spread": 0.03236489534238794,
+    "P_measured": 2.0111216570253703
+  },
+  "energy_release": {
+    "W_inf_theory": 6.093223140495869,
+    "W_ff_measured": 5.4535919566013185,
+    "W_ff_std": 0.10875008496360232,
+    "G_spec_theory": 6.093223140495869,
+    "G_spec_measured": 5.4535919566013185,
+    "G_domain_J": 6.077625856171235,
+    "P_pred_from_G_spec": 1.9695345462030767,
+    "P_pred_from_GJ": 1.967012147672469,
+    "P_pred_from_measured_W": 1.8632939837817337,
+    "P_measured": 2.0111216570253703,
+    "rel_err_P_vs_pred": 0.021115197447268134,
+    "rel_err_P_vs_predGJ": 0.022424624781852708,
+    "rel_err_GJ_vs_spec": 0.00255977566634221
+  },
+  "tag": "MR_lam22",
+  "material": "MR",
+  "solve_time_s": 948.3653373718262,
+  "n_newton": 1350,
+  "n_cells": 15360,
+  "w_over_h0": 9.0
+}
