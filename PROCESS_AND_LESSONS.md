@@ -74,7 +74,20 @@ audit of captions, conclusions, summaries, and code comments.
 The tracked FEM arrays make figure reproduction fast and deterministic. They do
 not replace a solver rerun. Conversely, a solver rerun does not guarantee that
 the exact arrays used in a submitted figure have been preserved. This
-repository supports both routes and records their environments separately.
+distinction became concrete in the final audit: scalar/ray records and
+full-field snapshots had been produced on two nearly identical strip meshes,
+so reproducing one headline case did not establish a common provenance for all
+figures. The publication data were regenerated on one exact-corner mesh, the
+continuation and mesh settings were embedded in every JSON and NPZ artifact,
+and the claim gate now inventories both artifact classes. This repository
+supports both stored-data and fresh-solve routes and records their environments
+separately.
+
+The geometry itself required a three-way check. Uniform angular rays clipped
+the two far corners, while merely inserting corner rays created narrow sectors
+that ran to the tip. The production construction instead retains 120 sectors
+and aligns the nearest two rays with the corners; the automated gate checks the
+outer area, angular gaps, and stored full-field coordinates.
 
 ## 9. Human judgment sets the stopping line
 

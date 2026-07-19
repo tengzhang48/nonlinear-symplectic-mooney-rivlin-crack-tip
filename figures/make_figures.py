@@ -462,8 +462,11 @@ def fig_chain():
             label=r"closed form $P(\lambda)$, Mooney-Rivlin")
     ax.plot(lam_c, P_pred(lam_c, 1, 0), color=NH_COLOR, lw=2.0,
             ls=(0, (5, 3)), label=r"closed form, neo-Hookean control")
+    # The main curve is the c1=c2 load sweep.  The two c2/c1 variation
+    # cases have their own predictions and belong in the ratio study.
     mr = [r for r in rows if r["material"] == "MR"
-          and abs(float(r["a"]) - 3.0) < 0.1 and "MESH" not in r["tag"]]
+          and abs(float(r["a"]) - 3.0) < 0.1
+          and "MESH" not in r["tag"] and "c2_" not in r["tag"]]
     ax.plot([float(r["lam"]) for r in mr], [float(r["P_meas"]) for r in mr],
             "o", color=MR_COLOR, ms=8, mec="k", mew=0.6, zorder=5,
             label="FEM, $a=3$")
@@ -498,7 +501,7 @@ def fig_chain():
     axi.set_xlabel(r"$h\,W_\infty$", fontsize=9, labelpad=2.5)
     axi.set_ylabel("domain integral", fontsize=9, labelpad=1)
     axi.tick_params(labelsize=8)
-    axi.text(0.06, 0.94, r"$\leq0.3\%$, all cases", transform=axi.transAxes,
+    axi.text(0.06, 0.94, r"$\leq0.15\%$, all cases", transform=axi.transAxes,
              ha="left", va="top", fontsize=8.5)
 
     fig.tight_layout()
@@ -634,13 +637,14 @@ def fig_ps_portrait(tags=("MR_lam13", "MR_lam16", "MR_lam22"), wp=0.25):
 def _ps_rays(tag):
     import csv
     rays = {}
+    physical_columns = ("r", "theta_deg", "Y1", "Y2", "J", "lam1", "lam2")
     for th in (2, 45, 90, 135, 178):
         f = PSOUT / f"rays_{tag}_theta{th}.csv"
         if not f.exists():
             continue
         rows = list(csv.DictReader(open(f)))
-        rays[th] = {k: np.array([float(r[k]) for r in rows])
-                    for k in rows[0]}
+        rays[th] = {key: np.array([float(row[key]) for row in rows])
+                    for key in physical_columns}
     return rays
 
 

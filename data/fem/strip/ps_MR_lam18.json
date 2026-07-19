@@ -2,38 +2,56 @@
   "case": {
     "c1": 1.0,
     "c2": 1.0,
-    "lam": 1.799999999999998,
+    "lam": 1.7999999999999976,
     "a": 3.0,
     "b": 6.0,
     "h0": 1.0
   },
   "signatures": {
-    "open_exp": 0.4752002402080405,
-    "J_exp": -0.2525935910407734,
-    "inplane_exp": 1.2557556061596988,
-    "Jr14_plateau": 0.8339779564546055,
-    "Jr14_spread": 0.04175657516952419,
-    "P_measured": 1.4374418459175997
+    "open_exp": 0.47519502176453576,
+    "J_exp": -0.2527193286094097,
+    "inplane_exp": 1.2557691822372103,
+    "Jr14_plateau": 0.8342070276506538,
+    "Jr14_spread": 0.041820958508700996,
+    "P_measured": 1.4380959368783925
   },
   "energy_release": {
-    "W_inf_theory": 3.097283950617271,
-    "W_ff_measured": 2.8349725069792147,
-    "W_ff_std": 0.051445487643920755,
-    "G_spec_theory": 3.097283950617271,
-    "G_spec_measured": 2.8349725069792147,
-    "G_domain_J": 3.095087014820011,
-    "P_pred_from_G_spec": 1.404205185718857,
-    "P_pred_from_GJ": 1.4037070886878689,
-    "P_pred_from_measured_W": 1.3434282831850233,
-    "P_measured": 1.4374418459175997,
-    "rel_err_P_vs_pred": 0.02366937576984357,
-    "rel_err_P_vs_predGJ": 0.02403261870057577,
-    "rel_err_GJ_vs_spec": 0.0007093104256141503
+    "W_inf_theory": 3.0972839506172685,
+    "W_ff_measured": 3.0072680829842127,
+    "W_ff_std": 0.01400032559082242,
+    "G_spec_theory": 3.0972839506172685,
+    "G_spec_measured": 3.0072680829842127,
+    "G_domain_J": 3.0977082989360216,
+    "P_pred_from_G_spec": 1.4042051857188567,
+    "P_pred_from_GJ": 1.4043013751078568,
+    "P_pred_from_measured_W": 1.3836496386143793,
+    "P_measured": 1.4380959368783925,
+    "rel_err_P_vs_pred": 0.024135184447553613,
+    "rel_err_P_vs_predGJ": 0.024065035019950876,
+    "rel_err_GJ_vs_spec": 0.00013700659207192934
   },
   "tag": "MR_lam18",
   "material": "MR",
-  "solve_time_s": 368.8582398891449,
-  "n_newton": 518,
+  "solve_time_s": 506.6744260787964,
+  "n_newton": 710,
   "n_cells": 15360,
-  "w_over_h0": 9.0
+  "w_over_h0": 9.0,
+  "protocol": {
+    "n_steps": 18,
+    "fit_window": [
+      0.0003,
+      0.008
+    ],
+    "mesh": {
+      "n_r": 64,
+      "n_theta_base": 120,
+      "n_sectors": 120,
+      "r_min": 1e-05,
+      "angular_scheme": "corner-snapped-v1",
+      "corner_angles": [
+        0.08314123188844123,
+        2.976443976175166
+      ]
+    }
+  }
 }

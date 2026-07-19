@@ -8,32 +8,50 @@
     "h0": 1.0
   },
   "signatures": {
-    "open_exp": 0.453178858234893,
-    "J_exp": -0.26852193535516533,
-    "inplane_exp": 1.2607804648368848,
-    "Jr14_plateau": 0.8510847709220704,
-    "Jr14_spread": 0.057806791074151986,
-    "P_measured": 1.5966615553948182
+    "open_exp": 0.4531788213366653,
+    "J_exp": -0.26872693004060944,
+    "inplane_exp": 1.2607805291155953,
+    "Jr14_plateau": 0.8511397237241722,
+    "Jr14_spread": 0.057966353582291595,
+    "P_measured": 1.5966617130116172
   },
   "energy_release": {
     "W_inf_theory": 3.8024999999999842,
-    "W_ff_measured": 3.6117621098821386,
-    "W_ff_std": 0.03821040744970965,
+    "W_ff_measured": 3.611095413488418,
+    "W_ff_std": 0.038361200181878066,
     "G_spec_theory": 3.8024999999999842,
-    "G_spec_measured": 3.6117621098821386,
-    "G_domain_J": 3.800267097267312,
+    "G_spec_measured": 3.611095413488418,
+    "G_domain_J": 3.8002671646017867,
     "P_pred_from_G_spec": 1.5558748935655842,
-    "P_pred_from_GJ": 1.5554180063244496,
-    "P_pred_from_measured_W": 1.516350609931299,
-    "P_measured": 1.5966615553948182,
-    "rel_err_P_vs_pred": 0.026214615325377257,
-    "rel_err_P_vs_predGJ": 0.02651605478570339,
-    "rel_err_GJ_vs_spec": 0.0005872196535627648
+    "P_pred_from_GJ": 1.5554180201041723,
+    "P_pred_from_measured_W": 1.51621065163539,
+    "P_measured": 1.5966617130116172,
+    "rel_err_P_vs_pred": 0.026214716629665666,
+    "rel_err_P_vs_predGJ": 0.02651614702566108,
+    "rel_err_GJ_vs_spec": 0.0005872019456140771
   },
   "tag": "MR_lam16_c2_3",
   "material": "MR",
-  "solve_time_s": 348.3222315311432,
+  "solve_time_s": 339.70732498168945,
   "n_newton": 473,
-  "n_cells": 15616,
-  "w_over_h0": 9.0
+  "n_cells": 15360,
+  "w_over_h0": 9.0,
+  "protocol": {
+    "n_steps": 18,
+    "fit_window": [
+      0.0003,
+      0.008
+    ],
+    "mesh": {
+      "n_r": 64,
+      "n_theta_base": 120,
+      "n_sectors": 120,
+      "r_min": 1e-05,
+      "angular_scheme": "corner-snapped-v1",
+      "corner_angles": [
+        0.08314123188844123,
+        2.976443976175166
+      ]
+    }
+  }
 }

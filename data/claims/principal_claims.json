@@ -38,6 +38,12 @@
       "evidence": ["analysis/energy_release_rate.py", "data/fem/strip/summary.csv", "tests/check_claims.py"]
     },
     {
+      "id": "material-ratio-robustness",
+      "status": "established-and-fem-tested",
+      "statement": "At lambda=1.6, c2/c1 = 1/3, 1, and 3 retain the energy balance, amplitude relation, angular flatness of J r^(1/4) over the reported finite window, and reported opening and in-plane radial exponents",
+      "evidence": ["data/fem/strip/summary.csv", "data/fem/strip/ps_MR_lam16_c2_third.json", "data/fem/strip/ps_MR_lam16.json", "data/fem/strip/ps_MR_lam16_c2_3.json", "figures/rendered/fig_cratio.pdf", "tests/check_claims.py"]
+    },
+    {
       "id": "tip-shape",
       "status": "established-and-secondary-fem-tested",
       "statement": "y2 is proportional to |y1-c0|^(2/5) for c2>0; the c2=0 control is near the 1/2 class",

@@ -8,32 +8,50 @@
     "h0": 1.0
   },
   "signatures": {
-    "open_exp": 0.48355879945924585,
-    "J_exp": -0.43200349542938987,
-    "inplane_exp": 0.9603419920998092,
-    "Jr14_plateau": 1.3397230711137091,
-    "Jr14_spread": 1.015141956627876,
-    "P_measured": 0.6830409731811764
+    "open_exp": 0.48355898256502194,
+    "J_exp": -0.4320304825531201,
+    "inplane_exp": 0.9603429850332321,
+    "Jr14_plateau": 1.3397037891458479,
+    "Jr14_spread": 1.0152172025910806,
+    "P_measured": 0.6830523359838497
   },
   "energy_release": {
     "W_inf_theory": 0.6944444444444446,
-    "W_ff_measured": 0.6779299865719458,
-    "W_ff_std": 0.003651651040079689,
+    "W_ff_measured": 0.6928014767685582,
+    "W_ff_std": 0.00020949338209206046,
     "G_spec_theory": 0.6944444444444446,
-    "G_spec_measured": 0.6779299865719458,
-    "G_domain_J": 0.6948126978785983,
+    "G_spec_measured": 0.6928014767685582,
+    "G_domain_J": 0.6948317802356512,
     "P_pred_from_G_spec": 0.6649038006690545,
-    "P_pred_from_GJ": 0.6650800715414485,
-    "P_pred_from_measured_W": 0.6569502520987336,
-    "P_measured": 0.6830409731811764,
-    "rel_err_P_vs_pred": 0.027277889664446924,
-    "rel_err_P_vs_predGJ": 0.027005622944166825,
-    "rel_err_GJ_vs_spec": 0.000530284945181325
+    "P_pred_from_GJ": 0.6650892043683927,
+    "P_pred_from_measured_W": 0.66411679577942,
+    "P_measured": 0.6830523359838497,
+    "rel_err_P_vs_pred": 0.027294979057922938,
+    "rel_err_P_vs_predGJ": 0.02700860500737773,
+    "rel_err_GJ_vs_spec": 0.0005577635393374079
   },
   "tag": "NH_lam15",
   "material": "NeoHookean",
-  "solve_time_s": 44.576295614242554,
+  "solve_time_s": 44.98794937133789,
   "n_newton": 64,
   "n_cells": 15360,
-  "w_over_h0": 9.0
+  "w_over_h0": 9.0,
+  "protocol": {
+    "n_steps": 18,
+    "fit_window": [
+      0.0003,
+      0.008
+    ],
+    "mesh": {
+      "n_r": 64,
+      "n_theta_base": 120,
+      "n_sectors": 120,
+      "r_min": 1e-05,
+      "angular_scheme": "corner-snapped-v1",
+      "corner_angles": [
+        0.08314123188844123,
+        2.976443976175166
+      ]
+    }
+  }
 }

@@ -11,8 +11,8 @@ extraction (theta from +x) is reused verbatim:
 
 Mesh: a TIP-FOCUSED RADIAL mesh (crack-tip rosette) that fills the strip.  For
 each wedge angle theta_j in [0,pi] a ray is shot from the tip to the specimen
-boundary at distance R_max(theta); graded rings r_min..R_max give fine, nearly
-isotropic elements at the tip and a deep near-tip window, coarsening outward.
+boundary at distance R_max(theta); graded rings r_min..R_max give a deep
+near-tip window and coarsen outward.
 This distributes elements radially about the tip (unlike a tensor grid, which is
 anisotropic off the axes).  A tiny core r_min keeps the singular point out.
 """
@@ -34,7 +34,7 @@ class StripConfig:
     H: float = 0.5        # half-height (full height h0 = 2H)
     r_min: float = 1.0e-5  # core radius at the tip
     n_r: int = 64          # graded rings per ray
-    n_theta: int = 120     # angular wedges over [0, pi]
+    n_theta: int = 120     # base angular divisions over [0, pi]
 
     @property
     def h0(self) -> float:
@@ -62,12 +62,23 @@ def build_strip(cfg: StripConfig | None = None):
     if cfg is None:
         cfg = StripConfig()
     theta = np.linspace(0.0, np.pi, cfg.n_theta + 1)
-    # insert rays exactly through the two far corners so the mesh boundary
-    # follows the rectangle there (otherwise the grip effectively ends at
-    # the last ray endpoint on y = H and the free margin relaxes)
-    th_corners = np.array([np.arctan2(cfg.H, cfg.b),
-                           np.pi - np.arctan2(cfg.H, cfg.a)])
-    theta = np.unique(np.concatenate([theta, th_corners]))
+    # Align the nearest two interior rays with the far corners.  Merely using
+    # uniform angles cuts a small triangle from each corner; inserting extra
+    # rays instead creates two sliver sectors that extend all the way to the
+    # tip.  Snapping preserves both the exact rectangle and n_theta sectors.
+    theta_corners = np.array([
+        np.arctan2(cfg.H, cfg.b),
+        np.pi - np.arctan2(cfg.H, cfg.a),
+    ])
+    if cfg.n_theta < 3:
+        raise ValueError("n_theta must be at least 3 for corner alignment")
+    available = set(range(1, cfg.n_theta))
+    for theta_corner in theta_corners:
+        j = min(available,
+                key=lambda idx: (abs(theta[idx] - theta_corner), idx))
+        theta[j] = theta_corner
+        available.remove(j)
+    theta.sort()
     krow = np.arange(cfg.n_r + 1) / cfg.n_r
     nth = theta.size
     nr = cfg.n_r + 1
@@ -98,7 +109,10 @@ def build_strip(cfg: StripConfig | None = None):
 
     info = {
         "a": cfg.a, "b": cfg.b, "H": cfg.H, "h0": cfg.h0, "w": cfg.w,
-        "n_r": cfg.n_r, "n_theta": cfg.n_theta, "r_min": cfg.r_min,
+        "n_r": cfg.n_r, "n_theta_base": cfg.n_theta,
+        "n_sectors": int(nth - 1), "r_min": cfg.r_min,
+        "angular_scheme": "corner-snapped-v1",
+        "corner_angles": theta_corners.tolist(),
         "n_points": int(points.shape[0]), "n_cells": int(cells.shape[0]),
         "w_over_h0": cfg.w / cfg.h0,
     }

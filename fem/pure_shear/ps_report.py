@@ -112,10 +112,13 @@ def main():
         print("no cases in", OUT); return
     FIG.mkdir(exist_ok=True)
     rows = [row(j) for j in data.values()]
+    by_tag = {item["tag"]: item for item in rows}
 
     # summary CSV
     with open(OUT / "summary.csv", "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+        w = csv.DictWriter(
+            fh, fieldnames=list(rows[0].keys()), lineterminator="\n"
+        )
         w.writeheader()
         for r in sorted(rows, key=lambda r: (r["material"], r["a"], r["lam"])):
             w.writerow(r)
@@ -148,20 +151,31 @@ def main():
     A("- `figures/ps_a_independence.png` — G independent of crack length.")
     A("- `figures/ps_plateau_vs_theta.png` — `J r^1/4` plateau (MR) vs control.\n")
     A("## Mesh, convergence, and limitations\n")
-    A("- **Tip-focused radial mesh** (crack-tip rosette filling the strip): fine,")
-    A("  nearly isotropic elements at the tip (`r_min=1e-5` core), coarsening")
-    A("  radially outward -- a deep near-tip window `r in [3e-4, 8e-3]`.")
-    A("- **Mesh-converged**: `n_r = 48/64/96` give the same `G`")
-    A("  (1.9020/1.9009/1.9004) and signatures (J-exp `-0.253`, spread `~5.2%`).")
-    A("- **Crack-length independent**: `G` = 1.8997/1.9009/1.9015/1.9025 for")
-    A("  `a = 2/3/4/5` (~0.15%) -- the Rivlin-Thomas hallmark.")
-    A("- **Honest caveats**: (i) the *local* far-field energy density reaches only")
-    A("  `~92%` of the ideal `W_inf` (`lambda_x ~ 0.96`) at this finite half-height;")
-    A("  the *true* `G` (path-independent J-integral) still converges to `W_inf h0`")
-    A("  as the strip widens (0.25% at w/h0=6 -> 0.02% at 9). (ii) The near-tip")
-    A("  magnitudes are `theta`-flat to `~6%` (vs `~2%` for the deep boundary-layer")
-    A("  disk): the affordable strip window is shallower, so `P` carries `~2.5%`")
-    A("  window/exponent sensitivity.\n")
+    A("- **Tip-focused radial mesh**: 120 corner-aligned sectors fill the exact")
+    A("  rectangular outer boundary; graded rings from the `r_min=1e-5` core")
+    A("  give the deep near-tip window `r in [3e-4, 8e-3]`.")
+    mesh = [by_tag[tag] for tag in ("MESH_nr48", "MR_lam16", "MESH_nr96")]
+    mesh_p = np.array([item["P_meas"] for item in mesh])
+    mesh_p_range = 100 * (mesh_p.max() - mesh_p.min()) / mesh_p.mean()
+    A("- **Mesh-converged**: `n_r = 48/64/96` give `G` = "
+      + "/".join(f"{item['G_J']:.4f}" for item in mesh)
+      + f" and a relative `P` range of `{mesh_p_range:.2f}%`.")
+    cracks = [by_tag[tag] for tag in ("MR_a2", "MR_lam16", "MR_a4", "MR_a5")]
+    crack_g = np.array([item["G_J"] for item in cracks])
+    crack_g_range = 100 * (crack_g.max() - crack_g.min()) / crack_g.mean()
+    A("- **Crack-length independent**: `G` = "
+      + "/".join(f"{item['G_J']:.4f}" for item in cracks)
+      + f" for `a = 2/3/4/5` (`{crack_g_range:.2f}%` range).")
+    base = data["MR_lam16"]
+    base_g_error = 100 * base["energy_release"]["rel_err_GJ_vs_spec"]
+    base_w_ratio = (100 * base["energy_release"]["W_ff_measured"]
+                    / base["energy_release"]["W_inf_theory"])
+    A(f"- **Production-width check**: at `w/h0=9`, the domain `J` differs from "
+      f"`W_inf h0` by `{base_g_error:.3f}%`; the local far-ahead energy-density "
+      f"diagnostic is `{base_w_ratio:.1f}%` of ideal `W_inf`.")
+    A("- **Finite-window caveat**: near-tip magnitudes are `theta`-flat to about")
+    A("  `6%` (versus about `2%` for the deeper disk window); the affordable strip")
+    A("  window therefore leaves about `2.5%` amplitude sensitivity.\n")
     A("## Data for pick-up\n")
     A("- `outputs/ps_*.json` — per-case signatures + energy release.")
     A("- `outputs/rays_*_theta*.csv` — near-tip fields (r, theta, Y1, Y2, J, lam1, lam2).")

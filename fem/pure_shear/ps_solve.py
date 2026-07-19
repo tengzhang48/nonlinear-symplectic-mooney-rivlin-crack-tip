@@ -33,7 +33,7 @@ class SolveConfig:
     c2: float = 1.0
     lam: float = 1.5           # target vertical stretch (H+delta)/H
     degree: int = 2
-    n_steps: int = 16
+    n_steps: int = 18           # initial subdivision; failures halve the step
     rtol: float = 1e-8
     atol: float = 1e-10
     max_it: int = 40
@@ -134,6 +134,7 @@ def solve(scfg: SolveConfig, mcfg: StripConfig | None = None):
         "msh": msh, "u": u, "V": V, "info": info,
         "lam_target": scfg.lam, "lam_reached": float(lam_reached),
         "t_reached": float(t), "c1": scfg.c1, "c2": scfg.c2,
+        "n_steps": scfg.n_steps,
         "n_newton": n_newton, "H": H, "a": a, "b": b, "h0": info["h0"],
         "W_inf": float(W_inf(lam_reached, scfg.c1, scfg.c2)),
     }
@@ -142,7 +143,7 @@ def solve(scfg: SolveConfig, mcfg: StripConfig | None = None):
 if __name__ == "__main__":
     import time
     t0 = time.time()
-    res = solve(SolveConfig(lam=1.5, n_steps=16),
+    res = solve(SolveConfig(lam=1.5, n_steps=18),
                 StripConfig(a=3.0, b=6.0, H=0.5, r_min=1e-5, n_r=48, n_theta=90))
     dt = time.time() - t0
     Vdg = fem.functionspace(res["msh"], ("DG", 0))

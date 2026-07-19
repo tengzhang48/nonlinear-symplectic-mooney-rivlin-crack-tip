@@ -7,9 +7,9 @@ This is the reproducibility companion to the manuscript
 
 It contains the analytic verification code, the reduced plane-stress finite-
 element implementations, the exact stored data used by the figures, and the
-figure generators. The manuscript source, referee correspondence, development
-history, and third-party reference files are intentionally not part of this
-repository.
+figure generators. The manuscript and supplementary-information (ESI/SI)
+source and PDF files, referee correspondence, development history, and
+third-party reference files are intentionally not part of this repository.
 
 ## Main result
 
@@ -89,6 +89,13 @@ python run_one_case.py --c1 1 --c2 1 --lam 2.0 --tag MR_lam20
 cd pure_shear
 python run_ps.py --c1 1 --c2 1 --lam 1.6 --tag MR_lam16
 ```
+
+The strip command defaults to an initial continuation subdivision of 18;
+failed Newton steps trigger adaptive step halving. The `c2/c1=1/3` production
+case uses `--n_steps 32`; adding `--export-field`
+writes the full-field NPZ from the same solve. Stored strip artifacts include
+their continuation and mesh metadata (120 sectors, with the two nearest
+angular rays aligned exactly to the far rectangle corners).
 
 Fresh solver output is written beneath `fem/outputs/` or
 `fem/pure_shear/outputs/` and is ignored by Git. It is never substituted

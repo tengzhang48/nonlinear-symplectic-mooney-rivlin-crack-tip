@@ -43,6 +43,8 @@ def main():
     ap.add_argument("--n_steps", type=int, default=18)
     ap.add_argument("--win_lo", type=float, default=3e-4)
     ap.add_argument("--win_hi", type=float, default=8e-3)
+    ap.add_argument("--export-field", action="store_true",
+                    help="also write the full-field NPZ from this solve")
     ap.add_argument("--tag", required=True)
     ap.add_argument("--out", default="outputs")
     args = ap.parse_args()
@@ -61,6 +63,18 @@ def main():
     out["n_newton"] = res["n_newton"]
     out["n_cells"] = res["info"]["n_cells"]
     out["w_over_h0"] = res["info"]["w_over_h0"]
+    out["protocol"] = {
+        "n_steps": res["n_steps"],
+        "fit_window": [args.win_lo, args.win_hi],
+        "mesh": {
+            "n_r": args.n_r,
+            "n_theta_base": args.n_theta,
+            "n_sectors": res["info"]["n_sectors"],
+            "r_min": args.r_min,
+            "angular_scheme": res["info"]["angular_scheme"],
+            "corner_angles": res["info"]["corner_angles"],
+        },
+    }
 
     # per-ray sampling for CSV / plots
     rays = pex.mfx.sample_rays(res, (2, 45, 90, 135, 178),
@@ -71,11 +85,22 @@ def main():
     for ray in rays:
         th = int(round(ray["theta_deg"]))
         with open(outdir / f"rays_{args.tag}_theta{th}.csv", "w", newline="") as fh:
-            w = csv.writer(fh)
-            w.writerow(["r", "theta_deg", "Y1", "Y2", "J", "lam1", "lam2"])
+            w = csv.writer(fh, lineterminator="\n")
+            w.writerow(["r", "theta_deg", "Y1", "Y2", "J", "lam1", "lam2",
+                        "n_cells", "n_steps", "n_r", "n_theta_base",
+                        "n_sectors", "angular_scheme", "corner_angle_right",
+                        "corner_angle_left"])
             for i in range(len(ray["r"])):
                 w.writerow([ray["r"][i], th, ray["Y1"][i], ray["Y2"][i],
-                            ray["J"][i], ray["lam1"][i], ray["lam2"][i]])
+                            ray["J"][i], ray["lam1"][i], ray["lam2"][i],
+                            res["info"]["n_cells"], res["n_steps"], args.n_r,
+                            args.n_theta, res["info"]["n_sectors"],
+                            res["info"]["angular_scheme"],
+                            *res["info"]["corner_angles"]])
+
+    if args.export_field:
+        from ps_export import write_snapshot
+        write_snapshot(res, args.tag, outdir)
 
     e = out["energy_release"]; s = out["signatures"]
     print(f"[{args.tag}] lam={res['lam_reached']:.3f} a={args.a} solve {solve_t:.0f}s "
