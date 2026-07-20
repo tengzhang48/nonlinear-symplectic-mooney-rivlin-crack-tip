@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Row-1 flux and signed finite-radius J-error on the constrained map.
+"""Row-1 flux and signed finite-radius J-error on the selected C_s=0 map.
 
 On the manifold, J^2 - J^-2 |grad y2|^2 = 0 identically, so the c2
 row-1 flux is pointwise O(r^2) and the c1 row-1 flux O(r^{3/2}); the
 r^{1/2} finite-radius excess of the circle J-integral is real and is
 carried by the OPENING-ROW c2 traction flux (coefficient pi c2 P; the
 angle-independent c2 energy term integrates to zero against cos theta):
-the finite-radius error of the truncated leading map, not a path
+the finite-radius error of this truncated C_s=0 map, not a path
 dependence of the exact solution.  Constraint-consistent evaluation throughout:
 g'(theta) from the exact g-ODE at the same point as g.
 """

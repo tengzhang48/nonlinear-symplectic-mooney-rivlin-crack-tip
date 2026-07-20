@@ -9,14 +9,20 @@
   "claims": [
     {
       "id": "leading-map",
-      "status": "established",
-      "statement": "y2 = P r^(1/2) sin(theta/2) and y1-c0 = P^(-1/2) r^(5/4) g(theta) at leading order",
+      "status": "established-with-null-family",
+      "statement": "With s=r sin(theta/2)^2, y2 = P r^(1/2) sin(theta/2) and y1-c0 = C_s s + P^(-1/2) r^(5/4) g(theta) + ...; the leading constraint does not determine C_s",
       "evidence": ["analysis/leading_field.py", "verification/verify_equations.py"]
     },
     {
-      "id": "smooth-g",
+      "id": "regular-null-mode",
       "status": "established",
-      "statement": "smooth-branch selection gives g(0)=4 sqrt(2)/5 and g(pi)=2.033311...",
+      "statement": "The constraint is invariant under y1 -> y1+F(y2); C_s s is the first analytic Mode-I member and changes the physical horizontal coordinate",
+      "evidence": ["analysis/leading_field.py", "verification/verify_equations.py", "analysis/energy_release_rate.py"]
+    },
+    {
+      "id": "smooth-g",
+      "status": "selected-outer-branch",
+      "statement": "Regular-axis outer-branch selection gives g(0)=4 sqrt(2)/5 and g(pi)=2.033311...; full finite-compliance axis/matching selection remains open",
       "evidence": ["analysis/check_g_selection.py", "data/analytic/mr_leading_profile.npz"]
     },
     {
@@ -28,7 +34,7 @@
     {
       "id": "energy-release",
       "status": "established",
-      "statement": "G = (pi/2) c1 P^2",
+      "statement": "G = (pi/2) c1 P^2, including arbitrary C_s in the retained constrained map",
       "evidence": ["analysis/energy_release_rate.py", "verification/verify_equations.py"]
     },
     {
@@ -40,14 +46,14 @@
     {
       "id": "material-ratio-robustness",
       "status": "established-and-fem-tested",
-      "statement": "At lambda=1.6, c2/c1 = 1/3, 1, and 3 retain the energy balance, amplitude relation, angular flatness of J r^(1/4) over the reported finite window, and reported opening and in-plane radial exponents",
+      "statement": "At lambda=1.6, c2/c1 = 1/3, 1, and 3 retain the energy balance, amplitude relation, angular flatness of J r^(1/4), and reported opening and near-axis in-plane finite-window exponents",
       "evidence": ["data/fem/strip/summary.csv", "data/fem/strip/ps_MR_lam16_c2_third.json", "data/fem/strip/ps_MR_lam16.json", "data/fem/strip/ps_MR_lam16_c2_3.json", "figures/rendered/fig_cratio.pdf", "tests/check_claims.py"]
     },
     {
       "id": "tip-shape",
-      "status": "established-and-secondary-fem-tested",
-      "statement": "y2 is proportional to |y1-c0|^(2/5) for c2>0; the c2=0 control is near the 1/2 class",
-      "evidence": ["fem/check_new_signatures.py", "data/fem/disk/", "figures/rendered/fig_tip_shape.pdf"]
+      "status": "conditional-and-finite-window-audited",
+      "statement": "For persistent nonzero C_s the raw face exponent is 1/2; 2/5 applies only when C_s=0 or conditionally to the residual after subtracting C_s r. The stored c2>0 annuli resolve a nonzero s-like background and raw slopes near 1/2, but do not establish a universal residual exponent",
+      "evidence": ["analysis/profile_mode_audit.py", "data/derived/profile_mode_audit.json", "figures/rendered/fig_profile_correction.pdf"]
     },
     {
       "id": "leading-stress",

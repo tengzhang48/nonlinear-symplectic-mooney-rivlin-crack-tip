@@ -1,4 +1,4 @@
-"""Symbolic/numeric verification of 57 encoded manuscript relations.
+"""Symbolic/numeric verification of 58 encoded manuscript relations.
 
 Run: python verify_equations.py   (needs sympy, numpy, scipy)
 
@@ -148,19 +148,26 @@ check("scaffold bookkeeping beta=1/4 corresponds to s^(3/4)",
 # ======================================================================
 # 7. Near-tip Cauchy amplitude, J-integral closed form, tip-opening shape
 # ======================================================================
-# Independent symbolic route: build F exactly on the two-term map
-#   y1 = Q1 r^{5/4} g(theta),  y2 = P r^{1/2} sin(theta/2)
+# Separate symbolic transcription: build F exactly on the retained map
+#   y1 = C_s r sin(theta/2)^2 + Q1 r^{5/4} g(theta),
+#   y2 = P r^{1/2} sin(theta/2)
 # with g, g' arbitrary symbols and r = s^4 (integer powers), evaluate the
 # verified PK1 formula on it, and take the tip limit of (i) sigma22 * r and
 # (ii) the circular J-integrand  r [W cos(theta) - t_i F_{i1}],  t = PK1 e_r.
 s_ = sp.Symbol("s_", positive=True)
 g_, gp_ = sp.symbols("g_ gp_", real=True)
 Q1s = sp.Symbol("Q1", positive=True)
+Cs_ = sp.Symbol("C_s", real=True)
 rr = s_ ** 4
 f_th = sp.sin(Th / 2)
 fp_th = sp.cos(Th / 2) / 2
-dy1r = sp.Rational(5, 4) * Q1s * rr ** sp.Rational(1, 4) * g_
-dy1t = Q1s * rr ** sp.Rational(5, 4) * gp_
+# Retain the first analytic member of the exact null family y1 -> y1+F(y2):
+# C_s s = C_s r sin(theta/2)^2.  This term is O(r) and therefore dominates
+# the raw face coordinate over the r^(5/4) residual when C_s != 0.
+dy1r = (Cs_ * f_th ** 2
+        + sp.Rational(5, 4) * Q1s * rr ** sp.Rational(1, 4) * g_)
+dy1t = (2 * Cs_ * rr * f_th * fp_th
+        + Q1s * rr ** sp.Rational(5, 4) * gp_)
 dy2r = sp.Rational(1, 2) * P * rr ** sp.Rational(-1, 2) * f_th
 dy2t = P * rr ** sp.Rational(1, 2) * fp_th
 F11e = sp.cos(Th) * dy1r - sp.sin(Th) / rr * dy1t
@@ -180,6 +187,9 @@ PK = {ij: (2 * c1 * (Fe[ij] - Je ** -2 * Fit[ij])
       for ij in Fe}
 We = c1 * (FFe + Je ** -2 - 3) + c2 * (Je ** 2 + FFe * Je ** -2 - 3)
 
+check("regular C_s s mode leaves the leading Jacobian exactly unchanged",
+      sp.simplify(Je - Je.subs(Cs_, 0)) == 0)
+
 sig22 = PK[(1, 0)] * F21e + PK[(1, 1)] * F22e        # sigma = PK1 F^T (J_3d = 1)
 sig22_lim = sp.simplify(sp.limit(sp.together(sig22 * rr), s_, 0, "+"))
 check("sigma22 * r -> c1 P^2 / 2, theta-free (near-tip Cauchy amplitude)",
@@ -194,11 +204,14 @@ check("J-integrand limit on tip circles is the constant c1 P^2 / 4",
 check("energy release rate G = J = (pi/2) c1 P^2",
       sp.simplify(sp.integrate(L_lim, (Th, -sp.pi, sp.pi))
                   - sp.pi / 2 * c1 * P ** 2) == 0)
-# corollary chain: sigma22 * r = G / pi;  tip-opening shape exponent a2/a1
+# Corollary chain: sigma22 * r = G/pi.  The raw profile depends on whether the
+# physical O(r) coefficient C_s persists; 2/5 survives only after that term is
+# absent or subtracted.
 check("corollary: sigma22 * r = G / pi",
       sp.simplify(sig22_lim - (sp.pi / 2 * c1 * P ** 2) / sp.pi) == 0)
-check("tip-opening shape exponent a2/a1 = 2/5 (y2 ~ (y1 - c0)^{2/5} on the face)",
-      sp.Rational(1, 2) / sp.Rational(5, 4) == sp.Rational(2, 5))
+check("profile powers: raw C_s!=0 gives 1/2; detrended C_s=0 residual gives 2/5",
+      (sp.Rational(1, 2) / 1 == sp.Rational(1, 2)
+       and sp.Rational(1, 2) / sp.Rational(5, 4) == sp.Rational(2, 5)))
 
 
 # ======================================================================
@@ -272,7 +285,7 @@ else:
     print("[skip] leading profile npz not found")
 
 # ======================================================================
-# S10. Smooth-branch selection of g and its face value (eq:gclosed, eq:gpi)
+# S10. Selected regular-axis outer branch of g and its face value
 #      g = f^{5/2}[g(pi) + sqrt2 INT_th^pi f^{-7/2}]; smoothness across the
 #      ligament kills the theta^{5/2} homogeneous mode => g(pi) = -sqrt2 A_f.
 from scipy.integrate import quad as _quad

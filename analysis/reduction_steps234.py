@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Completion-sequence steps 2-4 for the constrained-limit reduction.
 
+All base-field calculations below use the selected C_s=0 representative.
+They do not remove the exact y1->y1+F(y2) null family or select C_s by matching.
+
 Step 2 (scaled action): exact decomposition of the full MR energy
   W_c2 = c2 [2 J^-2 |grad y2|^2 + J^-2 |grad y1|^2 - 3] + c2 J^-2 C,
 so the formal constrained-limit leading action used in the interior

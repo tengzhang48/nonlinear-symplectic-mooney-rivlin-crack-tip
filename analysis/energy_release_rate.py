@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Energy release rate of the constrained Mooney-Rivlin crack tip.
 
-Main result (verified here by two independent routes):
+Main result (cross-checked here by two complementary computational routes):
 
     G = J-integral = (pi/2) c1 P^2        [exact]
 
@@ -15,14 +15,16 @@ uniaxial state), not in the leading flux.
 
 Corollary:  sigma22 * r -> c1 P^2 / 2 = G / pi   (flat in theta).
 
-Route 1 (symbolic): build F exactly on the two-term map
-    y1 = Q1 r^{5/4} g(theta),  y2 = P r^{1/2} sin(theta/2)
+Route 1 (symbolic): build F exactly on the superposed truncated map
+    y1 = C_s r sin(theta/2)^2 + Q1 r^{5/4} g(theta),
+    y2 = P r^{1/2} sin(theta/2)
 with g, g' arbitrary symbols, form the exact reduced-plane-stress W and
-PK1 = dW/dF, take the r -> 0+ limit of the circular J-integrand
+PK1 = dW/dF, and extract the exact r -> 0+ coefficient of the circular
+J-integrand
     L(theta) = lim r [ W cos(theta) - t1 F11 - t2 F21 ],   t_i = P_iJ N_J,
-check L is independent of (g, g', Q1, c2), and integrate exactly.
+check L is independent of (g, g', Q1, C_s, c2), and integrate exactly.
 
-Route 2 (numeric, algorithmically independent): no asymptotic dropping at all.
+Route 2 (numeric, separate implementation): no asymptotic dropping at all.
 Evaluate the FULL W and PK1 (all terms, c2 included) on the composite leading
 field with the actual g(theta) profile from the Delta-ODE, quadrature the
 J-integral on circles r = 1e-8 .. 1e-3, and check J(r) -> (pi/2) c1 P^2 with
@@ -48,76 +50,167 @@ PI_HALF = np.pi / 2.0
 
 
 # ==========================================================================
-# Route 1: symbolic limit of the circular J-integrand, exact integration.
+# Route 1: symbolic Laurent coefficient of the circular J-integrand.
 # ==========================================================================
+def _laurent_coefficients(expr, variable):
+    """Return exact coefficients of a finite Laurent expression.
+
+    On the route-1 map, the determinant is a monomial in ``variable``.  The
+    full energy-flux integrand is therefore a finite Laurent polynomial even
+    when a general-purpose simplifier leaves a common power in a denominator.
+    Extracting powers term by term is both explicit and fast.
+    """
+    coefficients = {}
+    for raw_term in sp.Add.make_args(sp.expand(expr)):
+        term = sp.factor_terms(raw_term, variable)
+        power = term.as_powers_dict().get(variable, sp.Integer(0))
+        if power.is_Integer is not True:
+            raise AssertionError(f"noninteger Laurent power {power}: {term}")
+        coefficient = term / variable ** power
+        if coefficient.has(variable):
+            raise AssertionError(
+                f"failed to extract the {variable}-power from term {term}"
+            )
+        coefficients[power] = coefficients.get(power, sp.Integer(0)) + coefficient
+    return coefficients
+
+
 def route1_symbolic(verbose=True):
-    s, th = sp.symbols("s theta", positive=True)   # r = s**4 keeps powers integer
+    eps, th = sp.symbols("epsilon theta", positive=True)  # r = eps**4
     P, Q1, c1, c2 = sp.symbols("P Q1 c1 c2", positive=True)
+    Cs = sp.symbols("C_s", real=True)
     gs, gps = sp.symbols("g gp", real=True)        # g(theta), g'(theta) pointwise
-    r = s ** 4
     fs = sp.sin(th / 2)
-    fps = sp.cos(th / 2) / 2
+    hs = sp.cos(th / 2)
+    fps = hs / 2
+    ct, st = sp.cos(th), sp.sin(th)
 
-    a1, a2 = sp.Rational(5, 4), sp.Rational(1, 2)
-    dy1_dr = a1 * Q1 * r ** (a1 - 1) * gs
-    dy1_dth = Q1 * r ** a1 * gps
-    dy2_dr = a2 * P * r ** (a2 - 1) * fs
-    dy2_dth = P * r ** a2 * fps
+    # Exact polar derivatives after r=eps**4.  The regular C_s row is
+    # parallel to the opening row and must cancel from the determinant.
+    dy1_dr = Cs * fs ** 2 + sp.Rational(5, 4) * Q1 * eps * gs
+    invr_dy1_dth = Cs * st / 2 + Q1 * eps * gps
+    dy2_dr = P * fs / (2 * eps ** 2)
+    invr_dy2_dth = P * fps / eps ** 2
 
-    def grad(dr_, dth_):
-        return (sp.cos(th) * dr_ - sp.sin(th) / r * dth_,
-                sp.sin(th) * dr_ + sp.cos(th) / r * dth_)
+    def cartesian_gradient(dr_, invr_dth_):
+        return (ct * dr_ - st * invr_dth_,
+                st * dr_ + ct * invr_dth_)
 
-    F11, F12 = grad(dy1_dr, dy1_dth)
-    F21, F22 = grad(dy2_dr, dy2_dth)
-    J = sp.expand(F11 * F22 - F12 * F21)
-    FF = F11 ** 2 + F12 ** 2 + F21 ** 2 + F22 ** 2
+    F_direct = sp.Matrix([
+        cartesian_gradient(dy1_dr, invr_dy1_dth),
+        cartesian_gradient(dy2_dr, invr_dy2_dth),
+    ])
+    F = sp.Matrix([
+        [-Cs * fs ** 2
+         + eps * Q1 * (sp.Rational(5, 4) * gs * ct - gps * st),
+         Cs * fs * hs
+         + eps * Q1 * (sp.Rational(5, 4) * gs * st + gps * ct)],
+        [-P * fs / (2 * eps ** 2), P * hs / (2 * eps ** 2)],
+    ])
+    ok_gradient = all(
+        sp.trigsimp(sp.factor_terms(sp.expand(F_direct[i, j] - F[i, j]))) == 0
+        for i in range(2) for j in range(2)
+    )
 
-    # reduced incompressible plane-stress MR energy and PK1 (as in the paper)
-    Fm = sp.Matrix([[sp.Symbol("F11"), sp.Symbol("F12")],
-                    [sp.Symbol("F21"), sp.Symbol("F22")]])
-    Jm = Fm.det()
-    FFm = sum(Fm[i, j] ** 2 for i in range(2) for j in range(2))
-    Wm = c1 * (FFm + Jm ** -2 - 3) + c2 * (Jm ** 2 + FFm * Jm ** -2 - 3)
-    dW = {(i, j): sp.diff(Wm, Fm[i, j]) for i in range(2) for j in range(2)}
-    subsF = {sp.Symbol("F11"): F11, sp.Symbol("F12"): F12,
-             sp.Symbol("F21"): F21, sp.Symbol("F22"): F22}
+    J_direct = sp.expand(F.det())
+    j_minus_one = P * Q1 * (
+        sp.Rational(5, 8) * gs * hs - sp.Rational(1, 2) * gps * fs
+    )
+    ok_null_J = (
+        not J_direct.has(Cs)
+        and sp.trigsimp(eps * J_direct - j_minus_one) == 0
+    )
 
-    W = Wm.subs(subsF)
-    P11, P12 = dW[(0, 0)].subs(subsF), dW[(0, 1)].subs(subsF)
-    P21, P22 = dW[(1, 0)].subs(subsF), dW[(1, 1)].subs(subsF)
+    # Constitutive identity on a generic matrix, kept separate from the
+    # crack-tip substitution.
+    z11, z12, z21, z22 = sp.symbols("z11 z12 z21 z22")
+    F_generic = sp.Matrix([[z11, z12], [z21, z22]])
+    J_generic = F_generic.det()
+    FF_generic = sum(
+        F_generic[i, j] ** 2 for i in range(2) for j in range(2)
+    )
+    W_generic = (
+        c1 * (FF_generic + J_generic ** -2 - 3)
+        + c2 * (J_generic ** 2 + FF_generic * J_generic ** -2 - 3)
+    )
+    PK1_from_W = sp.Matrix(
+        2, 2, lambda i, j: sp.diff(W_generic, F_generic[i, j])
+    )
+    PK1_closed = (
+        2 * c1 * (F_generic - J_generic ** -2 * F_generic.inv().T)
+        + 2 * c2 * (
+            J_generic ** -2 * F_generic
+            + (J_generic ** 2 - J_generic ** -2 * FF_generic)
+            * F_generic.inv().T
+        )
+    )
+    ok_pk1 = all(
+        sp.factor(PK1_from_W[i, j] - PK1_closed[i, j]) == 0
+        for i in range(2) for j in range(2)
+    )
 
-    t1 = P11 * sp.cos(th) + P12 * sp.sin(th)      # N = e_r on the circle
-    t2 = P21 * sp.cos(th) + P22 * sp.sin(th)
-    integrand = r * (W * sp.cos(th) - t1 * F11 - t2 * F21)
-
-    L = sp.limit(sp.together(integrand), s, 0, "+")
-    L = sp.simplify(L)
+    # J=j_minus_one/eps turns every inverse determinant into a monomial.
+    # Form the full W and PK1 and extract the exact eps**0 coefficient.
+    J = j_minus_one / eps
+    Jinv = eps / j_minus_one
+    Jm2 = Jinv ** 2
+    J2 = J ** 2
+    FinvT = sp.Matrix([[F[1, 1], -F[1, 0]],
+                       [-F[0, 1], F[0, 0]]]) * Jinv
+    FF = sum(F[i, j] ** 2 for i in range(2) for j in range(2))
+    W = c1 * (FF + Jm2 - 3) + c2 * (J2 + FF * Jm2 - 3)
+    PK1 = (
+        2 * c1 * (F - Jm2 * FinvT)
+        + 2 * c2 * (Jm2 * F + (J2 - Jm2 * FF) * FinvT)
+    )
+    traction = PK1 * sp.Matrix([ct, st])
+    integrand = eps ** 4 * (W * ct - traction.dot(F[:, 0]))
+    laurent = _laurent_coefficients(integrand, eps)
+    negative = {
+        power: sp.trigsimp(sp.factor(coefficient))
+        for power, coefficient in laurent.items()
+        if power < 0
+    }
+    ok_limit = all(coefficient == 0 for coefficient in negative.values())
+    L = sp.trigsimp(sp.factor(laurent.get(sp.Integer(0), sp.Integer(0))))
 
     # expected limit: c1 P^2 [ cos(th)/4 - f((1/2)cos(th) f - sin(th) f') ]
     L_expected = c1 * P ** 2 * (sp.cos(th) / 4
                                 - fs * (sp.cos(th) * fs / 2 - sp.sin(th) * fps))
-    diff = sp.simplify(L - L_expected)
+    diff = sp.trigsimp(L - L_expected)
 
-    ok_indep = not (L.has(gs) or L.has(gps) or L.has(Q1) or L.has(c2))
+    dependencies = (gs, gps, Q1, Cs, c2)
+    ok_indep = (
+        not any(L.has(symbol) for symbol in dependencies)
+        and all(sp.diff(L, symbol) == 0 for symbol in dependencies)
+    )
     ok_form = diff == 0
+    ok_constant = sp.trigsimp(L - c1 * P ** 2 / 4) == 0
     Jint = sp.integrate(L, (th, -sp.pi, sp.pi))
     Jint = sp.simplify(Jint)
     ok_val = sp.simplify(Jint - sp.pi / 2 * c1 * P ** 2) == 0
 
     if verbose:
         print("Route 1 (symbolic):")
-        print(f"  limiting integrand L(theta) = {sp.simplify(L)}")
-        print(f"  L independent of g, g', Q1, c2 : {ok_indep}")
+        print(f"  exact map gradient and C_s-null determinant : "
+              f"{ok_gradient and ok_null_J}")
+        print(f"  generic PK1 equals dW/dF                    : {ok_pk1}")
+        print(f"  Laurent powers in full r-weighted flux      : "
+              f"{sorted(int(power) for power in laurent)}")
+        print(f"  no negative-power residue                   : {ok_limit}")
+        print(f"  limiting integrand L(theta) = {L}")
+        print(f"  L independent of g, g', Q1, C_s, c2 : {ok_indep}")
         print(f"  L equals expected closed form  : {ok_form}")
+        print(f"  L simplifies to c1 P^2 / 4     : {ok_constant}")
         print(f"  integral over (-pi, pi)        : {Jint}   [expect pi/2 c1 P^2]")
-    return ok_indep and ok_form and ok_val
+    return all((ok_gradient, ok_null_J, ok_pk1, ok_limit, ok_indep,
+                ok_form, ok_constant, ok_val))
 
 
 # ==========================================================================
 # Route 2: full numeric J(r) on the composite leading field (nothing dropped).
 # ==========================================================================
-def _field_F(rr, th, Pamp, g_fun, gp_fun):
+def _field_F(rr, th, Pamp, g_fun, gp_fun, C_s=0.0):
     """Exact deformation gradient of the composite leading map at (rr, theta).
 
     y1 even in theta, y2 odd; g is tabulated on [0, pi].
@@ -130,8 +223,8 @@ def _field_F(rr, th, Pamp, g_fun, gp_fun):
     ff = f_np(th)                               # sin(th/2), odd, valid for th<0
     ffp = fp_np(th)                             # (1/2)cos(th/2), even
 
-    dy1_dr = A1 * Q1 * rr ** (A1 - 1.0) * g
-    dy1_dth = Q1 * rr ** A1 * gp
+    dy1_dr = C_s * ff ** 2 + A1 * Q1 * rr ** (A1 - 1.0) * g
+    dy1_dth = 2.0 * C_s * rr * ff * ffp + Q1 * rr ** A1 * gp
     dy2_dr = A2 * Pamp * rr ** (A2 - 1.0) * ff
     dy2_dth = Pamp * rr ** A2 * ffp
 
@@ -143,9 +236,10 @@ def _field_F(rr, th, Pamp, g_fun, gp_fun):
     return F11, F12, F21, F22
 
 
-def j_integral_circle(rr, Pamp, g_fun, gp_fun, c1=1.0, c2=1.0, n_th=4001):
+def j_integral_circle(rr, Pamp, g_fun, gp_fun, c1=1.0, c2=1.0,
+                      C_s=0.0, n_th=4001):
     th = np.linspace(-np.pi, np.pi, n_th)
-    F11, F12, F21, F22 = _field_F(rr, th, Pamp, g_fun, gp_fun)
+    F11, F12, F21, F22 = _field_F(rr, th, Pamp, g_fun, gp_fun, C_s=C_s)
     vals = np.empty_like(th)
     for i in range(th.size):
         F = np.array([[F11[i], F12[i]], [F21[i], F22[i]]])
@@ -245,7 +339,7 @@ def main():
     ok3 = corollary_sigma22()
     ok4 = strip_chain()
     checks = {
-        "route 1: symbolic limit + exact integral = (pi/2) c1 P^2": ok1,
+        "route 1: C_s-inclusive symbolic limit + exact integral = (pi/2) c1 P^2": ok1,
         "route 2: positive finite-r excess -> (pi/2) c1 P^2, c2-independent": ok2,
         "corollary: sigma22 * r = c1 P^2 / 2 = G/pi, flat in theta": ok3,
         "strip: I1 = I2 in pure shear (G = h (c1+c2)(lam^2+lam^-2-2))": ok4,

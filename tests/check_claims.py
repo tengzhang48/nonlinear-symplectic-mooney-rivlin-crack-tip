@@ -87,6 +87,24 @@ def main() -> None:
     ledger = json.loads(LEDGER.read_text(encoding="utf-8"))
     gate("claims ledger schema", ledger.get("schema_version") == 1,
          f"{len(ledger.get('claims', []))} claims")
+    claims = {claim["id"]: claim for claim in ledger.get("claims", [])}
+    profile_claim = claims.get("tip-shape", {})
+    profile_statement = profile_claim.get("statement", "")
+    profile_evidence = set(profile_claim.get("evidence", []))
+    gate(
+        "corrected profile claim graph",
+        ("persistent nonzero C_s" in profile_statement
+         and "raw face exponent is 1/2" in profile_statement
+         and "2/5 applies only" in profile_statement
+         and "analysis/profile_mode_audit.py" in profile_evidence
+         and not any("fig_tip_shape" in item for item in profile_evidence)),
+        "raw 1/2 with persistent C_s; residual/zero-C_s 2/5 only",
+    )
+    gate(
+        "retired target-selected figure absent",
+        not any((ROOT / "figures" / "rendered").glob("fig_tip_shape.*")),
+        "no fig_tip_shape asset remains",
+    )
 
     with SUMMARY.open(newline="", encoding="utf-8") as stream:
         rows = {row["tag"]: row for row in csv.DictReader(stream)}
@@ -483,7 +501,8 @@ def main() -> None:
     j_errors = [abs(float(row["J_exp"]) + 0.25) for row in mr]
     open_errors = [abs(float(row["open_exp"]) - 0.5) for row in mr]
     inplane_errors = [abs(float(row["inplane_exp"]) - 1.25) for row in mr]
-    gate("MR radial exponents", max(j_errors) < 0.004
+    gate("MR opening/J and near-axis residual finite-window exponents",
+         max(j_errors) < 0.004
          and max(open_errors) < 0.055 and max(inplane_errors) < 0.025,
          f"max |Δp|: J={max(j_errors):.4f}, opening={max(open_errors):.4f}, "
          f"in-plane={max(inplane_errors):.4f}")
@@ -507,7 +526,8 @@ def main() -> None:
         and max(abs(float(row["inplane_exp"]) - 1.25) for row in ratio) < 0.025
     )
     gate("material-ratio study", ratio_ok,
-         "c2/c1 = 1/3, 1, 3 satisfy energy, amplitude, angular-flatness, and reported opening/in-plane exponent gates")
+         "c2/c1 = 1/3, 1, 3 satisfy energy, amplitude, angular-flatness, "
+         "and reported opening/near-axis residual exponent gates")
 
     mesh_p = [float(rows[tag]["P_meas"])
               for tag in ("MESH_nr48", "MESH_nr96", "MR_lam16")]
@@ -523,8 +543,20 @@ def main() -> None:
         stderr=subprocess.STDOUT,
     )
     print(disk.stdout, end="")
-    gate("disk stress/tip-shape cross-check", disk.returncode == 0,
+    gate("disk leading-stress cross-check", disk.returncode == 0,
          f"return code {disk.returncode}")
+
+    profile = subprocess.run(
+        [sys.executable, str(ROOT / "analysis" / "profile_mode_audit.py"),
+         "--check-stored"],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    print(profile.stdout, end="")
+    gate("C_s-aware stored profile audit", profile.returncode == 0,
+         f"return code {profile.returncode}")
 
     print("All principal stored-data claims passed.")
 

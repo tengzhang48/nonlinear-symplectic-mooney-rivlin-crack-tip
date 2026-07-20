@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Exact ordering audit for the first full-MR c2 contribution to Q_k.
 
+This isolated audit uses the selected C_s=0 base representative and does not
+address matching of the regular null-family amplitude.
+
 The leading-Q_k calculation in ``coupled_shear_completion.py`` uses the
 formal constrained action ``W1 + chi*C``.  This script asks where the omitted
 on-manifold Mooney--Rivlin remainder first enters. Along a Q_k tangent,

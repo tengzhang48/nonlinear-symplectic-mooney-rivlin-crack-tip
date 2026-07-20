@@ -8,8 +8,8 @@ authors:
     affiliation: Syracuse University
 repository-code: "https://github.com/tengzhang48/nonlinear-symplectic-mooney-rivlin-crack-tip"
 license: MIT
-version: 1.0.0
-date-released: 2026-07-19
+version: 1.1.0
+date-released: 2026-07-20
 keywords:
   - fracture mechanics
   - soft materials
@@ -19,7 +19,7 @@ keywords:
   - finite elements
 preferred-citation:
   type: article
-  title: "Crack-tip fields and the energy release rate of a Mooney–Rivlin sheet in plane stress: a symplectic analysis"
+  title: "Constrained asymptotic crack-tip fields and the energy release rate of a Mooney–Rivlin sheet in plane stress"
   authors:
     - family-names: Zhang
       given-names: Teng

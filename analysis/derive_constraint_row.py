@@ -7,6 +7,10 @@ scratch with sympy and checks, numerically against the leading g-profile, that
 the derived angular equation is proportional to the row-4 expression coded in
 the public spectral scaffold in ``symplectic_dae.py``.
 
+This linearization uses the C_s=0 representative of the leading null family.
+It checks that representative pencil row; it does not prove C_s=0 or complete
+the finite-compliance matching problem.
+
 The constraint.  On the leading similarity field y1=r^a1 g, y2=r^a2 f one finds
   J = det F = r^(a1+a2-2) (a1 f' g - a2 f g') = r^(-1/4) Delta,   Delta=a1 f'g-a2 f g',
   |grad y2|^2 = F21^2+F22^2 = r^(2a2-2)(a2^2 f^2 + f'^2) = r^(-1) G,  G=a2^2 f^2+f'^2.

@@ -3,10 +3,10 @@
 
 A single self-contained module for the Phase-1 result: the reduced
 incompressible plane-stress energy and its PK1 stress, the constraint
-Delta = 2^(-1/2), the first-order ODE for the in-plane slave profile g with its
-forced regular value g(0) = 4 sqrt2 / 5, the deformed map, and the locally
-uniaxial principal-stretch magnitudes with the parameter-free relation
-J r^(1/4) = sqrt(P/2).
+Delta = 2^(-1/2), the first-order ODE for the in-plane residual profile g with
+its forced regular value g(0) = 4 sqrt2 / 5, the deformed map including the
+regular null-family member C_s s, and the locally uniaxial principal-stretch
+magnitudes with the parameter-free relation J r^(1/4) = sqrt(P/2).
 
 This is the consolidated public implementation of the leading-field result.
 
@@ -83,7 +83,8 @@ def pk1_max_rel_err(seed=7, trials=20):
 
 
 # --------------------------------------------------------------------------
-# The in-plane slave profile g(theta):  a1 f' g - a2 f g' = Delta,  g(0)=4 sqrt2/5.
+# Selected in-plane residual profile g(theta):
+# a1 f' g - a2 f g' = Delta, g(0)=4 sqrt2/5.
 # --------------------------------------------------------------------------
 def solve_g_leading(eps=1e-4):
     """Return the regular-axis branch, integrated stably from the face.
@@ -101,7 +102,7 @@ def solve_g_leading(eps=1e-4):
 
 
 def g_family(sol, A0=0.0):
-    """Callables (g, g') for g + A0 f^(5/2) (A0 = the admissible-gauge mode)."""
+    """Callables for g + A0 f^(5/2), the homogeneous null-family branch."""
     def g_fun(th):
         th = np.asarray(th, float)
         if np.ndim(th) == 0:
@@ -138,11 +139,18 @@ def constraint_defect(th, g_fun, gp_fun):
 # --------------------------------------------------------------------------
 # Deformed map and the locally uniaxial constrained magnitudes.
 # --------------------------------------------------------------------------
-def deformed(r, theta, P, g_fun):
-    """Leading deformed coordinates (y1, y2) at opening amplitude P."""
+def deformed(r, theta, P, g_fun, C_s=0.0):
+    """Constrained outer coordinates, retaining the regular ``C_s s`` mode.
+
+    Because ``y2 = P sqrt(s)``, adding any function of ``y2`` to ``y1``
+    leaves both ``det(grad y)`` and ``|grad y2|`` unchanged.  The first
+    analytic Mode-I term is ``C_s s``.  It is a physical displacement and is
+    not set to zero by the leading constraint.
+    """
     r = np.asarray(r, float)
-    y2 = P * r ** A2 * f(theta)                  # = P sqrt(s),  s = r sin^2(theta/2)
-    y1 = P ** -0.5 * r ** A1 * g_fun(theta)
+    s = r * f(theta) ** 2
+    y2 = P * r ** A2 * f(theta)                  # = P sqrt(s)
+    y1 = C_s * s + P ** -0.5 * r ** A1 * g_fun(theta)
     return y1, y2
 
 
@@ -179,6 +187,11 @@ def main():
             np.allclose(Jr14, np.sqrt(1.3 / 2.0), rtol=1e-12),
         "lambda2 = lambda1^-1/2":
             np.allclose(mag["lambda2"], mag["lambda1"] ** -0.5, rtol=1e-12),
+        "row addition a -> a + eta b leaves determinant unchanged":
+            abs(np.linalg.det(np.array([[0.7, -0.2], [1.1, 0.4]]))
+                - np.linalg.det(np.array([[0.7, -0.2], [1.1, 0.4]])
+                                + np.array([[2.3 * 1.1, 2.3 * 0.4],
+                                            [0.0, 0.0]]))) < 1e-14,
     }
     print("\n  checks:")
     for k, v in checks.items():

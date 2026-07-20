@@ -17,9 +17,11 @@ shapes and the regularity class at the symmetry axis:
     a smooth harmonic b = sin(3 theta/2) at the same mu = 9/4 -- the
     obstruction statement is about the reaction family only.)
 
-This file preserves the representative numerical scaffold needed for the
-published hierarchy figure. It must not be read as a completed coupled
+This file preserves the representative numerical scaffold used by the
+explicitly historical hierarchy rendering. It must not be read as a completed coupled
 spectrum; the consolidated completion scripts carry the stronger results.
+It also uses the selected C_s=0 base representative and cannot be used to set
+the physical regular null-mode amplitude.
 
 Because E is singular, an unfiltered QZ solve also returns grid-dependent
 near-duplicate roots. They are printed for diagnosis but are not treated as

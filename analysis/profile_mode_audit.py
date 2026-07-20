@@ -1,0 +1,674 @@
+#!/usr/bin/env python3
+"""Reanalyse the public FEM rays after restoring the regular ``C_s s`` mode.
+
+The discarded raw-tip-shape routine omitted the linear term in the deformed
+horizontal coordinate and selected a tangent by proximity to the desired
+slope.  This replacement selects no target shape slope.
+
+For every curated Mooney--Rivlin case, the standard annulus is fitted jointly
+across all five rays with
+
+    Y1(r, theta) = c0 + b(theta) r + a(theta) r**(5/4),
+
+where the physical tip coordinate ``c0`` is shared.  Independent per-ray fits
+are retained as sensitivity diagnostics.  The audit reports:
+
+1. the raw local face-proxy slope using the shared intercept, with a band from
+   shared and independent intercept fits on five nested windows;
+2. whether ``b(theta)`` follows the regular null-mode shape
+   ``C_s sin(theta/2)**2``; and
+3. a target-free grid fit of ``Y1=c0+b*r+a*r**q`` on the face proxy and the
+   same nested windows.
+
+The inputs are tracked public data; no FEM solve is run.  The output is a
+structured JSON record and a deterministic PDF/PNG figure pair.  This is a
+finite-window audit, not an asymptotic matching calculation for ``C_s``.
+
+Run:
+    python analysis/profile_mode_audit.py
+    python analysis/profile_mode_audit.py --write
+    python analysis/profile_mode_audit.py --check-stored
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+from dataclasses import dataclass
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import NullFormatter
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DISK_OUT = ROOT / "data" / "fem" / "disk"
+STRIP_OUT = ROOT / "data" / "fem" / "strip"
+FIG = ROOT / "figures" / "rendered"
+RESULTS = ROOT / "data" / "derived" / "profile_mode_audit.json"
+
+THETAS = (2, 45, 90, 135, 178)
+LOCAL_POINTS = 7
+FREE_Q_GRID = np.linspace(1.05, 1.55, 2001)
+NESTED_FACTORS = (
+    (1.00, 1.00, "full"),
+    (1.25, 1.00, "drop inner"),
+    (1.00, 0.80, "drop outer"),
+    (1.25, 0.80, "drop both"),
+    (1.50, 0.75, "central"),
+)
+
+
+@dataclass(frozen=True)
+class Case:
+    key: str
+    label: str
+    geometry: str
+    tag: str
+    window: tuple[float, float]
+    color: str
+    marker: str
+    linestyle: str
+
+
+CASES = (
+    Case("disk_lam15", r"disk, $\lambda=1.5$", "disk", "MR_lam15",
+         (1.0e-4, 1.0e-3), "#b2182b", "o", "-"),
+    Case("disk_lam20", r"disk, $\lambda=2.0$", "disk", "MR_lam20",
+         (1.0e-4, 1.0e-3), "#ef8a62", "^", "--"),
+    Case("strip_lam16", r"strip, $\lambda=1.6$", "strip", "MR_lam16",
+         (3.0e-4, 8.0e-3), "#2166ac", "s", "-"),
+    Case("strip_lam22", r"strip, $\lambda=2.2$", "strip", "MR_lam22",
+         (3.0e-4, 8.0e-3), "#67a9cf", "D", "--"),
+)
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def load_disk(tag: str) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
+    path = DISK_OUT / f"fem_case_{tag}.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rays = {
+        int(ray["theta_deg"]): {
+            key: np.asarray(value, dtype=float)
+            for key, value in ray.items()
+            if isinstance(value, list)
+        }
+        for ray in data["rays"]
+    }
+    return rays, [path]
+
+
+def load_strip(tag: str) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
+    rays: dict[int, dict[str, np.ndarray]] = {}
+    paths: list[Path] = []
+    for theta in THETAS:
+        path = STRIP_OUT / f"rays_{tag}_theta{theta}.csv"
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        rays[theta] = {
+            key: np.asarray([float(row[key]) for row in rows])
+            for key in ("r", "Y1", "Y2")
+        }
+        paths.append(path)
+    return rays, paths
+
+
+def load_case(case: Case) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
+    return load_disk(case.tag) if case.geometry == "disk" else load_strip(case.tag)
+
+
+def window_mask(r: np.ndarray, window: tuple[float, float]) -> np.ndarray:
+    lo, hi = window
+    return np.isfinite(r) & (r >= lo) & (r <= hi)
+
+
+def scaled_linear_fit(
+    r: np.ndarray,
+    y: np.ndarray,
+    window: tuple[float, float],
+    q: float,
+) -> tuple[np.ndarray, float, float, int]:
+    """Fit ``y=c0+b*r+a*r**q`` after column scaling."""
+    mask = window_mask(r, window) & np.isfinite(y)
+    rr, yy = r[mask], y[mask]
+    if rr.size < 12:
+        raise ValueError(f"only {rr.size} points in fit window {window}")
+    design = np.column_stack((np.ones(rr.size), rr, rr ** q))
+    scale = np.linalg.norm(design, axis=0)
+    design_scaled = design / scale
+    coef_scaled, *_ = np.linalg.lstsq(design_scaled, yy, rcond=None)
+    coef = coef_scaled / scale
+    residual = yy - design @ coef
+    rms = float(np.sqrt(np.mean(residual ** 2)))
+    return coef, float(np.linalg.cond(design_scaled)), rms, int(rr.size)
+
+
+def joint_fixed_q_fit(
+    rays: dict[int, dict[str, np.ndarray]],
+    window: tuple[float, float],
+    q: float = 1.25,
+) -> tuple[float, np.ndarray, np.ndarray, float, float, dict[int, float], int]:
+    """Fit all rays with one c0 and independent b(theta), a(theta)."""
+    n_theta = len(THETAS)
+    rows: list[np.ndarray] = []
+    values: list[float] = []
+    row_theta: list[int] = []
+    for index, theta in enumerate(THETAS):
+        ray = rays[theta]
+        mask = window_mask(ray["r"], window) & np.isfinite(ray["Y1"])
+        rr, yy = ray["r"][mask], ray["Y1"][mask]
+        if rr.size < 12:
+            raise ValueError(
+                f"theta={theta}: only {rr.size} points in joint window {window}"
+            )
+        for radius, value in zip(rr, yy):
+            row = np.zeros(1 + 2 * n_theta)
+            row[0] = 1.0
+            row[1 + index] = radius
+            row[1 + n_theta + index] = radius ** q
+            rows.append(row)
+            values.append(float(value))
+            row_theta.append(theta)
+
+    design = np.asarray(rows)
+    response = np.asarray(values)
+    scale = np.linalg.norm(design, axis=0)
+    design_scaled = design / scale
+    coef_scaled, *_ = np.linalg.lstsq(design_scaled, response, rcond=None)
+    coef = coef_scaled / scale
+    residual = response - design @ coef
+    row_theta_array = np.asarray(row_theta)
+    per_theta_rms = {
+        theta: float(np.sqrt(np.mean(residual[row_theta_array == theta] ** 2)))
+        for theta in THETAS
+    }
+    return (
+        float(coef[0]),
+        coef[1:1 + n_theta],
+        coef[1 + n_theta:],
+        float(np.linalg.cond(design_scaled)),
+        float(np.sqrt(np.mean(residual ** 2))),
+        per_theta_rms,
+        int(response.size),
+    )
+
+
+def free_q_fit(
+    r: np.ndarray,
+    y: np.ndarray,
+    window: tuple[float, float],
+) -> tuple[float, np.ndarray, float, float, int]:
+    """Grid-fit ``y=c0+b*r+a*r**q`` without a target or initial guess."""
+    records = []
+    for q in FREE_Q_GRID:
+        coef, condition, rms, count = scaled_linear_fit(r, y, window, float(q))
+        records.append((rms, float(q), coef, condition, count))
+    rms, q, coef, condition, count = min(records, key=lambda item: item[0])
+    if q in (float(FREE_Q_GRID[0]), float(FREE_Q_GRID[-1])):
+        raise RuntimeError(f"free-q optimum {q} lies on the search boundary")
+    return q, coef, condition, rms, count
+
+
+def log_slope(x: np.ndarray, y: np.ndarray) -> float:
+    valid = np.isfinite(x) & np.isfinite(y) & (x > 0.0) & (y > 0.0)
+    if np.count_nonzero(valid) < 3:
+        return float("nan")
+    return float(np.polyfit(np.log(x[valid]), np.log(y[valid]), 1)[0])
+
+
+def local_raw_shape_slope(
+    r: np.ndarray,
+    y1: np.ndarray,
+    y2: np.ndarray,
+    c0: float,
+    window: tuple[float, float],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Centered local estimate of d log(Y2) / d log|Y1-c0|."""
+    indices = np.flatnonzero(
+        window_mask(r, window)
+        & np.isfinite(y1)
+        & np.isfinite(y2)
+        & (np.abs(y1 - c0) > 0.0)
+        & (y2 > 0.0)
+    )
+    half = LOCAL_POINTS // 2
+    radii, slopes = [], []
+    for center in range(half, indices.size - half):
+        use = indices[center - half:center + half + 1]
+        p1 = log_slope(r[use], np.abs(y1[use] - c0))
+        p2 = log_slope(r[use], y2[use])
+        radii.append(r[indices[center]])
+        slopes.append(p2 / p1)
+    return np.asarray(radii), np.asarray(slopes)
+
+
+def nested_windows(base: tuple[float, float]) -> list[tuple[str, tuple[float, float]]]:
+    lo, hi = base
+    return [(label, (lo * inner, hi * outer))
+            for inner, outer, label in NESTED_FACTORS]
+
+
+def analyse(case: Case) -> tuple[dict, dict[int, dict[str, np.ndarray]]]:
+    rays, paths = load_case(case)
+    missing = sorted(set(THETAS) - set(rays))
+    if missing:
+        raise FileNotFoundError(f"{case.key}: missing rays {missing}")
+
+    face = rays[178]
+    face_fixed, face_cond, face_rms, face_count = scaled_linear_fit(
+        face["r"], face["Y1"], case.window, 1.25
+    )
+    face_c0, face_b, face_a = map(float, face_fixed)
+    (
+        joint_c0, joint_b, joint_a, joint_cond, joint_rms,
+        joint_per_theta_rms, joint_count,
+    ) = joint_fixed_q_fit(rays, case.window)
+
+    r_local, slope_local = local_raw_shape_slope(
+        face["r"], face["Y1"], face["Y2"], joint_c0, case.window
+    )
+    face_mask = window_mask(face["r"], case.window)
+    raw_global = log_slope(
+        np.abs(face["Y1"][face_mask] - joint_c0), face["Y2"][face_mask]
+    )
+    _, independent_slope_local = local_raw_shape_slope(
+        face["r"], face["Y1"], face["Y2"], face_c0, case.window
+    )
+    independent_raw_global = log_slope(
+        np.abs(face["Y1"][face_mask] - face_c0), face["Y2"][face_mask]
+    )
+
+    nested = []
+    c0_ensemble = []
+    for label, window in nested_windows(case.window):
+        (
+            nested_joint_c0, nested_joint_b, nested_joint_a,
+            nested_joint_cond, nested_joint_rms,
+            nested_joint_per_theta_rms, nested_joint_count,
+        ) = joint_fixed_q_fit(rays, window)
+        coef_fixed, cond_fixed, rms_fixed, n_fixed = scaled_linear_fit(
+            face["r"], face["Y1"], window, 1.25
+        )
+        q_free, coef_free, cond_free, rms_free, n_free = free_q_fit(
+            face["r"], face["Y1"], window
+        )
+        c0_ensemble.extend((nested_joint_c0, float(coef_fixed[0]),
+                            float(coef_free[0])))
+        nested.append({
+            "label": label,
+            "window": list(window),
+            "joint_fixed_q": {
+                "q": 1.25,
+                "c0_shared": nested_joint_c0,
+                "b_per_theta": nested_joint_b.tolist(),
+                "a_per_theta": nested_joint_a.tolist(),
+                "scaled_condition_number": nested_joint_cond,
+                "rms": nested_joint_rms,
+                "rms_per_theta": {
+                    str(theta): nested_joint_per_theta_rms[theta]
+                    for theta in THETAS
+                },
+                "n_points_all_rays": nested_joint_count,
+            },
+            "fixed_q": 1.25,
+            "fixed_coefficients_c0_b_a": coef_fixed.tolist(),
+            "fixed_scaled_condition_number": cond_fixed,
+            "fixed_rms": rms_fixed,
+            "free_q": q_free,
+            "free_coefficients_c0_b_a": coef_free.tolist(),
+            "free_scaled_condition_number": cond_free,
+            "free_rms": rms_free,
+            "n_points": min(n_fixed, n_free),
+        })
+
+    slope_ensemble = []
+    for intercept in c0_ensemble:
+        r_check, slope_check = local_raw_shape_slope(
+            face["r"], face["Y1"], face["Y2"], intercept, case.window
+        )
+        if not np.allclose(r_check, r_local):
+            raise RuntimeError("local-slope radii changed across intercept fits")
+        slope_ensemble.append(slope_check)
+    slope_ensemble_array = np.asarray(slope_ensemble)
+
+    independent_theta_coefficients = []
+    x_mode = np.sin(np.deg2rad(np.asarray(THETAS, dtype=float)) / 2.0) ** 2
+    independent_b_values = []
+    for theta in THETAS:
+        ray = rays[theta]
+        coef, theta_cond, theta_rms, theta_count = scaled_linear_fit(
+            ray["r"], ray["Y1"], case.window, 1.25
+        )
+        independent_b_values.append(float(coef[1]))
+        independent_theta_coefficients.append({
+            "theta_deg": theta,
+            "sin2_half_theta": float(
+                np.sin(np.deg2rad(float(theta)) / 2.0) ** 2
+            ),
+            "coefficients_c0_b_a": coef.tolist(),
+            "scaled_condition_number": theta_cond,
+            "rms": theta_rms,
+            "n_points": theta_count,
+        })
+    independent_b_array = np.asarray(independent_b_values)
+    independent_cs = float(
+        np.dot(x_mode, independent_b_array) / np.dot(x_mode, x_mode)
+    )
+    independent_angular_residual = float(
+        np.linalg.norm(independent_b_array - independent_cs * x_mode)
+        / np.linalg.norm(independent_b_array)
+    )
+
+    joint_cs = float(np.dot(x_mode, joint_b) / np.dot(x_mode, x_mode))
+    joint_angular_residual = float(
+        np.linalg.norm(joint_b - joint_cs * x_mode) / np.linalg.norm(joint_b)
+    )
+    joint_theta_coefficients = [
+        {
+            "theta_deg": theta,
+            "sin2_half_theta": float(x_mode[index]),
+            "b": float(joint_b[index]),
+            "a": float(joint_a[index]),
+            "rms": joint_per_theta_rms[theta],
+        }
+        for index, theta in enumerate(THETAS)
+    ]
+
+    result = {
+        "case": case.key,
+        "label": case.label,
+        "geometry": case.geometry,
+        "tag": case.tag,
+        "standard_window": list(case.window),
+        "input_files": [
+            {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256(path)}
+            for path in paths
+        ],
+        "face_proxy_theta_deg": 178,
+        "joint_fixed_q_fit": {
+            "q": 1.25,
+            "model": "one shared c0; independent b(theta) and a(theta)",
+            "c0_shared": joint_c0,
+            "scaled_condition_number": joint_cond,
+            "rms": joint_rms,
+            "n_points_all_rays": joint_count,
+            "per_theta": joint_theta_coefficients,
+        },
+        "face_proxy_raw_shape": {
+            "c0_source": "joint_fixed_q_fit.c0_shared",
+            "c0_shared": joint_c0,
+            "b_from_joint_fit": float(joint_b[-1]),
+            "a_from_joint_fit": float(joint_a[-1]),
+            "raw_global_shape_slope": raw_global,
+            "raw_local_shape_slope_min": float(np.min(slope_local)),
+            "raw_local_shape_slope_max": float(np.max(slope_local)),
+            "raw_local_shape_slope_mean": float(np.mean(slope_local)),
+        },
+        "raw_local_curve": {
+            "r": r_local.tolist(),
+            "slope": slope_local.tolist(),
+            "intercept_ensemble_min": np.min(slope_ensemble_array, axis=0).tolist(),
+            "intercept_ensemble_max": np.max(slope_ensemble_array, axis=0).tolist(),
+            "intercept_ensemble_definition": (
+                "shared-c0 joint fixed-q, independent face fixed-q, and "
+                "independent face free-q fits on all five nested windows"
+            ),
+        },
+        "angular_joint_fixed_q_fit": {
+            "C_s_through_origin": joint_cs,
+            "relative_residual": joint_angular_residual,
+            "per_theta": joint_theta_coefficients,
+        },
+        "independent_per_ray_fixed_q_diagnostics": {
+            "face_coefficients_c0_b_a": [face_c0, face_b, face_a],
+            "face_scaled_condition_number": face_cond,
+            "face_rms": face_rms,
+            "face_n_points": face_count,
+            "face_raw_global_shape_slope": independent_raw_global,
+            "face_raw_local_shape_slope_min": float(
+                np.min(independent_slope_local)
+            ),
+            "face_raw_local_shape_slope_max": float(
+                np.max(independent_slope_local)
+            ),
+            "C_s_through_origin": independent_cs,
+            "angular_relative_residual": independent_angular_residual,
+            "per_theta": independent_theta_coefficients,
+        },
+        "joint_minus_independent_differences": {
+            "c0_shared_minus_face_c0": joint_c0 - face_c0,
+            "b_face_joint_minus_independent": float(joint_b[-1] - face_b),
+            "C_s_joint_minus_independent": joint_cs - independent_cs,
+            "raw_global_slope_joint_minus_independent": (
+                raw_global - independent_raw_global
+            ),
+        },
+        "nested_face_fits": nested,
+    }
+    return result, rays
+
+
+def build_payload() -> dict:
+    return {
+        "schema": "mr-characteristic-shear-profile-audit-v2-public",
+        "interpretation": {
+            "established_on_stored_annuli": (
+                "nonzero s-like O(r) background and raw face-proxy slopes near 1/2"
+            ),
+            "not_established": (
+                "ultimate matched C_s, a universal residual 5/4 power, or a "
+                "universal raw 2/5 camera profile"
+            ),
+            "circularity_control": (
+                "fixed-5/4 residual slopes are not used as exponent evidence; "
+                "the residual power is refitted freely on nested windows"
+            ),
+            "shared_tip_coordinate": (
+                "the production fixed-q fit uses one c0 across all five rays; "
+                "independent per-ray fits are retained only as diagnostics"
+            ),
+        },
+        "local_regression_points": LOCAL_POINTS,
+        "free_q_search_interval": [float(FREE_Q_GRID[0]),
+                                   float(FREE_Q_GRID[-1])],
+        "cases": [analyse(case)[0] for case in CASES],
+    }
+
+
+def make_figure(results: list[dict]) -> None:
+    plt.rcParams.update({
+        "font.size": 10.5,
+        "axes.labelsize": 11.5,
+        "axes.titlesize": 11.5,
+        "legend.fontsize": 8.3,
+        "xtick.labelsize": 9.5,
+        "ytick.labelsize": 9.5,
+        "lines.linewidth": 1.6,
+        "mathtext.fontset": "cm",
+        "savefig.bbox": "tight",
+        "savefig.dpi": 300,
+    })
+    fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.05))
+    ax_raw, ax_mode, ax_q = axes
+    by_key = {case.key: case for case in CASES}
+
+    for result in results:
+        case = by_key[result["case"]]
+        curve = result["raw_local_curve"]
+        radius = np.asarray(curve["r"])
+        slope = np.asarray(curve["slope"])
+        lower = np.asarray(curve["intercept_ensemble_min"])
+        upper = np.asarray(curve["intercept_ensemble_max"])
+        ax_raw.fill_between(radius, lower, upper, color=case.color,
+                            alpha=0.13, linewidth=0)
+        ax_raw.plot(radius, slope, color=case.color,
+                    linestyle=case.linestyle, label=case.label)
+    ax_raw.axhline(0.5, color="0.25", linewidth=1.0, linestyle=(0, (5, 2)),
+                   label=r"raw $1/2$")
+    ax_raw.axhline(0.4, color="0.55", linewidth=1.0, linestyle=":",
+                   label=r"conditional residual $2/5$")
+    ax_raw.set_xscale("log")
+    ax_raw.xaxis.set_minor_formatter(NullFormatter())
+    ax_raw.set_ylim(0.38, 0.535)
+    ax_raw.set_xlabel(r"reference radius $r$")
+    ax_raw.set_ylabel(r"raw local slope $d\log y_2/d\log|y_1-c_0|$")
+    ax_raw.set_title(r"raw face-proxy slope ($178^\circ$)")
+    ax_raw.legend(frameon=False, ncol=2, loc="lower right",
+                  columnspacing=0.8, handlelength=2.2)
+
+    x_line = np.linspace(0.0, 1.0, 200)
+    ax_mode.plot(x_line, x_line, color="0.2", linestyle="--", linewidth=1.1,
+                 label=r"$b/C_s=\sin^2(\theta/2)$")
+    residuals = []
+    for result in results:
+        case = by_key[result["case"]]
+        angular = result["angular_joint_fixed_q_fit"]
+        c_s = angular["C_s_through_origin"]
+        points = angular["per_theta"]
+        x = np.asarray([point["sin2_half_theta"] for point in points])
+        y = np.asarray([point["b"] / c_s for point in points])
+        residuals.append(angular["relative_residual"])
+        ax_mode.plot(x, y, linestyle="none", marker=case.marker,
+                     color=case.color, markerfacecolor="none",
+                     markeredgewidth=1.4, markersize=6.3)
+    ax_mode.set_xlim(-0.03, 1.04)
+    ax_mode.set_ylim(-0.04, 1.06)
+    ax_mode.set_xlabel(r"$\sin^2(\theta/2)$")
+    ax_mode.set_ylabel(r"fitted $b(\theta)/C_s$")
+    ax_mode.set_title(r"finite-window $s$-like background")
+    ax_mode.legend(frameon=False, loc="upper left")
+    ax_mode.text(
+        0.97, 0.05,
+        "angular relative residual\n"
+        + ", ".join(f"{100*residual:.1f}%" for residual in residuals),
+        transform=ax_mode.transAxes, ha="right", va="bottom",
+        fontsize=8.0, color="0.35",
+    )
+
+    x_nested = np.arange(len(NESTED_FACTORS))
+    for result in results:
+        case = by_key[result["case"]]
+        q_values = [entry["free_q"] for entry in result["nested_face_fits"]]
+        ax_q.plot(x_nested, q_values, color=case.color,
+                  linestyle=case.linestyle, marker=case.marker,
+                  markerfacecolor="white", markersize=5.5)
+    ax_q.axhline(1.25, color="0.25", linewidth=1.0, linestyle=(0, (5, 2)),
+                 label=r"selected residual $5/4$")
+    ax_q.set_xticks(x_nested)
+    ax_q.set_xticklabels([entry[2] for entry in NESTED_FACTORS],
+                         rotation=32, ha="right")
+    ax_q.set_ylim(1.20, 1.37)
+    ax_q.set_ylabel(r"free residual power $q$")
+    ax_q.set_title(r"nested-window sensitivity")
+    ax_q.legend(frameon=False, loc="lower right")
+
+    for letter, axis in zip(("a", "b", "c"), axes):
+        axis.text(0.015, 0.985, letter, transform=axis.transAxes,
+                  fontweight="bold", fontsize=12, ha="left", va="top")
+        axis.grid(False)
+    fig.tight_layout(w_pad=1.5)
+    FIG.mkdir(exist_ok=True)
+    fig.savefig(
+        FIG / "fig_profile_correction.pdf",
+        metadata={"Creator": "analysis/profile_mode_audit.py",
+                  "CreationDate": None, "ModDate": None},
+    )
+    fig.savefig(FIG / "fig_profile_correction.png")
+    plt.close(fig)
+
+
+def encoded_payload(payload: dict) -> str:
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+
+
+def audit_checks(payload: dict) -> dict[str, bool]:
+    cases = payload["cases"]
+    primary_raw = [case["face_proxy_raw_shape"]["raw_global_shape_slope"]
+                   for case in cases]
+    angular = [case["angular_joint_fixed_q_fit"] for case in cases]
+    free_q = [[entry["free_q"] for entry in case["nested_face_fits"]]
+              for case in cases]
+    return {
+        "four curated c2>0 cases": len(cases) == 4,
+        "nonzero regular coefficient": all(
+            abs(item["C_s_through_origin"]) > 0.5 for item in angular
+        ),
+        "s-like angular residual below 3%": all(
+            item["relative_residual"] < 0.03 for item in angular
+        ),
+        "raw stored-window slope near 1/2": all(
+            0.48 < value < 0.54 for value in primary_raw
+        ),
+        "free-q optima are not grid boundaries": all(
+            FREE_Q_GRID[0] < value < FREE_Q_GRID[-1]
+            for values in free_q for value in values
+        ),
+        "stored disk and strip free-q ranges do not collapse": (
+            min(min(values) for values in free_q[2:])
+            - max(max(values) for values in free_q[:2]) > 0.05
+        ),
+    }
+
+
+def print_summary(payload: dict) -> None:
+    print("Corrected profile-mode audit (one shared c0 across five rays)")
+    for result in payload["cases"]:
+        face = result["face_proxy_raw_shape"]
+        angular = result["angular_joint_fixed_q_fit"]
+        free_q = [entry["free_q"] for entry in result["nested_face_fits"]]
+        print(
+            f"  {result['case']}: c0={face['c0_shared']:.8g}, "
+            f"b_face={face['b_from_joint_fit']:.6g}, "
+            f"raw={face['raw_global_shape_slope']:.4f}, "
+            f"C_s={angular['C_s_through_origin']:.6g}, "
+            f"angular residual={100*angular['relative_residual']:.2f}%, "
+            f"free-q=[{min(free_q):.4f}, {max(free_q):.4f}]"
+        )
+    checks = audit_checks(payload)
+    print("\n  checks:")
+    for name, passed in checks.items():
+        print(f"    [{'PASS' if passed else 'FAIL'}] {name}")
+    if not all(checks.values()):
+        raise SystemExit("profile-mode audit FAILED")
+    print("\nProfile-mode audit passed; no universal raw-2/5 claim is tested.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write", action="store_true",
+                        help="write the JSON and corrected figure pair")
+    parser.add_argument("--check-stored", action="store_true",
+                        help="require stored JSON to match fresh analysis")
+    args = parser.parse_args()
+
+    payload = build_payload()
+    encoded = encoded_payload(payload)
+    if args.write:
+        RESULTS.parent.mkdir(parents=True, exist_ok=True)
+        RESULTS.write_text(encoded, encoding="utf-8")
+        make_figure(payload["cases"])
+        print(f"wrote {RESULTS.relative_to(ROOT)}")
+        print("wrote figures/rendered/fig_profile_correction.{pdf,png}")
+    if args.check_stored:
+        if not RESULTS.exists() or RESULTS.read_text(encoding="utf-8") != encoded:
+            raise SystemExit(
+                "stored profile-mode JSON differs; run with --write and review"
+            )
+        print(f"stored JSON matches: {RESULTS.relative_to(ROOT)}")
+    print_summary(payload)
+
+
+if __name__ == "__main__":
+    main()

@@ -140,7 +140,7 @@ def main():
           f"{r['G_J']:.4f} | {r['G_spec']:.4f} | {100*r['GJ_err']:.2f}% | "
           f"{r['P_meas']:.4f} | {r['P_pred']:.4f} | {100*r['P_err']:.1f}% |")
     A("\n## Near-tip signatures (asymptotic window)\n")
-    A("| case | open exp (->0.5) | J exp (->-0.25) | in-plane exp (->1.25) | J r^1/4 spread |")
+    A("| case | open exp (->0.5) | J exp (->-0.25) | near-axis residual exp (->1.25) | J r^1/4 spread |")
     A("|---|---|---|---|---|")
     for r in sorted(rows, key=lambda r: (r["material"], r["a"], r["lam"])):
         A(f"| {r['tag']} | {r['open_exp']:.3f} | {r['J_exp']:.3f} | "

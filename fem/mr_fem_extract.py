@@ -3,7 +3,9 @@
 Given a solved state (from mr_fem_solve.solve), sample the deformed
 coordinates (Y1, Y2) and the in-plane Jacobian J = det F along rays, then:
 
-  T1  exponents:  Y2(theta=pi) ~ r^{1/2},  Y1(theta~0) ~ r^{5/4},  J ~ r^{-1/4}
+  T1  finite-window powers: Y2(theta=pi) ~ r^{1/2}, the detrended/near-axis
+      Y1 residual is compatible with r^{5/4}, and J ~ r^{-1/4}.  The near-axis
+      ray suppresses C_s s and is not a raw face-profile test.
   T2  constant-Delta signature:  J*r^{1/4} vs theta -> plateau (MR) / varies (NH)
   T3  parameter-free amplitude:  J*r^{1/4} = sqrt(P/2),  with P from Y2(pi).
 
@@ -142,8 +144,8 @@ def fit_face_opening(r, q, window):
 def fit_offset_amplitude(r, q, window, exp):
     """Fit q = c0 + amp * r^exp (linear lstsq) on the window.
 
-    Returns (c0, amp, n, rms).  Used for the in-plane mode, whose r-dependent
-    part r^{5/4} rides on a constant deformed tip offset c0.
+    Returns (c0, amp, n, rms). This legacy two-column estimator is retained for
+    stored scalar compatibility; it is not the C_s-aware face estimator.
     """
     lo, hi = window
     m = (r >= lo) & (r <= hi) & np.isfinite(q)
@@ -204,7 +206,8 @@ def run_tests(res, window, thetas_deg=(2, 45, 90, 135, 178), n_r=40,
 
     # --- T1 exponents ---
     near = get_ray(rays, 2)
-    # in-plane: Y1 = c0 + Q1 r^{5/4}; fit offset+amplitude and derivative exponent
+    # Near-axis finite-window residual: theta=2 deg strongly suppresses C_s s.
+    # The separate public profile audit fits c0+b*r+a*r^(5/4) across all rays.
     c0_in, Q1, n_in, rms_in = fit_offset_amplitude(near["r"], near["Y1"], window, 1.25)
     p_in, n_in_d = fit_deriv_exponent(near["r"], near["Y1"], window)
     # J exponent: average the slope over all rays

@@ -45,7 +45,24 @@ profile: the regular particular solution has $\psi_{\mathrm{reg}}(\pi)=10$,
 while the traction-free total profile is
 $\psi_0=\psi_{\mathrm{reg}}-10f^{3/2}$ and hence $\psi_0(\pi)=0$.
 
-## 5. A passing gate must test the claimed content
+## 5. Constraint nullspaces must survive until matching
+
+The leading relation $J^4=|\nabla y_2|^2$ is invariant under
+$y_1\mapsto y_1+F(y_2)$. Because $y_2=P\sqrt{s}$, its first analytic Mode-I
+member is the physical displacement $C_s s$. Labeling that direction a gauge
+prematurely removed an $O(r)$ term from the face coordinate. Unless matching
+forces $C_s=0$, it dominates the $r^{5/4}$ residual and changes the raw face
+power from $2/5$ to $1/2$.
+
+Several otherwise correct gates were blind to this error: the null term leaves
+the constraint, Jacobian plateau, and leading energy flux unchanged; an
+ahead-of-tip ray suppresses it because $s=0$ on the exact symmetry axis; and a
+vertical tangent does not distinguish raw exponents $1/2$ and $2/5$. The
+corrected workflow therefore enumerates the kernel before fixing amplitudes,
+fits one physical $c_0$ across angles, projects the fitted $O(r)$ coefficient
+onto $\sin^2(\theta/2)$, and keeps raw and detrended profile claims separate.
+
+## 6. A passing gate must test the claimed content
 
 Some early checks were weak, definitional, or insensitive to a missing chain-
 rule term. They were replaced with symbolic residuals, exact series
@@ -53,7 +70,7 @@ coefficients, varied-scale evaluations, or independent component routes. The
 current counts describe heterogeneous, overlapping checks; the repository does
 not add them up and call the total a number of independent proofs.
 
-## 6. Scope is part of mathematical correctness
+## 7. Scope is part of mathematical correctness
 
 A generic constrained second variation establishes canonical structure, but it
 does not by itself identify every row of a particular printed five-row pencil.
@@ -62,14 +79,14 @@ completed constrained-action responses from the historical spectral scaffold.
 Open matching, inner-layer, and extraction-integral problems remain labeled as
 open rather than being inferred from a plausible hierarchy.
 
-## 7. Corrections create fresh error surfaces
+## 8. Corrections create fresh error surfaces
 
 Fixes to labels, dimensional factors, or boundary clauses can introduce new
 inconsistencies elsewhere. Every material correction was followed by a fresh
 suite run, a build or rendering check where relevant, and a synchronization
 audit of captions, conclusions, summaries, and code comments.
 
-## 8. Stored evidence and fresh computation have different roles
+## 9. Stored evidence and fresh computation have different roles
 
 The tracked FEM arrays make figure reproduction fast and deterministic. They do
 not replace a solver rerun. Conversely, a solver rerun does not guarantee that
@@ -89,7 +106,7 @@ that ran to the tip. The production construction instead retains 120 sectors
 and aligns the nearest two rays with the corners; the automated gate checks the
 outer area, angular gaps, and stored full-field coordinates.
 
-## 9. Human judgment sets the stopping line
+## 10. Human judgment sets the stopping line
 
 Automation can expose residuals and inconsistencies; it cannot decide how much
 of a formal hierarchy belongs in a paper. The author retained responsibility

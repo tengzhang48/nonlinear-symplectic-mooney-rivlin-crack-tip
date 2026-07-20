@@ -1,14 +1,14 @@
-"""Publication figures for the Mooney--Rivlin crack-tip manuscript.
+"""Reproducibility figures for the Mooney--Rivlin crack-tip project.
 
-Final set (strip = physical specimen, disk = deep-window microscope):
+Reproducibility set (strip = physical specimen, disk = deep-window check):
   fig_master     Fig 1: specimen / circular cut with pseudo-time and (q,p) /
                  constrained tip state
-  fig_hierarchy  Fig 2: the crank / eigenvalue catalogue with identities /
-                 the 9/4 obstruction (panels b,c computed live from
-                 analysis/symplectic_dae.py)
+  fig_hierarchy  historical scaffold diagnostic; not a completed coupled
+                 operator (computed live from analysis/symplectic_dae.py)
   fig_ps_portrait, fig_chain, fig_plateau (strip data)
   fig_cratio     c2/c1 family maps (strip, deep window)
-  fig_solution_compare, fig_tip_shape, fig_sigma_G (disk deep window)
+  fig_solution_compare, fig_sigma_G (disk deep window)
+  fig_profile_correction (C_s-aware disk/strip profile audit)
 
 Run from the repository root:  python figures/make_figures.py
 """
@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
+import sys
 
 import numpy as np
 import matplotlib
@@ -58,12 +60,14 @@ def fit_face_P(rays):
     return float(P)
 
 
-def fit_offset(r, q, window, exp):
+def fit_regular_residual(r, q, window, exp=1.25):
     lo, hi = window
     m = (r >= lo) & (r <= hi) & np.isfinite(q)
-    A = np.column_stack([np.ones(m.sum()), r[m] ** exp])
-    (c0, amp), *_ = np.linalg.lstsq(A, q[m], rcond=None)
-    return float(c0), float(amp)
+    design = np.column_stack([np.ones(m.sum()), r[m], r[m] ** exp])
+    scale = np.linalg.norm(design, axis=0)
+    coefficients, *_ = np.linalg.lstsq(design / scale, q[m], rcond=None)
+    c0, regular, residual = coefficients / scale
+    return float(c0), float(regular), float(residual)
 
 
 def window_mean_vs_theta(rays, value_fn, n_probe=5):
@@ -105,7 +109,9 @@ def fig_solution_compare():
     near = rays[min(rays)]                       # ~2 deg ray
     face = rays[max(rays)]                       # ~178 deg ray
     mid = rays[sorted(rays, key=lambda t: abs(t - 90))[0]]
-    c0, _ = fit_offset(near["r"], near["Y1"], WINDOW, 1.25)
+    c0, b_near, _ = fit_regular_residual(
+        near["r"], near["Y1"], WINDOW, 1.25
+    )
 
     prof = np.load(ROOT / "data" / "analytic" / "mr_leading_profile.npz")
     th_p, g_p = prof["theta"], prof["g"]
@@ -118,9 +124,9 @@ def fig_solution_compare():
     sets = [
         (face["r"], face["Y2"], P * np.sqrt(rline),
          "#1f77b4", "o", r"opening $y_2$ on the face$\;\propto r^{1/2}$"),
-        (near["r"], np.abs(near["Y1"] - c0),
+        (near["r"], np.abs(near["Y1"] - c0 - b_near * near["r"]),
          P ** -0.5 * g_at(np.deg2rad(min(rays))) * rline ** 1.25,
-         "#c1272d", "^", r"in-plane $y_1-c_0$ ahead$\;\propto r^{5/4}$"),
+         "#c1272d", "^", r"detrended in-plane residual$\;\propto r^{5/4}$"),
         (mid["r"], mid["J"], np.sqrt(P / 2.0) * rline ** -0.25,
          "#3d8c40", "s", r"Jacobian $J$ at $\theta=90^\circ\propto r^{-1/4}$"),
     ]
@@ -151,7 +157,7 @@ def fig_solution_compare():
     axB.plot(np.rad2deg(thc), np.sin(thc / 2), color="#1f77b4", lw=1.9,
              label=r"theory $f(\theta)=\sin(\theta/2)$")
     axB.plot(np.rad2deg(th_p), g_p, color="#c1272d", lw=1.9,
-             label=r"theory $g(\theta)$ (slave ODE)")
+             label=r"theory residual $g(\theta)$")
     # opening profile: pointwise collapse of Y2/(P sqrt(r)) at three radii
     for rp, al in zip(r_pick, fills):
         fvals = []
@@ -183,7 +189,7 @@ def fig_solution_compare():
     axB.set_ylabel("angular profile")
     axB.set_xticks([0, 45, 90, 135, 180])
     axB.set_ylim(-0.05, 2.95)
-    axB.annotate(r"$g(\theta)$: in-plane", (155, 2.42), color="#c1272d",
+    axB.annotate(r"$g(\theta)$: residual", (155, 2.42), color="#c1272d",
                  fontsize=11)
     axB.annotate(r"$f(\theta)$: opening", (120, 0.62), color="#1f77b4",
                  fontsize=11)
@@ -193,76 +199,18 @@ def fig_solution_compare():
     fig.tight_layout()
     save_pair(fig, "fig_solution_compare")
     plt.close(fig)
-    print(f"wrote fig_solution_compare  (P = {P:.4f}, c0 = {c0:.4f})")
+    print(f"wrote fig_solution_compare  "
+          f"(P = {P:.4f}, c0 = {c0:.4f}, b_2deg = {b_near:.4f})")
 
 
-# ------------------------------------------------ 3. J r^{1/4} plateau
-def fig_tip_shape():
-    """Face-shape corollary. Data pipeline as always (single-offset fit,
-    full window); the slope-2/5 and slope-1/2 guides are drawn TANGENT to
-    each locus: through the point where the measured local slope equals
-    the theoretical value. A convex locus then touches the line there and
-    lies above it on both sides, instead of being crossed by it."""
-    fig, ax = plt.subplots(figsize=(5.8, 4.9))
-    style = {"MR_lam20": dict(color=MR_COLOR, marker="o",
-                              label="Mooney" + u"\u2013" + "Rivlin"),
-             "NH_lam20": dict(color=NH_COLOR, marker="s",
-                              label="neo-Hookean control")}
-    profiles = {}
-    for tag, st in style.items():
-        d, rays = load_case(tag)
-        face = rays[max(rays)]
-        exp = 1.25 if d["c2"] != 0 else 1.0
-        c0, _ = fit_offset(face["r"], face["Y1"], WINDOW, exp)
-        m = (face["r"] >= WINDOW[0]) & (face["r"] <= WINDOW[1] * 1.5)
-        dy1 = np.abs(face["Y1"][m] - c0)
-        y2 = face["Y2"][m]
-        p_th = 0.4 if d["c2"] != 0 else 0.5
-        profiles[tag] = (dy1, y2, p_th, st)
-        ax.loglog(dy1, y2, ls="none", ms=6.5, mfc="none", mew=1.6, **st)
-        o = np.argsort(dy1)
-        xs, ys = dy1[o], y2[o]
-        ls_loc = np.diff(np.log(ys)) / np.diff(np.log(xs))
-        k = int(np.argmin(np.abs(ls_loc - p_th)))
-        x_t = np.sqrt(xs[k] * xs[k + 1])
-        y_t = np.sqrt(ys[k] * ys[k + 1])
-        xg = np.array([dy1.min() * 0.75, dy1.max() * 1.35])
-        ax.loglog(xg, y_t * (xg / x_t) ** p_th, color=st["color"], lw=1.8)
-    ax.annotate("slope 2/5 (tangent)", (3.6e-5, 2.6e-2), color=MR_COLOR,
-                fontsize=12)
-    ax.annotate("slope 1/2", (1.35e-4, 1.14e-2), color=NH_COLOR,
-                fontsize=12.5)
-    ax.set_xlabel("distance behind the tip along the face,  $|y_1-c_0|$")
-    ax.set_ylabel("crack opening,  $y_2$")
-    ax.legend(frameon=False, loc="upper left")
-
-    # Inset: resolved faces plus asymptotic continuation across the omitted
-    # FEM core. Plotting the two faces separately avoids a false vertical
-    # segment between their innermost resolved points.
-    axin = ax.inset_axes([0.56, 0.10, 0.40, 0.34])
-    for tag, (dy1, y2, p_th, st) in profiles.items():
-        o = np.argsort(dy1)
-        x, y = dy1[o] / dy1.max(), y2[o] / y2.max()
-        axin.plot(x, 0.5 * y, color=st["color"], lw=1.8)
-        axin.plot(x, -0.5 * y, color=st["color"], lw=1.8)
-        x_inner = np.linspace(0.0, x[0], 40)
-        y_inner = 0.5 * y[0] * (x_inner / x[0]) ** p_th
-        axin.plot(x_inner, y_inner, color=st["color"], lw=1.3, ls=":")
-        axin.plot(x_inner, -y_inner, color=st["color"], lw=1.3, ls=":")
-    axin.plot(0.0, 0.0, marker="o", ms=3.5, color="0.15", zorder=5)
-    axin.annotate("tip", xy=(0.0, 0.0), xytext=(0.13, 0.07), fontsize=9,
-                  arrowprops=dict(arrowstyle="->", color="0.25", lw=0.8))
-    axin.set_xlim(-0.03, 1.05)
-    axin.set_ylim(-0.58, 0.58)
-    axin.set_title("normalized deformed profiles", fontsize=9.5, pad=2)
-    axin.annotate("blunter", (0.10, 0.33), fontsize=9, color=MR_COLOR)
-    axin.set_xticks([]); axin.set_yticks([])
-    for sp in axin.spines.values():
-        sp.set_color("0.6")
-
-    save_pair(fig, "fig_tip_shape")
-    plt.close(fig)
-    print("wrote fig_tip_shape")
+def fig_profile_correction():
+    """Regenerate the C_s-aware profile audit and its structured output."""
+    subprocess.run(
+        [sys.executable, str(ROOT / "analysis" / "profile_mode_audit.py"),
+         "--write"],
+        cwd=ROOT,
+        check=True,
+    )
 
 
 def fig_sigma_G():
@@ -913,7 +861,8 @@ if __name__ == "__main__":
           ("MR_lam13", "MR_lam16", "MR_lam22", "NH_lam16",
            "MR_lam16_c2_third", "MR_lam16_c2_3")),
         *(PSOUT / f"rays_{tag}_theta{theta}.csv" for tag in
-          ("MR_lam15", "MR_lam18", "NH_lam15", "NH_lam18")
+          ("MR_lam15", "MR_lam16", "MR_lam18", "MR_lam22",
+           "NH_lam15", "NH_lam18")
           for theta in (2, 45, 90, 135, 178)),
     ]
     missing = [path.relative_to(ROOT) for path in required if not path.exists()]
@@ -921,9 +870,9 @@ if __name__ == "__main__":
         raise SystemExit("missing figure inputs:\n  "
                          + "\n  ".join(map(str, missing)))
 
-    # Final manuscript set: strip = physical specimen
-    # (master/chain/portrait/plateau/cratio), disk = deep-window microscope
-    # (solution_compare/tip_shape/sigma_G); fig_hierarchy computes live.
+    # Reproducibility set: strip = physical specimen; disk = a deep-window
+    # consistency check.  The profile figure is the C_s-aware replacement for
+    # the withdrawn target-selected raw-tip-shape plot.
     fig_master()
     fig_hierarchy()
     fig_chain()
@@ -931,6 +880,6 @@ if __name__ == "__main__":
     fig_plateau_ps()
     fig_cratio_ps()
     fig_solution_compare()
-    fig_tip_shape()
+    fig_profile_correction()
     fig_sigma_G()
     print("done ->", FIG)

@@ -41,18 +41,21 @@ def write_strip_manifest() -> int:
     return len(members)
 
 
-def tracked_files() -> list[Path]:
+def publication_files() -> list[Path]:
+    """Return tracked and not-yet-committed, nonignored publication files."""
     result = subprocess.run(
-        ["git", "ls-files"], cwd=ROOT, check=True, text=True,
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
+        cwd=ROOT, check=True, text=True,
         capture_output=True,
     )
-    return [ROOT / name for name in result.stdout.splitlines()
-            if name and name != OUT.name]
+    candidates = [ROOT / name for name in result.stdout.splitlines()
+                  if name and name != OUT.name]
+    return [path for path in candidates if path.is_file()]
 
 
 def main() -> None:
     strip_count = write_strip_manifest()
-    lines = digest_lines(tracked_files(), ROOT)
+    lines = digest_lines(publication_files(), ROOT)
     OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {STRIP_OUT.relative_to(ROOT)}: {strip_count} files")
     print(f"wrote {OUT.name}: {len(lines)} files")

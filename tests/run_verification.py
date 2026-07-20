@@ -21,7 +21,7 @@ class Check:
 
 
 CHECKS = [
-    Check("verification/verify_equations.py", "PASSED 57   FAILED 0", "."),
+    Check("verification/verify_equations.py", "PASSED 58   FAILED 0", "."),
     Check("analysis/leading_field.py", "Leading-field self-checks passed.", "analysis"),
     Check("analysis/check_g_selection.py", "PASSED 4/4", "analysis"),
     Check("analysis/check_row1_flux.py", "[PASS] row-1 flux", "analysis"),

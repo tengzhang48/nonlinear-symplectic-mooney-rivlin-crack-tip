@@ -16,6 +16,11 @@
   retain solve/mesh metadata and raw sampled rays; derived fits are recomputed
   by the current check and figure code rather than stored as estimator-dependent
   summaries.
+- `derived/profile_mode_audit.json`: deterministic $C_s$-aware reanalysis of
+  two disk and two strip cases. It records public input hashes, a shared-$c_0$
+  five-ray fit, independent per-ray/intercept sensitivities, raw face-proxy
+  slopes, and target-free nested face fits. Regenerate it and its figure with
+  `python analysis/profile_mode_audit.py --write`.
 - `claims/principal_claims.json`: compact ledger linking principal claims to
   equations, code, and stored-data checks.
 

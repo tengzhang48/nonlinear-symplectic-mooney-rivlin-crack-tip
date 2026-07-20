@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Complete first-material-order full-MR response at Lambda = k + 1/2.
 
+"Complete" here refers only to the stated first-material-order block about the
+selected C_s=0 base; it is not a completed finite-compliance spectrum and does
+not select C_s.
+
 This script closes the block that ``qk_full_mr_ordering.py`` only located.
 It works to first order in both a characteristic shear amplitude ``q_k`` and
 
