@@ -59,10 +59,11 @@ this amplitude relation and the $I_2$-specific Jacobian plateau. The stored
 disk solutions are a secondary, deeper-window consistency check of radial
 powers and the class-universal stress relation $\sigma_{22}r=G/\pi$.
 
-The corrected shared-$c_0$ audit of four stored Mooney–Rivlin cases resolves a
-nonzero $s$-like $O(r)$ background and raw face-proxy slopes near $1/2$. Its
-free residual-power fits differ across the stored disk and strip windows, so
-these data do not establish a universal residual exponent.
+The corrected shared-$c_0$ audit of four stored Mooney–Rivlin cases is
+consistent with a nonzero $s$-like $O(r)$ background and raw face-proxy slopes
+near $1/2$ over the fitted windows. Because the $r$ and $r^{5/4}$ fit columns
+are strongly correlated, these data neither identify the ultimate matched
+$C_s$ nor establish a universal residual exponent.
 
 ## Reproduce the evidence
 
@@ -92,6 +93,9 @@ The figure command rebuilds nine reproducibility figures from the tracked
 analytic and FEM inputs, including the corrected profile-mode audit.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
 environment below. See [FIGURES.md](FIGURES.md) for the exact input map.
+The claims check also rejects embedded Type 3 fonts in the ten rendered PDF
+figures; the generators request embedded TrueType fonts for publisher
+preflight compatibility.
 
 ## Re-run the finite elements
 
@@ -124,11 +128,12 @@ silently for the curated figure inputs in `data/fem/`.
 
 ## Scope
 
-The constrained opening state and null family, Jacobian plateau,
+The formal constrained opening map and null family, Jacobian plateau,
 energy-release relation, pure-shear amplitude chain, and stated finite-window
-FEM comparisons are the established results reproduced here. The selected
-$r^{5/4}g(\theta)$ residual is an outer branch whose full axis/matching
-selection is not completed, and no universal raw $2/5$ profile is claimed.
+FEM comparisons are reproduced here at their declared evidence levels. The
+chosen $r^{5/4}g(\theta)$ residual is an analytic outer representative whose
+full axis/matching selection is not completed, and no universal raw $2/5$
+profile is claimed.
 The repository also contains a formally derived higher-order hierarchy, but
 its scope is deliberately narrower than a complete spectrum of the coupled
 finite-compliance problem. In particular, the full five-block conserved

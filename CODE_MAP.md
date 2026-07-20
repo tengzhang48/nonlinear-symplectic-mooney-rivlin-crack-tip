@@ -43,8 +43,9 @@ Established by the analytic and computational evidence in this repository:
   $G=(\pi/2)c_1P^2$ on the superposed truncated map;
 - the pure-shear relation fixing $P(\lambda)$;
 - the tested $I_2$-specific kinematic contrast against the $c_2=0$ control;
-- a nonzero $s$-like regular background and raw slopes near $1/2$ on the
-  stored finite annuli (not a universal asymptotic profile theorem);
+- finite-window consistency with a nonzero $s$-like regular background and
+  raw slopes near $1/2$ on the stored annuli (not asymptotic identification or
+  a universal profile theorem);
 - the specifically gated higher-order blocks identified by the consolidated
   scripts.
 

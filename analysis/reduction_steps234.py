@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Completion-sequence steps 2-4 for the constrained-limit reduction.
 
-All base-field calculations below use the selected C_s=0 representative.
+All base-field calculations below use the chosen C_s=0 representative.
 They do not remove the exact y1->y1+F(y2) null family or select C_s by matching.
 
 Step 2 (scaled action): exact decomposition of the full MR energy

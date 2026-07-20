@@ -19,6 +19,7 @@ STRIP = ROOT / "data" / "fem" / "strip"
 SUMMARY = STRIP / "summary.csv"
 LEDGER = ROOT / "data" / "claims" / "principal_claims.json"
 STRIP_MANIFEST = STRIP / "ARTIFACTS.sha256"
+FIGURES = ROOT / "figures" / "rendered"
 
 
 def gate(name: str, condition: bool, detail: str) -> None:
@@ -121,14 +122,26 @@ def main() -> None:
         ("persistent nonzero C_s" in profile_statement
          and "raw face exponent is 1/2" in profile_statement
          and "2/5 applies only" in profile_statement
+         and "annuli are consistent with" in profile_statement
+         and "do not identify the ultimate matched C_s" in profile_statement
          and "analysis/profile_mode_audit.py" in profile_evidence
          and not any("fig_tip_shape" in item for item in profile_evidence)),
         "raw 1/2 with persistent C_s; residual/zero-C_s 2/5 only",
     )
     gate(
         "retired target-selected figure absent",
-        not any((ROOT / "figures" / "rendered").glob("fig_tip_shape.*")),
+        not any(FIGURES.glob("fig_tip_shape.*")),
         "no fig_tip_shape asset remains",
+    )
+    figure_pdfs = sorted(FIGURES.glob("*.pdf"))
+    type3_pdfs = [
+        path.name for path in figure_pdfs
+        if b"/Subtype /Type3" in path.read_bytes()
+    ]
+    gate(
+        "publisher font preflight",
+        len(figure_pdfs) == 10 and not type3_pdfs,
+        f"{len(figure_pdfs)} rendered PDFs; no embedded Type 3 fonts",
     )
 
     with SUMMARY.open(newline="", encoding="utf-8") as stream:

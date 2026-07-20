@@ -22,7 +22,7 @@ Two algebraic issues are resolved here with explicit computations:
    This is the outer-branch selection used here. It does not by itself rule
    out a finite-compliance angular layer in the singular limit.
 
-2. ROW-1 FLUX EXPONENT AND ITS CANCELLATION. On the selected C_s=0 truncated
+2. ROW-1 FLUX EXPONENT AND ITS CANCELLATION. On the chosen C_s=0 truncated
    map, the row-1
    traction: on the exact constrained map the
    identity J^2 - J^-2 |grad y2|^2 = 0 removes the dominant c2 terms
@@ -93,7 +93,7 @@ def main():
           f"  g'(pi-) = {gp_pi:.6f} (forced -sqrt2)")
     ok2 = abs(g0 - 4 * np.sqrt(2) / 5) < 1e-5 and abs(gp_pi + np.sqrt(2)) < 1e-4
 
-    # ---- row-1 flux on the selected C_s=0 map, c2 part ---------------------
+    # ---- row-1 flux on the chosen C_s=0 map, c2 part -----------------------
     r_, th_, P_, c1_, c2_ = sp.symbols('r theta P c1 c2', positive=True)
     g_ = sp.Function('g')(th_)
     fs = sp.sin(th_ / 2)

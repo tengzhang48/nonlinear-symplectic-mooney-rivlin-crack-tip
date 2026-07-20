@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Complete the constrained-action Q_k companion at Lambda = k + 3/2.
 
-The stated companion is about the selected C_s=0 base representative. This
+The stated companion is about the chosen C_s=0 base representative. This
 script does not determine the regular null-family amplitude or a full coupled
 spectrum.
 

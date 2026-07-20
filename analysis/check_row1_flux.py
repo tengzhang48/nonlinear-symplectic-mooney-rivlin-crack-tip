@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Row-1 flux and signed finite-radius J-error on the selected C_s=0 map.
+"""Row-1 flux and signed finite-radius J-error on the chosen C_s=0 map.
 
 On the manifold, J^2 - J^-2 |grad y2|^2 = 0 identically, so the c2
 row-1 flux is pointwise O(r^2) and the c1 row-1 flux O(r^{3/2}); the

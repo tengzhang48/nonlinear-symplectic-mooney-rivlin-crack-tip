@@ -5,12 +5,12 @@ SCOPE: interior (0.4 < theta < 2.6 samples), leading radial order, P=c1=1
 gauge; several gates are sampled evidence or reports, not exact proofs.
 Endpoint behavior, the scaled action normalization, and the coupled spectrum
 are NOT established here.
-The base orbit is the selected C_s=0 representative. This script neither
+The base orbit is the chosen C_s=0 representative. This script neither
 eliminates the exact y1->y1+F(y2) null family nor supplies matching for C_s.
 
 Multiplier action  A[y,Phi] = int (W1(F) + Phi C(F)) dA,
 W1 = F:F + J^-2 - 3 (c1 = 1),  C = J^4 - (F21^2 + F22^2),  P = 1 gauge.
-Selected C_s=0 orbit  y1 = r^(5/4) g,  y2 = r^(1/2) f,
+Chosen C_s=0 orbit  y1 = r^(5/4) g,  y2 = r^(1/2) f,
 f = sin(theta/2); the
 g-ODE (5/4) f' g - (1/2) f g' = Delta = 2^(-1/2) gives J0 = Delta r^(-1/4)
 and C(F0) = 0 exactly.

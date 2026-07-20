@@ -36,6 +36,7 @@ plt.rcParams.update({
     "font.size": 12, "axes.labelsize": 13.5, "axes.titlesize": 13,
     "legend.fontsize": 10.5, "xtick.labelsize": 11, "ytick.labelsize": 11,
     "lines.linewidth": 1.8, "lines.markersize": 6,
+    "pdf.fonttype": 42, "ps.fonttype": 42,
     "mathtext.fontset": "cm", "savefig.bbox": "tight", "savefig.dpi": 300,
 })
 

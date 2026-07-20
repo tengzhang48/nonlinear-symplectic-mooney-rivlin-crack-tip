@@ -465,8 +465,9 @@ def build_payload() -> dict:
     return {
         "schema": "mr-characteristic-shear-profile-audit-v2-public",
         "interpretation": {
-            "established_on_stored_annuli": (
-                "nonzero s-like O(r) background and raw face-proxy slopes near 1/2"
+            "finite_window_consistency": (
+                "fits are consistent with a nonzero s-like O(r) background "
+                "and raw face-proxy slopes near 1/2"
             ),
             "not_established": (
                 "ultimate matched C_s, a universal residual 5/4 power, or a "
@@ -497,6 +498,8 @@ def make_figure(results: list[dict]) -> None:
         "xtick.labelsize": 9.5,
         "ytick.labelsize": 9.5,
         "lines.linewidth": 1.6,
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
         "mathtext.fontset": "cm",
         "savefig.bbox": "tight",
         "savefig.dpi": 300,
@@ -566,7 +569,7 @@ def make_figure(results: list[dict]) -> None:
                   linestyle=case.linestyle, marker=case.marker,
                   markerfacecolor="white", markersize=5.5)
     ax_q.axhline(1.25, color="0.25", linewidth=1.0, linestyle=(0, (5, 2)),
-                 label=r"selected residual $5/4$")
+                 label=r"chosen-branch residual $5/4$")
     ax_q.set_xticks(x_nested)
     ax_q.set_xticklabels([entry[2] for entry in NESTED_FACTORS],
                          rotation=32, ha="right")
@@ -635,7 +638,7 @@ def audit_checks(payload: dict) -> dict[str, bool]:
               for case in cases]
     return {
         "four curated c2>0 cases": len(cases) == 4,
-        "nonzero regular coefficient": all(
+        "fitted regular coefficient is nonzero": all(
             abs(item["C_s_through_origin"]) > 0.5 for item in angular
         ),
         "s-like angular residual below 3%": all(

@@ -20,7 +20,7 @@ shapes and the regularity class at the symmetry axis:
 This file preserves the representative numerical scaffold used by the
 explicitly historical hierarchy rendering. It must not be read as a completed coupled
 spectrum; the consolidated completion scripts carry the stronger results.
-It also uses the selected C_s=0 base representative and cannot be used to set
+It also uses the chosen C_s=0 base representative and cannot be used to set
 the physical regular null-mode amplitude.
 
 Because E is singular, an unfiltered QZ solve also returns grid-dependent

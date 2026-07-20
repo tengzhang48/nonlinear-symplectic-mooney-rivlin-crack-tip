@@ -13,7 +13,8 @@ Leading deformed map, with amplitude P:
 
 f is exact; g solves the Delta-constraint ODE  a1 f' g - a2 f g' = 2^(-1/2)
 with the forced regular value g(0) = 4 sqrt2 / 5, and is read from the committed
-leading profile.  The $P^{-1/2}$ scaling applies to the selected residual; the
+leading profile.  The $P^{-1/2}$ scaling applies to the chosen-branch residual;
+the
 leading constraint leaves $C_s$ undetermined because the first term is a
 function of $y_2$ and hence does not change the Jacobian.
 

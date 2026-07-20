@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Leading Q_k row-one response and first constrained-action opening.
 
-The calculation is linearized about the selected C_s=0 base representative;
+The calculation is linearized about the chosen C_s=0 base representative;
 it does not determine the regular C_s s amplitude.
 
 The opening order is internal to W1 + chi*C.  Q_k-dependent half-power terms

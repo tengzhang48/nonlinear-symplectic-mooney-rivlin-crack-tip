@@ -2251,7 +2251,7 @@
   ],
   "interpretation": {
     "circularity_control": "fixed-5/4 residual slopes are not used as exponent evidence; the residual power is refitted freely on nested windows",
-    "established_on_stored_annuli": "nonzero s-like O(r) background and raw face-proxy slopes near 1/2",
+    "finite_window_consistency": "fits are consistent with a nonzero s-like O(r) background and raw face-proxy slopes near 1/2",
     "not_established": "ultimate matched C_s, a universal residual 5/4 power, or a universal raw 2/5 camera profile",
     "shared_tip_coordinate": "the production fixed-q fit uses one c0 across all five rays; independent per-ray fits are retained only as diagnostics"
   },

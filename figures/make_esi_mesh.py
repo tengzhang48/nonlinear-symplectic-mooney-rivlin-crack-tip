@@ -23,8 +23,8 @@ sys.path.insert(0, FEM)
 from ps_mesh import StripConfig, build_strip          # noqa: E402
 from mr_fem_mesh import MeshConfig, build_mesh        # noqa: E402
 
-plt.rcParams.update({"font.size": 10, "savefig.dpi": 300,
-                     "savefig.bbox": "tight"})
+plt.rcParams.update({"font.size": 10, "pdf.fonttype": 42, "ps.fonttype": 42,
+                     "savefig.dpi": 300, "savefig.bbox": "tight"})
 
 
 def tri_arrays(msh):

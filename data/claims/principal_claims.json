@@ -52,7 +52,7 @@
     {
       "id": "tip-shape",
       "status": "conditional-and-finite-window-audited",
-      "statement": "For persistent nonzero C_s the raw face exponent is 1/2; 2/5 applies only when C_s=0 or conditionally to the residual after subtracting C_s r. The stored c2>0 annuli resolve a nonzero s-like background and raw slopes near 1/2, but do not establish a universal residual exponent",
+      "statement": "For persistent nonzero C_s the raw face exponent is 1/2; 2/5 applies only when C_s=0 or conditionally to the residual after subtracting C_s r. The stored c2>0 annuli are consistent with a nonzero s-like background and raw slopes near 1/2, but do not identify the ultimate matched C_s or establish a universal residual exponent",
       "evidence": ["analysis/profile_mode_audit.py", "data/derived/profile_mode_audit.json", "figures/rendered/fig_profile_correction.pdf"]
     },
     {
