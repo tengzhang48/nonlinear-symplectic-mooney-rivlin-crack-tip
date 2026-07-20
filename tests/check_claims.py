@@ -88,6 +88,31 @@ def main() -> None:
     gate("claims ledger schema", ledger.get("schema_version") == 1,
          f"{len(ledger.get('claims', []))} claims")
     claims = {claim["id"]: claim for claim in ledger.get("claims", [])}
+    leading_claim = claims.get("leading-map", {})
+    leading_statement = leading_claim.get("statement", "")
+    gate(
+        "leading-map scope",
+        (leading_claim.get("status") == "formal-leading-constrained-map"
+         and "formal leading constrained/null-family map" in leading_statement
+         and "full retained-C_s finite-compliance equilibrium branch" in leading_statement
+         and "remain open" in leading_statement),
+        "formal constrained/null-family map; retained-C_s branch remains open",
+    )
+    energy_claim = claims.get("energy-release", {})
+    energy_statement = energy_claim.get("statement", "")
+    gate(
+        "C_s-inclusive energy-flux scope",
+        (energy_claim.get("status")
+         == "established-on-superposed-truncated-map"
+         and "superposed truncated map" in energy_statement
+         and "leading contour flux is exactly independent of arbitrary C_s"
+         in energy_statement
+         and "not a completed retained-C_s finite-compliance equilibrium branch"
+         in energy_statement
+         and "including arbitrary C_s in the retained constrained map"
+         not in energy_statement),
+        "exact leading-flux result on truncated map, not a completed branch",
+    )
     profile_claim = claims.get("tip-shape", {})
     profile_statement = profile_claim.get("statement", "")
     profile_evidence = set(profile_claim.get("evidence", []))

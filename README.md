@@ -23,8 +23,8 @@ state. Let
 $$s=r\sin^2(\theta/2).$$
 
 The leading constraint has the exact null family $y_1\mapsto y_1+F(y_2)$.
-Consequently, the first analytic Mode-I member must be retained in the outer
-map:
+Consequently, its first analytic Mode-I member must be kept in the formal
+leading constrained/null-family map unless matching sets its coefficient:
 
 $$y_2=P r^{1/2}\sin(\theta/2), \qquad
 y_1=c_0+C_s s+P^{-1/2}r^{5/4}g(\theta)+\cdots.$$
@@ -35,8 +35,10 @@ $$\frac54 f'g-\frac12fg'=2^{-1/2},\qquad f=\sin(\theta/2),$$
 
 The reported residual profile uses the regular-axis outer-branch selection
 $g(0)=4\sqrt2/5$ and $g(\pi)=2.033311\ldots$; selection through the full
-finite-compliance axis/matching problem remains open. Robust consequences of
-the constrained state include
+finite-compliance axis/matching problem remains open. A full retained-$C_s$
+finite-compliance equilibrium branch has not been completed. On the
+superposed truncated map, however, the leading contour flux is exactly
+independent of arbitrary $C_s$, giving
 
 $$Jr^{1/4}=\sqrt{P/2},\qquad G=\frac{\pi}{2}c_1P^2.$$
 

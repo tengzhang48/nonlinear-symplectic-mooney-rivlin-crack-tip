@@ -35,6 +35,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -593,6 +594,38 @@ def encoded_payload(payload: dict) -> str:
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
+def compare_payloads(stored: object, fresh: object,
+                     path: str = "$") -> tuple[bool, str]:
+    """Compare regenerated results while tolerating BLAS-level roundoff."""
+    if isinstance(stored, bool) or isinstance(fresh, bool):
+        return (stored is fresh, path)
+    if isinstance(stored, (int, float)) and isinstance(fresh, (int, float)):
+        matched = math.isclose(float(stored), float(fresh),
+                               rel_tol=1.0e-10, abs_tol=1.0e-12)
+        return (matched, path)
+    if isinstance(stored, dict) and isinstance(fresh, dict):
+        if stored.keys() != fresh.keys():
+            return (False, f"{path} (key set)")
+        for key in stored:
+            matched, location = compare_payloads(
+                stored[key], fresh[key], f"{path}.{key}"
+            )
+            if not matched:
+                return (False, location)
+        return (True, path)
+    if isinstance(stored, list) and isinstance(fresh, list):
+        if len(stored) != len(fresh):
+            return (False, f"{path} (list length)")
+        for index, (stored_item, fresh_item) in enumerate(zip(stored, fresh)):
+            matched, location = compare_payloads(
+                stored_item, fresh_item, f"{path}[{index}]"
+            )
+            if not matched:
+                return (False, location)
+        return (True, path)
+    return (stored == fresh, path)
+
+
 def audit_checks(payload: dict) -> dict[str, bool]:
     cases = payload["cases"]
     primary_raw = [case["face_proxy_raw_shape"]["raw_global_shape_slope"]
@@ -650,7 +683,8 @@ def main() -> None:
     parser.add_argument("--write", action="store_true",
                         help="write the JSON and corrected figure pair")
     parser.add_argument("--check-stored", action="store_true",
-                        help="require stored JSON to match fresh analysis")
+                        help="require stored JSON to match fresh analysis "
+                             "up to numerical roundoff")
     args = parser.parse_args()
 
     payload = build_payload()
@@ -662,11 +696,22 @@ def main() -> None:
         print(f"wrote {RESULTS.relative_to(ROOT)}")
         print("wrote figures/rendered/fig_profile_correction.{pdf,png}")
     if args.check_stored:
-        if not RESULTS.exists() or RESULTS.read_text(encoding="utf-8") != encoded:
+        if not RESULTS.exists():
             raise SystemExit(
-                "stored profile-mode JSON differs; run with --write and review"
+                "stored profile-mode JSON is missing; run with --write"
             )
-        print(f"stored JSON matches: {RESULTS.relative_to(ROOT)}")
+        try:
+            stored_payload = json.loads(RESULTS.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise SystemExit(f"cannot read stored profile-mode JSON: {error}")
+        matched, location = compare_payloads(stored_payload, payload)
+        if not matched:
+            raise SystemExit(
+                "stored profile-mode JSON differs materially at "
+                f"{location}; run with --write and review"
+            )
+        print("stored JSON matches within numerical roundoff: "
+              f"{RESULTS.relative_to(ROOT)}")
     print_summary(payload)
 
 

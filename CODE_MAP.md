@@ -11,7 +11,7 @@ proof of every nearby sentence in the manuscript.
 | `analysis/leading_field.py` | Leading exponents, regular null-family member, selected outer $g$ branch, stretches, stress | Exact identities plus numerical ODE evaluation |
 | `analysis/check_g_selection.py` | Regular-axis outer-branch selection of $g(\pi)$ and a $C_s=0$ row-one diagnostic | Quadrature, endpoint asymptotics, and symbolic substitution; not a full axis-layer matching proof |
 | `analysis/check_row1_flux.py` | Row-one orders and carrier of the finite-radius $J$ excess on the selected $C_s=0$ map | Constraint-consistent numerical scaling and flux decomposition in that stated scope |
-| `analysis/energy_release_rate.py` | $C_s$-inclusive $G=(\pi/2)c_1P^2$ and pure-shear loading relation | Exact Laurent-coefficient flux extraction plus separate numerical quadrature |
+| `analysis/energy_release_rate.py` | Exact $C_s$-independence of the leading flux on the superposed truncated map, $G=(\pi/2)c_1P^2$, and the pure-shear loading relation | Exact Laurent-coefficient flux extraction plus separate numerical quadrature; not a completed retained-$C_s$ finite-compliance branch |
 | `analysis/profile_mode_audit.py` | Shared-$c_0$, $C_s$-aware stored-data profile audit | Fixed-$5/4$ background extraction, per-ray/intercept sensitivity, and target-free nested face fits |
 | `analysis/derive_constraint_row.py` | Linearized constraint row | Symbolic derivation plus randomized numerical comparison |
 | `analysis/second_variation_reduction.py` | Interior constrained second variation | 14 symbolic/sampled leading-order gates |
@@ -33,12 +33,14 @@ proof of every nearby sentence in the manuscript.
 
 Established by the analytic and computational evidence in this repository:
 
-- the leading constrained opening state, its exact $y_1\mapsto y_1+F(y_2)$
-  null family, and the $1/2$ and $-1/4$ opening/Jacobian powers;
+- the formal leading constrained opening map, its exact
+  $y_1\mapsto y_1+F(y_2)$ null family, and the $1/2$ and $-1/4$
+  opening/Jacobian powers;
 - the selected regular-axis outer branch of the $r^{5/4}g(\theta)$ residual,
   within its stated matching assumption;
 - the locally uniaxial stretch magnitudes and angularly constant leading $J$;
-- the limiting energy flux $G=(\pi/2)c_1P^2$;
+- exact $C_s$-independence of the leading flux
+  $G=(\pi/2)c_1P^2$ on the superposed truncated map;
 - the pure-shear relation fixing $P(\lambda)$;
 - the tested $I_2$-specific kinematic contrast against the $c_2=0$ control;
 - a nonzero $s$-like regular background and raw slopes near $1/2$ on the
@@ -52,6 +54,7 @@ Not established here as completed results:
 - normalized extraction integrals for $B$ or $Q_k$;
 - finite-compliance matching that selects the candidate higher amplitudes;
 - a proof or matched computation that forces $C_s=0$;
+- a full retained-$C_s$ finite-compliance equilibrium branch and its matching;
 - a universal raw $2/5$ face profile or direct-camera discriminator;
 - geometry-independent selection of the residual $5/4$ power from the
   current finite-window data;

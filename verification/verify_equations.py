@@ -368,35 +368,59 @@ check("hierarchy: forced face trace v(pi) = -2/3",
 # These verify the scalar opening-block conservation mechanism and its
 # 3/2-Lambda duality ONLY; they do not derive the five-row pencil, its
 # reaction-carrying momenta, or a presymplectic identity for (E, A).
-# The opening block's Lagrange identity: for solutions of -b'' = nu^2 b,
-# d/dxi Omega reduces to the endpoint concomitant [bV bW' - bW bV']_0^pi.
-# (a) Admissible pair (b(0)=0, b'(pi)=0): concomitant vanishes at both ends.
+# Restore each full radial field and its opening momentum as
+#     u = exp(nu xi) b(theta),  tau = partial_xi u,
+# where nu = Lambda-3/4.  The opening-block Lagrange identity then reduces
+# d/dxi Omega to the full-field endpoint concomitant
+# [uV partial_theta(uW) - uW partial_theta(uV)]_0^pi.
+# (a) Admissible pair (b(0)=0, b'(pi)=0): the full-field concomitant
+#     vanishes at both ends.
+_xi = sp.symbols("xi", real=True)
 _bV = sp.sin(_th / 2)                 # nu = 1/2 (leading opening)
 _bW = sp.sin(3 * _th / 2)             # nu = 3/2 (level-two harmonic)
-_conc = _bV * sp.diff(_bW, _th) - _bW * sp.diff(_bV, _th)
+_uV = sp.exp(_xi / 2) * _bV
+_uW = sp.exp(3 * _xi / 2) * _bW
+_tauV = sp.diff(_uV, _xi)
+_tauW = sp.diff(_uW, _xi)
+_conc = _uV * sp.diff(_uW, _th) - _uW * sp.diff(_uV, _th)
 check("opening block: admissible pair has zero endpoint concomitant (0 and pi)",
       sp.simplify(_conc.subs(_th, 0)) == 0
       and sp.simplify(_conc.subs(_th, sp.pi)) == 0)
 # (b) Non-admissible partner sin(theta) (b'(pi) != 0) leaves a nonzero
 #     face concomitant: conservation is enforced by the BCs, not identically.
 _bX = sp.sin(_th)
-_concX = _bV * sp.diff(_bX, _th) - _bX * sp.diff(_bV, _th)
+_uX = sp.exp(_xi) * _bX
+_concX = _uV * sp.diff(_uX, _th) - _uX * sp.diff(_uV, _th)
 check("opening block: non-admissible partner leaves nonzero face concomitant",
       sp.simplify(_concX.subs(_th, sp.pi)) != 0)
-# (c) Selection rule: Omega_open = (LW - LV) * int(bV bW); distinct
-#     admissible half-odd harmonics are orthogonal on [0, pi], so
-#     non-dual pairs pair to zero.
+# (c) With tau=partial_xi u, the full-field current is
+#     Omega_open = int(uV tauW-uW tauV).  Distinct admissible half-odd
+#     harmonics are orthogonal on [0, pi], so non-dual pairs pair to zero.
+_omegaVW = sp.integrate(_uV * _tauW - _uW * _tauV,
+                        (_th, 0, sp.pi))
 check("opening block: non-dual admissible pair (5/4, 9/4) pairs to zero",
-      sp.simplify(sp.integrate(_bV * _bW, (_th, 0, sp.pi))) == 0)
+      sp.simplify(_omegaVW) == 0)
 # (d) Dual pairs at Lambda + Lambda' = 3/2 pair nonzero: the 9/4 harmonic
 #     and its dual at -3/4 share the shape sin(3 theta/2), and the leading
 #     opening (5/4) pairs with its dual at 1/4 through sin(theta/2).
-_dual94 = (sp.Rational(-3, 4) - sp.Rational(9, 4)) \
-    * sp.integrate(_bW * _bW, (_th, 0, sp.pi))
-_dual54 = (sp.Rational(1, 4) - sp.Rational(5, 4)) \
-    * sp.integrate(_bV * _bV, (_th, 0, sp.pi))
+_Lam94, _Lam94d = sp.Rational(9, 4), sp.Rational(-3, 4)
+_Lam54, _Lam54d = sp.Rational(5, 4), sp.Rational(1, 4)
+_nu94, _nu94d = _Lam94 - sp.Rational(3, 4), _Lam94d - sp.Rational(3, 4)
+_nu54, _nu54d = _Lam54 - sp.Rational(3, 4), _Lam54d - sp.Rational(3, 4)
+_u94, _u94d = sp.exp(_nu94 * _xi) * _bW, sp.exp(_nu94d * _xi) * _bW
+_u54, _u54d = sp.exp(_nu54 * _xi) * _bV, sp.exp(_nu54d * _xi) * _bV
+_dual94 = sp.integrate(
+    _u94 * sp.diff(_u94d, _xi) - _u94d * sp.diff(_u94, _xi),
+    (_th, 0, sp.pi),
+)
+_dual54 = sp.integrate(
+    _u54 * sp.diff(_u54d, _xi) - _u54d * sp.diff(_u54, _xi),
+    (_th, 0, sp.pi),
+)
 check("opening block: dual pairs (9/4,-3/4) and (5/4,1/4) pair nonzero",
-      sp.simplify(_dual94) == -3 * sp.pi / 2
+      sp.simplify(_Lam94 + _Lam94d) == sp.Rational(3, 2)
+      and sp.simplify(_Lam54 + _Lam54d) == sp.Rational(3, 2)
+      and sp.simplify(_dual94) == -3 * sp.pi / 2
       and sp.simplify(_dual54) == -sp.pi / 2,
       f"Omega(9/4,-3/4)={_dual94}, Omega(5/4,1/4)={_dual54}")
 
