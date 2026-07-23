@@ -5,6 +5,10 @@ evidence, and formal/scaffold calculations. A passing script means that its
 encoded gates pass at the evidence level stated here; it is not a blanket
 proof of every nearby sentence in the manuscript.
 
+The governing equation chain and claim boundaries are summarized in
+[`THEORY_NOTES.md`](THEORY_NOTES.md). Exact execution order and figure
+placement are recorded in [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md).
+
 | Path | Role | Evidence level |
 |---|---|---|
 | `verification/verify_equations.py` | 58 encoded equation relations, including the $C_s s$ null mode and conditional profile powers | Mixed symbolic derivations, numerical consistency checks, and transcription reductions |

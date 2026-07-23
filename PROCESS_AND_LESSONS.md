@@ -10,6 +10,12 @@ Raw conversations, review reports, development commits, and superseded files
 are deliberately excluded. This concise record retains only lessons that can
 be checked against the public scientific artifacts.
 
+The longer, research-method case study is maintained separately in
+[`ai-mechanics-resources`](https://github.com/tengzhang48/ai-mechanics-resources/blob/main/case_studies/symplectic_mooney_rivlin_crack_tip.md).
+The present repository keeps only the process information needed to understand
+and reproduce its scientific release; signed agent reports and internal
+handoffs are not public release artifacts.
+
 ## 1. Cross-equation consistency is a separate test
 
 An equation can be algebraically correct in isolation while its amplitude,

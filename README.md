@@ -2,14 +2,30 @@
 
 This is the reproducibility companion to the manuscript
 
-> Teng Zhang, “Constrained asymptotic crack-tip fields and the energy release
-> rate of a Mooney–Rivlin sheet in plane stress” (2026).
+> Teng Zhang, “Constrained asymptotic crack-tip fields of a Mooney–Rivlin
+> sheet in plane stress: a symplectic analysis” (2026).
 
 It contains the analytic verification code, the reduced plane-stress finite-
 element implementations, the exact stored data used by the figures, and the
 figure generators. The manuscript and supplementary-information (ESI/SI)
 source and PDF files, referee correspondence, development history, and
 third-party reference files are intentionally not part of this repository.
+
+## Documentation map
+
+- [`THEORY_NOTES.md`](THEORY_NOTES.md) — plane-stress reduction, constrained
+  tip field, radial Hamiltonian structure, exact opening block, predictions,
+  and explicit open boundaries.
+- [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) — clean-clone commands, expected
+  checks, current paper/ESI figure numbers, stored-data reproduction, and fresh
+  FEM recomputation.
+- [`FIGURES.md`](FIGURES.md) — exact input file map for every rendered panel.
+- [`CODE_MAP.md`](CODE_MAP.md) — evidence level and role of every public
+  analysis and solver script.
+- [`PUBLICATION_WORKFLOW.md`](PUBLICATION_WORKFLOW.md) — public inclusion and
+  exclusion policy, release circuit, and correction protocol.
+- [`PROCESS_AND_LESSONS.md`](PROCESS_AND_LESSONS.md) — concise project lessons
+  retained in the scientific companion.
 
 ## Main result
 
@@ -93,6 +109,8 @@ The figure command rebuilds nine reproducibility figures from the tracked
 analytic and FEM inputs, including the corrected profile-mode audit.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
 environment below. See [FIGURES.md](FIGURES.md) for the exact input map.
+The complete clean-clone workflow and current manuscript numbering are in
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 The claims check also rejects embedded Type 3 fonts in the ten rendered PDF
 figures; the generators request embedded TrueType fonts for publisher
 preflight compatibility.
@@ -107,12 +125,12 @@ conda env create -f environment-fem.yml
 conda activate mr-crack-tip-fem
 
 # Disk cross-check (one example)
-cd fem
-python run_one_case.py --c1 1 --c2 1 --lam 2.0 --tag MR_lam20
+(cd fem && python run_one_case.py \
+  --c1 1 --c2 1 --lam 2.0 --tag MR_lam20)
 
 # Primary pure-shear strip (one example)
-cd pure_shear
-python run_ps.py --c1 1 --c2 1 --lam 1.6 --tag MR_lam16
+(cd fem/pure_shear && python run_ps.py \
+  --c1 1 --c2 1 --lam 1.6 --tag MR_lam16)
 ```
 
 The strip command defaults to an initial continuation subdivision of 18;
