@@ -1,5 +1,9 @@
-"""Nonlinear solve of the reduced incompressible plane-stress Mooney-Rivlin
-crack-tip problem (Mode I) on the focused near-tip mesh.
+"""Solve the quarantined focused-disk auxiliary boundary-value problem.
+
+The full-arc remote condition below imposes crack-parallel compression and is
+not equivalent to the paper's Rivlin--Thomas pure-shear strip. The solver also
+has no contact or global-injectivity constraint. Outputs are negative
+provenance, not paper validation.
 
 Reduced energy (thickness eliminated, lambda3 = 1/J, no pressure DOF):
 

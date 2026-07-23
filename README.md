@@ -38,32 +38,24 @@ state. Let
 
 $$s=r\sin^2(\theta/2).$$
 
-The leading constraint has the exact null family $y_1\mapsto y_1+F(y_2)$.
-Consequently, its first analytic Mode-I member must be kept in the formal
-leading constrained/null-family map unless matching sets its coefficient:
+The leading opening and compensated Jacobian are
 
-$$y_2=P r^{1/2}\sin(\theta/2), \qquad
-y_1=c_0+C_s s+P^{-1/2}r^{5/4}g(\theta)+\cdots.$$
+$$y_2=P r^{1/2}\sin(\theta/2),\qquad
+Jr^{1/4}=\sqrt{P/2}.$$
 
-where $g$ satisfies
+The constraint also has the exact null family
+$y_1\mapsto y_1+F(y_2)$. Its first analytic Mode-I member is $C_s s$, so the
+local constrained problem alone does not select the horizontal crack-face
+coordinate. On the superposed truncated map, the leading contour flux is
+exactly independent of arbitrary $C_s$, giving
 
-$$\frac54 f'g-\frac12fg'=2^{-1/2},\qquad f=\sin(\theta/2),$$
+$$G=\frac{\pi}{2}c_1P^2.$$
 
-The reported residual profile uses the regular-axis outer-branch selection
-$g(0)=4\sqrt2/5$ and $g(\pi)=2.033311\ldots$; selection through the full
-finite-compliance axis/matching problem remains open. A full retained-$C_s$
-finite-compliance equilibrium branch has not been completed. On the
-superposed truncated map, however, the leading contour flux is exactly
-independent of arbitrary $C_s$, giving
-
-$$Jr^{1/4}=\sqrt{P/2},\qquad G=\frac{\pi}{2}c_1P^2.$$
-
-On the crack face, $s=r$. Therefore a persistent nonzero $C_s$ gives the raw
-profile $y_2\propto|y_1-c_0|^{1/2}$. The $2/5$ power follows only if $C_s=0$,
-or conditionally for the detrended residual
-$y_2\propto|y_1-c_0-C_s r|^{2/5}$ when its $r^{5/4}$ term is asymptotic.
-$C_s s$ changes the physical horizontal coordinate; it is not a gauge that a
-camera can ignore.
+The formal constraint-active in-plane correction
+$P^{-1/2}r^{5/4}g(\theta)$ and its regular-axis outer representative are
+retained in the theory code. Their full finite-compliance axis/matching
+selection is unresolved, and the FEM data are not used to validate that
+residual power or a universal crack-face-shape exponent.
 
 For a Rivlin–Thomas pure-shear strip of reference height $h$ and grip stretch
 $\lambda$,
@@ -71,15 +63,15 @@ $\lambda$,
 $$G=h(c_1+c_2)(\lambda^2+\lambda^{-2}-2),$$
 
 which fixes $P$ without a specimen-scale fit. The stored strip solutions test
-this amplitude relation and the $I_2$-specific Jacobian plateau. The stored
-disk solutions are a secondary, deeper-window consistency check of radial
-powers and the class-universal stress relation $\sigma_{22}r=G/\pi$.
+this amplitude relation, the opening power, and the $I_2$-specific compensated-
+Jacobian plateau. The strip is the sole FEM evidence used by the paper.
 
-The corrected shared-$c_0$ audit of four stored Mooney–Rivlin cases is
-consistent with a nonzero $s$-like $O(r)$ background and raw face-proxy slopes
-near $1/2$ over the fitted windows. Because the $r$ and $r^{5/4}$ fit columns
-are strongly correlated, these data neither identify the ultimate matched
-$C_s$ nor establish a universal residual exponent.
+An older focused-disk boundary-value problem is retained only as quarantined
+negative provenance. Its full-arc displacement condition imposes strong
+crack-parallel compression and is not equivalent to Rivlin–Thomas pure shear;
+the high-load stored branch also develops a same-face self-intersection
+without a contact or global-injectivity model. It is excluded from claims,
+figures, and standard tests.
 
 ## Reproduce the evidence
 
@@ -92,27 +84,25 @@ source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
 python tests/run_verification.py
 python tests/check_claims.py
-python analysis/profile_mode_audit.py --check-stored
 python figures/make_figures.py
 sha256sum -c MANIFEST.sha256
 ```
 
-The verification runner executes the 58-check equation suite and the five
-consolidated analysis suites with headline counts 14, 22, 7, 31, and 28, plus
-the reduction and historical-scaffold suites and the focused leading-field,
-selection, flux, energy, and constraint checks.
+The verification runner executes the paper-scope equation suite and seven
+focused leading-field, selection, flux, energy, constraint, and reduction
+programs.
 These checks are heterogeneous and overlapping: they include direct symbolic
 derivations, numerical consistency checks, and transcription reductions. They
 must not be interpreted as a collection of independent proofs.
 
-The figure command rebuilds nine reproducibility figures from the tracked
-analytic and FEM inputs, including the corrected profile-mode audit.
+The figure command rebuilds the five current paper figures from the tracked
+strip inputs.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
 environment below. See [FIGURES.md](FIGURES.md) for the exact input map.
 The complete clean-clone workflow and current manuscript numbering are in
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
-The claims check also rejects embedded Type 3 fonts in the ten rendered PDF
-figures; the generators request embedded TrueType fonts for publisher
+The claims check also rejects embedded Type 3 fonts and enforces the exact six-
+figure PDF/PNG inventory; the generators request embedded TrueType fonts for publisher
 preflight compatibility.
 
 ## Re-run the finite elements
@@ -124,11 +114,7 @@ in `environment-fem.yml`:
 conda env create -f environment-fem.yml
 conda activate mr-crack-tip-fem
 
-# Disk cross-check (one example)
-(cd fem && python run_one_case.py \
-  --c1 1 --c2 1 --lam 2.0 --tag MR_lam20)
-
-# Primary pure-shear strip (one example)
+# Pure-shear strip (one example)
 (cd fem/pure_shear && python run_ps.py \
   --c1 1 --c2 1 --lam 1.6 --tag MR_lam16)
 ```
@@ -146,22 +132,18 @@ silently for the curated figure inputs in `data/fem/`.
 
 ## Scope
 
-The formal constrained opening map and null family, Jacobian plateau,
-energy-release relation, pure-shear amplitude chain, and stated finite-window
-FEM comparisons are reproduced here at their declared evidence levels. The
-chosen $r^{5/4}g(\theta)$ residual is an analytic outer representative whose
-full axis/matching selection is not completed, and no universal raw $2/5$
-profile is claimed.
-The repository also contains a formally derived higher-order hierarchy, but
-its scope is deliberately narrower than a complete spectrum of the coupled
-finite-compliance problem. In particular, the full five-block conserved
-pairing, normalized extraction integrals for candidate higher parameters, the
-inner axis layer, and the generated $k+3$ rung remain open.
+The constrained opening map and null family, Jacobian plateau, energy-release
+relation, pure-shear amplitude chain, exact opening-block pairing, and stated
+strip FEM comparisons are reproduced here at their declared evidence levels.
+The formal $r^{5/4}g(\theta)$ residual remains unmatched and is not promoted to
+a FEM-validated crack-shape law.
 
-`analysis/symplectic_dae.py` is therefore labeled and used only as a historical
-five-row spectral scaffold. The consolidated completion scripts establish the
-specific blocks and companion relations stated in their own headers; they do
-not turn that scaffold into a completed coupled Hamiltonian pencil.
+The repository retains higher-order calculation scripts and
+`analysis/symplectic_dae.py` as explicitly exploratory research provenance.
+They are outside the paper claim ledger, standard verification runner, and
+figure dispatcher. A full coupled finite-compliance spectrum, normalized
+extraction integrals, mixed endpoint operator, inner axis layer, and matched
+higher amplitudes remain open.
 
 See [CODE_MAP.md](CODE_MAP.md) for the evidence level and role of every script,
 and [data/claims/principal_claims.json](data/claims/principal_claims.json) for

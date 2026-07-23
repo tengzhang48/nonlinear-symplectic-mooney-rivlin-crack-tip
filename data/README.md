@@ -1,29 +1,30 @@
 # Curated data
 
-- `analytic/mr_leading_profile.npz`: selected leading angular profile used by
-  the verifier and the disk comparison figure. Regenerate it with
-  `python data/analytic/build_profile.py`.
-- `fem/strip/`: primary pure-shear strip summaries, ray samples, and the six
-  field snapshots required by the specimen and material-ratio figures. Every
-  JSON, ray CSV, and NPZ records the continuation and corner-aligned mesh
-  settings; the claims check rejects mixed mesh/protocol provenance. The
-  directory-level `ARTIFACTS.sha256` separately locks every curated scalar,
-  ray, summary, and field file to its filename; update that lock only after a
-  complete, validated solver regeneration. From the repository root,
-  `python make_manifest.py` refreshes this lock first and then the repository
-  manifest.
-- `fem/disk/`: four secondary deep-window cross-check cases. These JSON files
-  retain solve/mesh metadata and raw sampled rays; derived fits are recomputed
-  by the current check and figure code rather than stored as estimator-dependent
-  summaries.
-- `derived/profile_mode_audit.json`: deterministic $C_s$-aware reanalysis of
-  two disk and two strip cases. It records public input hashes, a shared-$c_0$
-  five-ray fit, independent per-ray/intercept sensitivities, raw face-proxy
-  slopes, and target-free nested face fits. Regenerate it and its figure with
-  `python analysis/profile_mode_audit.py --write`.
-- `claims/principal_claims.json`: compact ledger linking principal claims to
-  equations, code, and stored-data checks.
+- `analytic/mr_leading_profile.npz`: deterministic sample of the formal
+  regular-axis outer `g(theta)` representative. Regenerate it with
+  `python data/analytic/build_profile.py`. It supports analytic checks, not a
+  FEM-validated residual-exponent claim.
 
-These are the exact arrays used by the tracked renderings. Newly generated FEM
-output is written beneath `fem/` and is not consumed implicitly by the figure
-script.
+- `fem/strip/`: the sole paper-facing FEM evidence. It contains scalar
+  summaries, angular rays, and six full-field snapshots used by the five paper
+  figures. Every JSON, CSV, and NPZ records continuation and corner-aligned
+  mesh settings. `ARTIFACTS.sha256` locks every curated strip artifact to its
+  filename.
+
+- `derived/profile_mode_audit.json`: strip-only reproduction record for the
+  ESI finite-window table at `lambda=1.6` and `2.2`. It stores the fitted
+  regular coefficient, raw face slope, and nested target-free residual-power
+  diagnostics. Regenerate it with
+  `python analysis/profile_mode_audit.py --write`. These finite-window values
+  do not establish an asymptotic residual exponent and produce no figure.
+
+- `fem/disk/`: quarantined negative provenance for an auxiliary focused-disk
+  BVP. The outer condition is not equivalent to Rivlin–Thomas pure shear, and
+  the high-load branch is globally inadmissible. These files are excluded from
+  paper claims, figures, and standard tests. See `fem/disk/README.md`.
+
+- `claims/principal_claims.json`: compact ledger linking current paper claims
+  to equations, code, and strip stored-data checks.
+
+Fresh solver output is written beneath ignored `fem/` output directories and
+is never consumed implicitly by the publication figure script.

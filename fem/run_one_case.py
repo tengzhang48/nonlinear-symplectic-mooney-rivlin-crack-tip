@@ -1,4 +1,7 @@
-"""Solve one (c1, c2, lambda) case on the fine near-tip mesh and save rays.
+"""Reproduce one quarantined focused-disk case and save its sampled rays.
+
+This command does not solve the paper's pure-shear specimen. Its output is
+excluded from the standard claims and figure workflow.
 
 The JSON stores solve/mesh metadata and the sampled fields. Derived fits are
 reported to stdout and intentionally not serialized: current analysis scripts

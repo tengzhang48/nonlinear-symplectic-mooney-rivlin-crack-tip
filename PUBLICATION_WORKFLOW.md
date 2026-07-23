@@ -105,12 +105,17 @@ python tests/run_verification.py
 python tests/check_claims.py
 python analysis/profile_mode_audit.py --check-stored
 python figures/make_figures.py
+# In the pinned FEniCSx environment when the ESI mesh changes:
+python figures/make_esi_mesh.py
 python make_manifest.py
+(cd data/fem/strip && sha256sum -c ARTIFACTS.sha256)
 sha256sum -c MANIFEST.sha256
 git diff --check
 ```
 
-Run the FEniCSx mesh/solver lane when the affected change touches geometry,
+The profile audit in this circuit is strip-only and reproduces the ESI table;
+it creates no figure and does not resolve the residual exponent. Run the
+FEniCSx mesh/solver lane when the affected change touches geometry,
 discretization, solver behavior, or stored FEM provenance. It is not required
 for a prose-only correction that leaves the curated arrays and generators
 unchanged.

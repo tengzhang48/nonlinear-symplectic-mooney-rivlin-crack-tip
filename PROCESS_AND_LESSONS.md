@@ -112,7 +112,28 @@ that ran to the tip. The production construction instead retains 120 sectors
 and aligns the nearest two rays with the corners; the automated gate checks the
 outer area, angular gaps, and stored full-field coordinates.
 
-## 10. Human judgment sets the stopping line
+## 10. Verify the boundary-value problem before interpreting a clean solve
+
+An auxiliary focused disk was initially treated as a second validation
+geometry. Its full-arc displacement condition was mathematically well defined
+but physically different from the intended Rivlin–Thomas strip: it imposed
+strong crack-parallel compression and prescribed the outer mouth. At high
+load, the computed upper face intersected itself away from the tip.
+
+This exposed four distinct checks that a small residual norm cannot replace:
+
+- the convenient numerical BVP must be equivalent to the intended physical
+  BVP in the loading directions that matter;
+- a stationary discrete solution need not be globally injective or stable;
+- a same-face self-intersection is not opposing-face crack contact; and
+- a locally smooth inner window cannot rescue a globally folded,
+  post-onset branch when no contact or injectivity model is present.
+
+The disk solver and data are preserved as quarantined negative provenance, but
+they are excluded from paper claims, figures, and standard tests. The strip is
+the sole FEM evidence.
+
+## 11. Human judgment sets the stopping line
 
 Automation can expose residuals and inconsistencies; it cannot decide how much
 of a formal hierarchy belongs in a paper. The author retained responsibility

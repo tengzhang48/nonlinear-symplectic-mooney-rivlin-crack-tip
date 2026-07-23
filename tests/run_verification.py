@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run every public analytic verification script with expected sentinels."""
+"""Run the paper-scope analytic verification programs with expected sentinels.
+
+Exploratory higher-order and historical-scaffold scripts under ``analysis/``
+are intentionally outside this release gate.
+"""
 
 from __future__ import annotations
 
@@ -21,7 +25,7 @@ class Check:
 
 
 CHECKS = [
-    Check("verification/verify_equations.py", "PASSED 58   FAILED 0", "."),
+    Check("verification/verify_equations.py", "PASSED 35   FAILED 0", "."),
     Check("analysis/leading_field.py", "Leading-field self-checks passed.", "analysis"),
     Check("analysis/check_g_selection.py", "PASSED 4/4", "analysis"),
     Check("analysis/check_row1_flux.py", "[PASS] row-1 flux", "analysis"),
@@ -29,11 +33,6 @@ CHECKS = [
     Check("analysis/derive_constraint_row.py", "[PASS] derived linearized constraint", "analysis"),
     Check("analysis/second_variation_reduction.py", "GATES: 14/14 passed", "analysis"),
     Check("analysis/reduction_steps234.py", "GATES: ALL PASS", "analysis"),
-    Check("analysis/symplectic_dae.py", "Five-row scaffold checks passed", "analysis"),
-    Check("analysis/coupled_shear_completion.py", "PASSED 22   FAILED 0", "analysis"),
-    Check("analysis/qk_full_mr_ordering.py", "PASSED 7   FAILED 0", "analysis"),
-    Check("analysis/qk_full_mr_completion.py", "PASSED 31   FAILED 0", "analysis"),
-    Check("analysis/qk_later_companions.py", "PASSED 28   FAILED 0", "analysis"),
 ]
 
 

@@ -23,3 +23,9 @@ adaptively after a failed Newton attempt.
 The reported load sweep uses $\lambda=1.3$–$2.2$ for Mooney–Rivlin, with
 crack-length, mesh, material-ratio, and $c_2=0$ controls. See
 `tests/check_claims.py` for the exact stored-data gates.
+
+The stored JSON retains a legacy near-axis in-plane exponent for provenance,
+but it is not a current paper gate. The strip-only
+`analysis/profile_mode_audit.py` instead reproduces the ESI finite-window
+table with a regular $O(r)$ term and explicitly leaves the residual exponent
+unresolved.

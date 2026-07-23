@@ -1,4 +1,4 @@
-"""Symbolic/numeric verification of 58 encoded manuscript relations.
+"""Symbolic/numeric verification of the paper-scope equation relations.
 
 Run: python verify_equations.py   (needs sympy, numpy, scipy)
 
@@ -140,11 +140,6 @@ check("y2_lead = P r^(1/2) sin(theta/2) = P sqrt(s)",
 # A0 homogeneous mode: r^{5/4} f^{5/2} = s^{5/4}
 check("A0 mode r^(5/4) f^(5/2) = s^(5/4)",
       sp.simplify((r*fpos**2)**sp.Rational(5, 4) - r**sp.Rational(5, 4)*fpos**sp.Rational(5, 2)) == 0)
-# Scaffold exponent bookkeeping beta=1/4 -> s^3/4.
-beta = sp.Rational(1, 4)
-check("scaffold bookkeeping beta=1/4 corresponds to s^(3/4)",
-      sp.simplify((beta + sp.Rational(1, 2)) - sp.Rational(3, 4)) == 0)
-
 # ======================================================================
 # 7. Near-tip Cauchy amplitude, J-integral closed form, tip-opening shape
 # ======================================================================
@@ -321,48 +316,8 @@ _ours = sp.simplify((sp.pi / 2) * (_mu / 2) * _A ** 2)   # c1 = mu/2
 check("LKH continuity: their (94) at n=1 equals (pi/2) c1 P^2",
       sp.simplify(_J_n1 - _ours) == 0, f"both = {_J_n1}")
 
-# S12. Level-one / level-two hierarchy claims.
-# (a) Level-one opening exclusion: the r^1 harmonic sin(theta) violates the
-#     traction-free face b'(pi)=0, while the level-two harmonic sin(3theta/2)
-#     satisfies both b(0)=0 and b'(pi)=0 (the free amplitude B).
 _th = sp.symbols("theta_h", positive=True)
-_b1 = sp.sin(_th)
 _b2 = sp.sin(sp.Rational(3, 2) * _th)
-check("hierarchy: sin(theta) fails b'(pi)=0 (no free r^1 opening mode)",
-      sp.simplify(sp.diff(_b1, _th).subs(_th, sp.pi)) != 0
-      and sp.simplify(_b1.subs(_th, 0)) == 0,
-      "b'(pi)=-1")
-check("hierarchy: sin(3theta/2) satisfies b(0)=0 and b'(pi)=0 (free B at 9/4)",
-      sp.simplify(_b2.subs(_th, 0)) == 0
-      and sp.simplify(sp.diff(_b2, _th).subs(_th, sp.pi)) == 0,
-      "b'(pi)=(3/2)cos(3pi/2)=0")
-# (b) Level-two forced particular solution: u_p = (1/6) f solves
-#     u'' + (3/2)^2 u = (1/3) f with f = sin(theta/2), and the forcing is
-#     Fredholm-orthogonal to the free harmonic sin(3theta/2) on [0, pi].
-_f = sp.sin(_th / 2)
-_up = _f / 6
-check("hierarchy: u_p = f/6 solves u'' + (9/4) u = (1/3) f (level two)",
-      sp.simplify(sp.diff(_up, _th, 2) + sp.Rational(9, 4) * _up - _f / 3) == 0)
-_fred = sp.integrate(_b2 * _f / 3, (_th, 0, sp.pi))
-check("hierarchy: forcing (1/3) f is Fredholm-orthogonal to sin(3theta/2)",
-      sp.simplify(_fred) == 0, f"integral={_fred}")
-# (c) Amplitude weighting delta_y1 = P^(2-2L) r^L a, delta_y2 =
-#     P^(7/2-2L) r^(L-3/4) b: at L=5/4 it reproduces the leading amplitudes
-#     (P^-1/2, P), at L=7/4 the forced pair (P^-3/2, P^0) of Eq. (ladder).
-_L = sp.Rational(5, 4)
-check("hierarchy: amplitude weighting reproduces leading (P^-1/2, P) at L=5/4",
-      2 - 2 * _L == sp.Rational(-1, 2)
-      and sp.Rational(7, 2) - 2 * _L == 1)
-_L = sp.Rational(7, 4)
-check("hierarchy: amplitude weighting gives forced pair (P^-3/2, P^0) at L=7/4",
-      2 - 2 * _L == sp.Rational(-3, 2)
-      and sp.Rational(7, 2) - 2 * _L == 0)
-# (d) Face trace of the forced level-one opening: v = -(2/3) f gives
-#     v(pi) = -2/3, the predicted coefficient of the r^1 face term at
-#     c1 = c2 (Sec. 4).
-_v = -sp.Rational(2, 3) * _f
-check("hierarchy: forced face trace v(pi) = -2/3",
-      sp.simplify(_v.subs(_th, sp.pi)) == sp.Rational(-2, 3))
 
 # S14. Opening-block endpoint (Wronskian) and dual-harmonic checks.
 # These verify the scalar opening-block conservation mechanism and its
@@ -423,209 +378,6 @@ check("opening block: dual pairs (9/4,-3/4) and (5/4,1/4) pair nonzero",
       and sp.simplify(_dual94) == -3 * sp.pi / 2
       and sp.simplify(_dual54) == -sp.pi / 2,
       f"Omega(9/4,-3/4)={_dual94}, Omega(5/4,1/4)={_dual54}")
-
-# S15. Exact leading constraint/row-one completion of the characteristic Q_k
-# shears.
-# This uses the action multiplier chi for C=J^4-|grad y2|^2, not the
-# independently propagating Phi_sc of the historical five-row scaffold.
-_kk = sp.symbols("k_q", integer=True, positive=True)
-_fq = sp.sin(_th / 2)
-_fpq = sp.diff(_fq, _th)
-_aq = _fq ** (2 * _kk)
-_deltaJq = _kk * _aq * _fpq - sp.Rational(1, 2) * _fq * sp.diff(_aq, _th)
-check("Q_k coupled: characteristic shear has delta J = delta C = 0",
-      sp.trigsimp(_deltaJq) == 0)
-
-_pq = (-2 * sp.sqrt(2) * _kk * (2 * _kk - 1)
-       * sp.cos(_th / 2) * _fq ** (2 * _kk - 2))
-_transport_q = (_fq * sp.diff(_pq, _th)
-                - (2 * _kk - 1) * _fpq * _pq
-                - sp.sqrt(2) * _kk * (2 * _kk - 1)
-                * _fq ** (2 * _kk - 2))
-check("Q_k coupled: forced action-multiplier transport is exact",
-      sp.trigsimp(sp.simplify(
-          _transport_q / _fq ** (2 * _kk - 2))) == 0)
-
-_Ch = sp.symbols("C_h", real=True)
-_pgen = _pq + _Ch * _fq ** (2 * _kk - 1)
-_Tgen = 2 * sp.diff(_aq, _th) - _fq * _pgen / sp.sqrt(2)
-check("Q_k coupled: face traction of homogeneous addition is -C_h/sqrt(2)",
-      sp.simplify(_Tgen.subs(_th, sp.pi) + _Ch / sp.sqrt(2)) == 0)
-
-_Tq = sp.trigsimp(_Tgen.subs(_Ch, 0))
-_Tq_claim = 4 * _kk**2 * sp.cos(_th / 2) * _fq ** (2 * _kk - 1)
-_Tq_reduced = sp.powsimp(sp.cancel(sp.together(
-    (_Tq - _Tq_claim)
-    / (sp.cos(_th / 2) * _fq ** (2 * _kk - 1)))), force=True)
-_Tq_numerator = sp.factor(sp.fraction(_Tq_reduced)[0])
-check("Q_k coupled: row-one angular traction profile and endpoints",
-      sp.simplify(sp.trigsimp(_Tq_numerator)) == 0
-      and all(sp.simplify(_Tq_claim.subs({_kk: kval, _th: endpoint})) == 0
-              for kval in (2, 3) for endpoint in (0, sp.pi)))
-
-_piq = 2 * _kk * _aq + sp.sqrt(2) * _fpq * _pq
-_piq_claim = (2 * _kk * _fq ** (2 * _kk - 2)
-              * (_fq**2 - (2 * _kk - 1) * sp.cos(_th / 2)**2))
-check("Q_k coupled: reaction-carrying canonical radial momentum",
-      sp.trigsimp(sp.simplify(
-          (_piq - _piq_claim) / _fq ** (2 * _kk - 2))) == 0)
-
-_p2q = sp.simplify(_pq.subs(_kk, 2))
-_pi2q = sp.trigsimp(_piq_claim.subs(_kk, 2))
-check("Q2 coupled: p2=-12 sqrt(2) f^2 cos and corrected pi1",
-      sp.simplify(_p2q + 12 * sp.sqrt(2) * _fq**2 * sp.cos(_th / 2)) == 0
-      and sp.trigsimp(_pi2q - 2 * (sp.cos(2 * _th) - sp.cos(_th))) == 0)
-
-_Ppower = sp.Rational(2) - 2 * _kk
-_chipower = -2 * _kk - sp.Rational(1, 2)
-check("Q_k coupled: restored P powers balance in delta-chi C_F",
-      sp.simplify(_chipower + sp.Rational(5, 2) - _Ppower) == 0)
-
-# S16. First subleading row-two response of the characteristic Q_k shear.
-# This is an independent transcription of the action stress, rather than an
-# import from analysis/coupled_shear_completion.py.  It establishes that the
-# bare shear is triangular: it closes the leading constraint/row-one sector,
-# then forces a later opening correction.  It does NOT assert that the later
-# correction is already a complete full-vector mode.
-_gq = sp.Function("g_q")(_th)
-_gpq = ((sp.Rational(5, 4) * _fpq * _gq - 1 / sp.sqrt(2))
-        / (sp.Rational(1, 2) * _fq))
-_psi_reg_q = (4 + 6 / _fq**2
-              - sp.Rational(15, 2) * sp.sqrt(2) * _gq * _fpq / _fq**2)
-_psi0_q = _psi_reg_q - 10 * _fq**sp.Rational(3, 2)
-
-# Coefficients of r^(k-1/4) in the row-two stress induced by the bare shear.
-_S2r_q = (sp.sqrt(2) * (4 - _psi0_q) * sp.diff(_aq, _th)
-          + _pq * (-sp.sqrt(2) * _gpq - _fq))
-_S2theta_q = (sp.sqrt(2) * (_psi0_q - 4) * _kk * _aq
-              + _pq * (sp.Rational(5, 4) * sp.sqrt(2) * _gq
-                       - 2 * _fpq))
-
-# Independently recover the compact S2 coefficients by differentiating the
-# nominal stress of F:F + J^-2 + chi(J^4-|F_2|^2) in polar reference
-# components.  This prevents the R_2k check from merely assuming its starting
-# stress formula.
-_rho_q = sp.symbols("rho_q", positive=True)
-_eps_q = sp.symbols("eps_q", real=True)
-_Pamp_q, _c1amp_q, _qamp_q = sp.symbols(
-    "P_amp_q c1_amp_q q_amp_q", positive=True)
-_F11_q = (_Pamp_q**(-sp.Rational(1, 2)) * sp.Rational(5, 4)
-          * _rho_q**sp.Rational(1, 4) * _gq
-          + _eps_q * _qamp_q * _Pamp_q**(2 - 2 * _kk)
-          * _rho_q**(_kk - 1) * _kk * _aq)
-_F12_q = (_Pamp_q**(-sp.Rational(1, 2))
-          * _rho_q**sp.Rational(1, 4) * _gpq
-          + _eps_q * _qamp_q * _Pamp_q**(2 - 2 * _kk)
-          * _rho_q**(_kk - 1) * sp.diff(_aq, _th))
-_F21_q = (_Pamp_q * sp.Rational(1, 2)
-          * _rho_q**(-sp.Rational(1, 2)) * _fq)
-_F22_q = _Pamp_q * _rho_q**(-sp.Rational(1, 2)) * _fpq
-_Jfull_q = _F11_q * _F22_q - _F12_q * _F21_q
-_chifull_q = (_c1amp_q * _Pamp_q**-3
-              * _rho_q**sp.Rational(3, 2) * _psi0_q
-              + _eps_q * _qamp_q * _c1amp_q
-              * _Pamp_q**(-2 * _kk - sp.Rational(1, 2))
-              * _rho_q**(_kk + sp.Rational(1, 4)) * _pq)
-_cof2_q = (-_F12_q, _F11_q)
-_P2full_q = tuple(
-    2 * _c1amp_q * F2 - 2 * _c1amp_q * _Jfull_q**-3 * cof2
-    + _chifull_q * (4 * _Jfull_q**3 * cof2 - 2 * F2)
-    for F2, cof2 in zip((_F21_q, _F22_q), _cof2_q)
-)
-_S2direct_q = tuple(sp.trigsimp(sp.simplify(
-    sp.diff(component, _eps_q).subs(_eps_q, 0)
-    / (_qamp_q * _c1amp_q
-       * _Pamp_q**(sp.Rational(1, 2) - 2 * _kk)
-       * _rho_q**(_kk - sp.Rational(1, 4)))))
-    for component in _P2full_q)
-
-_cof1_q = (_F22_q, -_F21_q)
-_P1full_q = tuple(
-    2 * _c1amp_q * F1 - 2 * _c1amp_q * _Jfull_q**-3 * cof1
-    + _chifull_q * 4 * _Jfull_q**3 * cof1
-    for F1, cof1 in zip((_F11_q, _F12_q), _cof1_q)
-)
-_S1direct_q = tuple(sp.trigsimp(sp.simplify(
-    sp.diff(component, _eps_q).subs(_eps_q, 0)
-    / (_qamp_q * _c1amp_q * _Pamp_q**(2 - 2 * _kk)
-       * _rho_q**(_kk - 1)))) for component in _P1full_q)
-_S1claim_q = (2 * _kk * _aq + sp.sqrt(2) * _fpq * _pq,
-              2 * sp.diff(_aq, _th) - _fq * _pq / sp.sqrt(2))
-
-
-def _trig_numerator_zero_q(expression):
-    numerator = sp.fraction(sp.cancel(sp.together(expression)))[0]
-    # The crack half-domain has 0 < theta < pi and hence f>0; combine the
-    # symbolic integer-shifted powers before applying trigonometric reduction.
-    numerator = sp.powsimp(numerator, force=True)
-    return sp.simplify(sp.trigsimp(numerator)) == 0
-
-
-_direct_action_stress_q = (
-    sp.simplify(sp.trigsimp(sp.simplify(
-        _Jfull_q.subs(_eps_q, 0) * _rho_q**sp.Rational(1, 4)
-        / _Pamp_q**sp.Rational(1, 2)
-        - 1 / sp.sqrt(2)))) == 0
-    and _trig_numerator_zero_q(_S1direct_q[0] - _S1claim_q[0])
-    and _trig_numerator_zero_q(_S1direct_q[1] - _S1claim_q[1])
-    and _trig_numerator_zero_q(_S2direct_q[0] - _S2r_q)
-    and _trig_numerator_zero_q(_S2direct_q[1] - _S2theta_q)
-)
-
-_R2q = ((_kk + sp.Rational(3, 4)) * _S2r_q
-        + sp.diff(_S2theta_q, _th))
-_R2q = _R2q.replace(sp.Derivative(_gq, _th), _gpq)
-_cq = sp.cos(_th / 2)
-_R2q_claim = (sp.sqrt(2) * _kk / 8 * _fq ** (2 * _kk - 3)
-              * (5 * sp.sqrt(2) * (4 * _kk + 1) * _gq
-                 - 4 * (8 * _kk**2 - 10 * _kk + 9) * _cq
-                 - 12 * (2 * _kk - 1) * _cq**3))
-_R2q_reduced = sp.powsimp(sp.cancel(sp.together(
-    (_R2q - _R2q_claim) / _fq ** (2 * _kk - 4))), force=True)
-_R2q_numerator = sp.factor(sp.fraction(_R2q_reduced)[0])
-_R2q_check = sp.simplify(sp.trigsimp(_R2q_numerator))
-check("Q_k subleading: variable-P,c1 action stress gives row one and R_2k",
-      _direct_action_stress_q and _R2q_check == 0)
-
-check("Q_k subleading: bare row-two face traction is -4 sqrt(2) k",
-      sp.simplify(_S2theta_q.subs(_th, sp.pi)
-                  + 4 * sp.sqrt(2) * _kk) == 0)
-
-_alpha_sl = _kk + sp.Rational(3, 4)
-check("Q_k subleading: slaved opening radial exponent matches the source",
-      sp.simplify(_alpha_sl - 2
-                  - (_kk - sp.Rational(5, 4))) == 0)
-check("Q_k subleading: restored slaved-opening P power is 1/2-2k",
-      sp.simplify((2 - 2 * _kk) - sp.Rational(3, 2)
-                  - (sp.Rational(1, 2) - 2 * _kk)) == 0)
-check("Q_k subleading: mixed opening BVP is nonresonant for integer k",
-      sp.simplify(sp.cos(_alpha_sl * sp.pi)
-                  - (-1)**(_kk + 1) / sp.sqrt(2)) == 0)
-
-# --- k+3/2 companions (eq:qkcompanion) --------------------------------
-_Lam_c = _kk + sp.Rational(3, 2)
-_nu_c = _kk + sp.Rational(3, 4)
-check("Q_k companions: restored powers P^(-2k-1) r^(k+3/2), "
-      "c1 P^(-2k-7/2) r^(k+7/4) follow from the weighted state",
-      sp.simplify((2 - 2 * _Lam_c) - (-2 * _kk - 1)) == 0
-      and sp.simplify((-2 * _kk - sp.Rational(1, 2) - 3)
-                      - (-2 * _kk - sp.Rational(7, 2))) == 0
-      and sp.simplify((_Lam_c + sp.Rational(1, 4))
-                      - (_kk + sp.Rational(7, 4))) == 0)
-
-_bpi, _gpi = sp.symbols("b_pi g_pi")
-_Apr_pi = sp.sqrt(2) * (_nu_c * _bpi + 5 * _kk * _gpi)
-check("Q_k companions: H_k(pi)=2 sqrt2 A_k'(pi)-4 nu b_k(pi)=20k g(pi); "
-      "the b_k(pi) dependence cancels identically",
-      sp.simplify(2 * sp.sqrt(2) * _Apr_pi - 4 * _nu_c * _bpi
-                  - 20 * _kk * _gpi) == 0)
-
-_fc, _fpc, _bc, _bpc = sp.symbols("f_c fp_c b_c bp_c")
-_D_c = sp.sqrt(2) * (_nu_c * _fc / 2 * _bc + _fpc * _bpc)
-_M_c = _fc / 2 * _nu_c * _bc + _fpc * _bpc
-check("Q_k companions: printed constraint RHS uses D = sqrt2 M "
-      "(sqrt2 D - 2M = 0 identically)",
-      sp.simplify(sp.sqrt(2) * _D_c - 2 * _M_c) == 0)
 
 # ======================================================================
 print("\n" + "="*60)

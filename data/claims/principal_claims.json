@@ -46,26 +46,18 @@
     {
       "id": "material-ratio-robustness",
       "status": "established-and-fem-tested",
-      "statement": "At lambda=1.6, c2/c1 = 1/3, 1, and 3 retain the energy balance, amplitude relation, angular flatness of J r^(1/4), and reported opening and near-axis in-plane finite-window exponents",
+      "statement": "At lambda=1.6, c2/c1 = 1/3, 1, and 3 retain the energy balance, amplitude relation, angular flatness of J r^(1/4), and finite-window opening power",
       "evidence": ["data/fem/strip/summary.csv", "data/fem/strip/ps_MR_lam16_c2_third.json", "data/fem/strip/ps_MR_lam16.json", "data/fem/strip/ps_MR_lam16_c2_3.json", "figures/rendered/fig_cratio.pdf", "tests/check_claims.py"]
     },
     {
-      "id": "tip-shape",
-      "status": "conditional-and-finite-window-audited",
-      "statement": "For persistent nonzero C_s the raw face exponent is 1/2; 2/5 applies only when C_s=0 or conditionally to the residual after subtracting C_s r. The stored c2>0 annuli are consistent with a nonzero s-like background and raw slopes near 1/2, but do not identify the ultimate matched C_s or establish a universal residual exponent",
-      "evidence": ["analysis/profile_mode_audit.py", "data/derived/profile_mode_audit.json", "figures/rendered/fig_profile_correction.pdf"]
-    },
-    {
       "id": "leading-stress",
-      "status": "established-and-secondary-fem-tested",
+      "status": "analytic-corollary",
       "statement": "sigma22 r = G/pi at leading order; this relation is class-universal and is shared by the c2=0 control",
-      "evidence": ["fem/check_new_signatures.py", "data/fem/disk/", "figures/rendered/fig_sigma_G.pdf"]
-    },
-    {
-      "id": "full-coupled-spectrum",
-      "status": "open",
-      "statement": "A completed five-block finite-compliance spectrum and normalized extraction integrals are not established in this repository",
-      "evidence": ["CODE_MAP.md", "analysis/symplectic_dae.py"]
+      "evidence": ["analysis/energy_release_rate.py", "verification/verify_equations.py"]
     }
+  ],
+  "open_work": [
+    "global matching of C_s and the formal r^(5/4) residual",
+    "a completed coupled finite-compliance spectrum and normalized higher-order extraction integrals"
   ]
 }

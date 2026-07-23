@@ -114,34 +114,26 @@ def main() -> None:
          not in energy_statement),
         "exact leading-flux result on truncated map, not a completed branch",
     )
-    profile_claim = claims.get("tip-shape", {})
-    profile_statement = profile_claim.get("statement", "")
-    profile_evidence = set(profile_claim.get("evidence", []))
-    gate(
-        "corrected profile claim graph",
-        ("persistent nonzero C_s" in profile_statement
-         and "raw face exponent is 1/2" in profile_statement
-         and "2/5 applies only" in profile_statement
-         and "annuli are consistent with" in profile_statement
-         and "do not identify the ultimate matched C_s" in profile_statement
-         and "analysis/profile_mode_audit.py" in profile_evidence
-         and not any("fig_tip_shape" in item for item in profile_evidence)),
-        "raw 1/2 with persistent C_s; residual/zero-C_s 2/5 only",
-    )
-    gate(
-        "retired target-selected figure absent",
-        not any(FIGURES.glob("fig_tip_shape.*")),
-        "no fig_tip_shape asset remains",
-    )
+    expected_figure_stems = {
+        "fig_master",
+        "fig_chain",
+        "fig_ps_portrait",
+        "fig_plateau",
+        "fig_cratio",
+        "fig_esi_mesh",
+    }
     figure_pdfs = sorted(FIGURES.glob("*.pdf"))
+    figure_pngs = sorted(FIGURES.glob("*.png"))
     type3_pdfs = [
         path.name for path in figure_pdfs
         if b"/Subtype /Type3" in path.read_bytes()
     ]
     gate(
-        "publisher font preflight",
-        len(figure_pdfs) == 10 and not type3_pdfs,
-        f"{len(figure_pdfs)} rendered PDFs; no embedded Type 3 fonts",
+        "current figure inventory and publisher font preflight",
+        ({path.stem for path in figure_pdfs} == expected_figure_stems
+         and {path.stem for path in figure_pngs} == expected_figure_stems
+         and not type3_pdfs),
+        f"{len(figure_pdfs)} PDF/PNG pairs; no embedded Type 3 fonts",
     )
 
     with SUMMARY.open(newline="", encoding="utf-8") as stream:
@@ -202,7 +194,6 @@ def main() -> None:
             "P_pred": energy["P_pred_from_G_spec"],
             "P_err": energy["rel_err_P_vs_pred"],
             "J_exp": signatures["J_exp"], "open_exp": signatures["open_exp"],
-            "inplane_exp": signatures["inplane_exp"],
             "plateau": signatures["Jr14_plateau"],
             "spread": signatures["Jr14_spread"],
         }
@@ -345,23 +336,6 @@ def main() -> None:
         )[0][0])
         fitted_open = power_slope(face, "Y2")
 
-        near = rays[2]
-        near_mask = ((near["r"] >= lo) & (near["r"] <= hi)
-                     & np.isfinite(near["Y1"]))
-        near_r = near["r"][near_mask]
-        near_y = near["Y1"][near_mask]
-        order = np.argsort(near_r)
-        log_r = np.log(near_r[order])
-        derivative = np.gradient(near_y[order], log_r)
-        derivative_mask = np.abs(derivative) > 0.0
-        derivative_design = np.column_stack([
-            np.ones(derivative_mask.sum()), log_r[derivative_mask]
-        ])
-        fitted_inplane = float(np.linalg.lstsq(
-            derivative_design, np.log(np.abs(derivative[derivative_mask])),
-            rcond=None,
-        )[0][1])
-
         fitted_J = float(np.mean([
             power_slope(ray, "J") for ray in rays.values()
         ]))
@@ -384,7 +358,6 @@ def main() -> None:
         expected_from_rays = {
             "P_measured": fitted_P,
             "open_exp": fitted_open,
-            "inplane_exp": fitted_inplane,
             "J_exp": fitted_J,
             "Jr14_plateau": fitted_plateau,
             "Jr14_spread": fitted_spread,
@@ -399,7 +372,7 @@ def main() -> None:
             rel_tol=1e-9, abs_tol=1e-10,
         )
     gate("strip ray/scalar numerical binding", ray_signature_ok,
-         "P, radial exponents, and angular plateau recompute from each case's rays")
+         "P, opening/J powers, and angular plateau recompute from each case's rays")
 
     field_specs = {
         "MR_lam13": (1.0, 1.0, 1.3, 18),
@@ -538,12 +511,9 @@ def main() -> None:
 
     j_errors = [abs(float(row["J_exp"]) + 0.25) for row in mr]
     open_errors = [abs(float(row["open_exp"]) - 0.5) for row in mr]
-    inplane_errors = [abs(float(row["inplane_exp"]) - 1.25) for row in mr]
-    gate("MR opening/J and near-axis residual finite-window exponents",
-         max(j_errors) < 0.004
-         and max(open_errors) < 0.055 and max(inplane_errors) < 0.025,
-         f"max |Δp|: J={max(j_errors):.4f}, opening={max(open_errors):.4f}, "
-         f"in-plane={max(inplane_errors):.4f}")
+    gate("MR opening/J finite-window powers",
+         max(j_errors) < 0.004 and max(open_errors) < 0.055,
+         f"max |Δp|: J={max(j_errors):.4f}, opening={max(open_errors):.4f}")
 
     mr_spreads = [float(row["spread"]) for row in mr]
     control_spreads = [float(rows[tag]["spread"])
@@ -561,11 +531,10 @@ def main() -> None:
         and max(float(row["P_err"]) for row in ratio) <= 0.0301
         and max(float(row["spread"]) for row in ratio) < 0.10
         and max(abs(float(row["open_exp"]) - 0.5) for row in ratio) < 0.055
-        and max(abs(float(row["inplane_exp"]) - 1.25) for row in ratio) < 0.025
     )
     gate("material-ratio study", ratio_ok,
          "c2/c1 = 1/3, 1, 3 satisfy energy, amplitude, angular-flatness, "
-         "and reported opening/near-axis residual exponent gates")
+         "and opening-power gates")
 
     mesh_p = [float(rows[tag]["P_meas"])
               for tag in ("MESH_nr48", "MESH_nr96", "MR_lam16")]
@@ -573,18 +542,7 @@ def main() -> None:
     gate("strip mesh sensitivity", mesh_spread < 0.002,
          f"relative P range {100 * mesh_spread:.3f}%")
 
-    disk = subprocess.run(
-        [sys.executable, str(ROOT / "fem" / "check_new_signatures.py")],
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    print(disk.stdout, end="")
-    gate("disk leading-stress cross-check", disk.returncode == 0,
-         f"return code {disk.returncode}")
-
-    profile = subprocess.run(
+    profile_table = subprocess.run(
         [sys.executable, str(ROOT / "analysis" / "profile_mode_audit.py"),
          "--check-stored"],
         cwd=ROOT,
@@ -592,9 +550,10 @@ def main() -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
     )
-    print(profile.stdout, end="")
-    gate("C_s-aware stored profile audit", profile.returncode == 0,
-         f"return code {profile.returncode}")
+    print(profile_table.stdout, end="")
+    gate("strip-only ESI finite-window table reproduction",
+         profile_table.returncode == 0,
+         "b, raw slopes, and nested q values reproduce; q remains unresolved")
 
     print("All principal stored-data claims passed.")
 

@@ -1,35 +1,48 @@
 # Finite-element models
 
-Two reduced incompressible plane-stress models have distinct roles:
+## Paper-facing model: pure-shear strip
 
-- `pure_shear/` is the primary specimen-scale validation. Its remote state
-  gives $G=hW_\infty$ in closed form, so the measured crack-tip amplitude can
-  be compared with a parameter-free prediction.
-- the files in this directory implement a focused disk with homogeneous remote
-  isochoric stretch prescribed on its outer boundary. It is a secondary
-  deep-window consistency check, not independent specimen validation.
+`pure_shear/` is the sole specimen-scale FEM validation used by the paper. Its
+far-ahead state gives
 
-Create the environment from the repository root with
-`conda env create -f environment-fem.yml`. Run commands from the directory
-containing the selected driver so that its local imports resolve.
-
-Examples:
-
-```bash
-# From fem/
-python run_one_case.py --c1 1 --c2 1 --lam 2.0 --tag MR_lam20
-python check_new_signatures.py  # checks the committed disk leading stress
-
-# From fem/pure_shear/
-python run_ps.py --c1 1 --c2 1 --lam 1.6 --tag MR_lam16
-python ps_export.py             # six field snapshots used by figures
-python ps_report.py             # aggregate locally generated cases
+```text
+G = h W_infinity
 ```
 
-The constitutive convention is
-$W=c_1(I_1-3)+c_2(I_2-3)$ without an extra factor of $1/2$. The $c_2=0$
-cases are neo-Hookean controls. They fail the tested $I_2$-specific Jacobian
-contrast, but share class-universal opening and leading-stress results; they
-are not expected to fail every relation. The raw face exponent is no longer
-used as a material discriminator: a persistent regular $C_s s$ term gives a
-raw $1/2$ profile in the Mooney–Rivlin field as well.
+in closed form, so the measured crack-tip amplitude can be compared with a
+parameter-free prediction.
+
+Create the environment from the repository root with
+`conda env create -f environment-fem.yml`, then run:
+
+```bash
+cd fem/pure_shear
+python run_ps.py --c1 1 --c2 1 --lam 1.6 --tag MR_lam16
+python ps_export.py
+python ps_report.py
+```
+
+Fresh output is written beneath ignored local output directories. Curated
+publication inputs live under `data/fem/strip/` and are never overwritten
+implicitly.
+
+## Quarantined auxiliary model: focused disk
+
+The top-level disk mesh and solver files are retained only as negative
+provenance. Their full-arc boundary condition,
+`F_far=diag(lambda^(-1),lambda)`, imposes crack-parallel compression and pins
+the outer mouth. It is not equivalent to the Rivlin–Thomas strip. The stored
+high-load branch also develops a same-upper-face self-intersection, while the
+solver has no contact or global-injectivity constraint.
+
+Accordingly:
+
+- disk outputs are not physical validation or a pure-shear surrogate;
+- `check_new_signatures.py` is an archival diagnostic, not a standard test;
+- no disk data enter the paper figures or current claim ledger; and
+- rerunning `run_one_case.py` reproduces only this quarantined auxiliary BVP.
+
+The constitutive convention in both models is
+`W=c1(I1-3)+c2(I2-3)` without an extra factor of one half. The `c2=0` strip
+cases are neo-Hookean controls for the `I2`-specific compensated-Jacobian
+contrast; they are not expected to fail class-universal relations.

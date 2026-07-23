@@ -1,11 +1,12 @@
-"""Near-tip field extraction and the FEM_PROTOCOL tests (T1, T2, T3).
+"""Archival extraction for the quarantined focused-disk calculation.
 
 Given a solved state (from mr_fem_solve.solve), sample the deformed
-coordinates (Y1, Y2) and the in-plane Jacobian J = det F along rays, then:
+coordinates (Y1, Y2) and the in-plane Jacobian J = det F along rays. The
+returned legacy diagnostics preserve provenance but are not paper gates:
 
-  T1  finite-window powers: Y2(theta=pi) ~ r^{1/2}, the detrended/near-axis
-      Y1 residual is compatible with r^{5/4}, and J ~ r^{-1/4}.  The near-axis
-      ray suppresses C_s s and is not a raw face-profile test.
+  T1  finite-window powers: Y2(theta=pi) and J; the old near-axis Y1 residual
+      estimator is retained in serialized provenance but is not interpreted
+      as evidence for an asymptotic residual exponent.
   T2  constant-Delta signature:  J*r^{1/4} vs theta -> plateau (MR) / varies (NH)
   T3  parameter-free amplitude:  J*r^{1/4} = sqrt(P/2),  with P from Y2(pi).
 
@@ -206,8 +207,9 @@ def run_tests(res, window, thetas_deg=(2, 45, 90, 135, 178), n_r=40,
 
     # --- T1 exponents ---
     near = get_ray(rays, 2)
-    # Near-axis finite-window residual: theta=2 deg strongly suppresses C_s s.
-    # The separate public profile audit fits c0+b*r+a*r^(5/4) across all rays.
+    # Legacy near-axis diagnostic retained in stored scalar provenance. It is
+    # not used to establish the residual exponent; the strip-only ESI audit
+    # fits c0+b*r+a*r^q across all rays and reports q as unresolved.
     c0_in, Q1, n_in, rms_in = fit_offset_amplitude(near["r"], near["Y1"], window, 1.25)
     p_in, n_in_d = fit_deriv_exponent(near["r"], near["Y1"], window)
     # J exponent: average the slope over all rays

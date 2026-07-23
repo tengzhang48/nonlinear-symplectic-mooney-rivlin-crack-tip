@@ -23,7 +23,9 @@ jobs:
         run: python tests/check_claims.py
       - name: Rebuild selected analytic profile
         run: python data/analytic/build_profile.py
-      - name: Rebuild main figures from tracked inputs
+      - name: Rebuild strip-only ESI table
+        run: python analysis/profile_mode_audit.py --write
+      - name: Rebuild five paper figures from tracked strip inputs
         run: python figures/make_figures.py
       - name: Verify regenerated artifacts are unchanged
         run: sha256sum -c MANIFEST.sha256

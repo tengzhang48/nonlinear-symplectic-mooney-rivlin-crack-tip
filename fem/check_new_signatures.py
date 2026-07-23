@@ -1,7 +1,9 @@
-"""Check the leading-stress relation against the stored disk FEM cases.
+"""Archival diagnostic for the quarantined stored disk cases.
 
 Reads the curated ``data/fem/disk/fem_case_*.json`` files (no re-solve
-needed) and tests:
+needed). This script is excluded from standard tests and paper claims because
+the disk BVP is not a valid pure-shear surrogate and its high-load branch is
+globally inadmissible. Within that narrow archival context it evaluates:
 
   S1  Cauchy stress amplitude:  sigma1 * r -> c1 P^2 / 2  (= G / pi),
       flat in theta.  sigma1 is the largest principal Cauchy stress computed
@@ -18,9 +20,9 @@ needed) and tests:
       window.  It is not an I2 discriminator.
 
 The former S2 raw-tip-shape gate was invalid: it omitted the physical
-``C_s s`` mode and selected a tangent near a target slope.  It has been
-removed.  ``analysis/profile_mode_audit.py`` provides the corrected
-shared-tip-coordinate, C_s-aware finite-window diagnostic.
+``C_s s`` mode and selected a tangent near a target slope. It has been
+removed. The current `analysis/profile_mode_audit.py` consumes strip data
+only and has no dependency on this diagnostic.
 
 Run:  python check_new_signatures.py   (numpy only)
 """

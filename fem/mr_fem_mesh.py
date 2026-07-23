@@ -1,4 +1,7 @@
-"""Focused near-tip mesh for the Mooney-Rivlin plane-stress crack tip.
+"""Mesh for the quarantined focused-disk auxiliary boundary-value problem.
+
+This geometry is retained as negative provenance. It is not the paper's
+Rivlin--Thomas strip and is excluded from standard figures and tests.
 
 Built directly in dolfinx (no gmsh): a graded half-disk "spider web" polar
 mesh centred on the crack tip.  The tip sits at the origin; the upper half

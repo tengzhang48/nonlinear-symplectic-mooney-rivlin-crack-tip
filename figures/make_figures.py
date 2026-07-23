@@ -1,36 +1,32 @@
-"""Reproducibility figures for the Mooney--Rivlin crack-tip project.
+"""Render the five current paper figures from analytic and strip FEM inputs.
 
-Reproducibility set (strip = physical specimen, disk = deep-window check):
-  fig_master     Fig 1: specimen / circular cut with pseudo-time and (q,p) /
-                 constrained tip state
-  fig_hierarchy  historical scaffold diagnostic; not a completed coupled
-                 operator (computed live from analysis/symplectic_dae.py)
-  fig_ps_portrait, fig_chain, fig_plateau (strip data)
-  fig_cratio     c2/c1 family maps (strip, deep window)
-  fig_solution_compare, fig_sigma_G (disk deep window)
-  fig_profile_correction (C_s-aware disk/strip profile audit)
+Outputs:
+  fig_master       Figure 1: specimen, radial state, constrained tip state
+  fig_chain        Figure 2: pure-shear loading-to-tip-amplitude chain
+  fig_ps_portrait  Figure 3: strip solution portraits
+  fig_plateau      Figure 4: compensated-Jacobian angular comparison
+  fig_cratio       Figure 5: material-ratio comparison
+
+The quarantined disk boundary-value problem, withdrawn profile estimator, and
+historical hierarchy scaffold are deliberately outside this dispatcher.
 
 Run from the repository root:  python figures/make_figures.py
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
-import subprocess
-import sys
 
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle, FancyArrowPatch
+from matplotlib.patches import Rectangle
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 FIG = HERE / "rendered"
 FIG.mkdir(exist_ok=True)
-FEMOUT = ROOT / "data" / "fem" / "disk"
-WINDOW = (1e-4, 1e-3)
+PSOUT = ROOT / "data" / "fem" / "strip"
 
 plt.rcParams.update({
     "font.size": 12, "axes.labelsize": 13.5, "axes.titlesize": 13,
@@ -40,54 +36,10 @@ plt.rcParams.update({
     "mathtext.fontset": "cm", "savefig.bbox": "tight", "savefig.dpi": 300,
 })
 
-MR_COLOR, NH_COLOR, TH_COLOR = "#c1272d", "#1f77b4", "0.15"
+MR_COLOR, NH_COLOR = "#c1272d", "#1f77b4"
 
 
 # ------------------------------------------------------------------ helpers
-def load_case(tag):
-    d = json.loads((FEMOUT / f"fem_case_{tag}.json").read_text())
-    rays = {ray["theta_deg"]: {k: np.asarray(v) for k, v in ray.items()
-                               if isinstance(v, list)} for ray in d["rays"]}
-    return d, rays
-
-
-def fit_face_P(rays):
-    face = rays[max(rays)]
-    r, y2 = face["r"], face["Y2"]
-    lo, hi = WINDOW
-    m = (r >= lo) & (r <= hi) & np.isfinite(y2)
-    A = np.column_stack([np.sqrt(r[m]), r[m]])
-    (P, _), *_ = np.linalg.lstsq(A, y2[m], rcond=None)
-    return float(P)
-
-
-def fit_regular_residual(r, q, window, exp=1.25):
-    lo, hi = window
-    m = (r >= lo) & (r <= hi) & np.isfinite(q)
-    design = np.column_stack([np.ones(m.sum()), r[m], r[m] ** exp])
-    scale = np.linalg.norm(design, axis=0)
-    coefficients, *_ = np.linalg.lstsq(design / scale, q[m], rcond=None)
-    c0, regular, residual = coefficients / scale
-    return float(c0), float(regular), float(residual)
-
-
-def window_mean_vs_theta(rays, value_fn, n_probe=5):
-    lo, hi = WINDOW
-    r_probe = np.logspace(np.log10(lo), np.log10(hi), n_probe)
-    thetas, vals = [], []
-    for thd in sorted(rays):
-        ray = rays[thd]
-        v = value_fn(ray)
-        m = np.isfinite(v) & (v > 0)
-        if m.sum() < 4:
-            continue
-        vv = np.exp(np.interp(np.log(r_probe), np.log(ray["r"][m]),
-                              np.log(v[m])))
-        thetas.append(thd)
-        vals.append(float(np.mean(vv)))
-    return np.array(thetas), np.array(vals)
-
-
 def panel_label(ax, letter, x=0.02, y=0.985):
     ax.text(x, y, letter, transform=ax.transAxes, fontsize=13,
             fontweight="bold", va="top")
@@ -98,164 +50,6 @@ def save_pair(fig, stem):
     fig.savefig(FIG / f"{stem}.pdf",
                 metadata={"CreationDate": None, "ModDate": None})
     fig.savefig(FIG / f"{stem}.png")
-
-
-def fig_solution_compare():
-    """The analytical solution (lines/curves) with the FEM on top (markers):
-    (a) the three radial power laws along rays; (b) the angular profiles
-    f(theta) = sin(theta/2) and g(theta), with FEM values at three radii
-    collapsing onto the curves."""
-    d, rays = load_case("MR_lam20")
-    P = fit_face_P(rays)
-    near = rays[min(rays)]                       # ~2 deg ray
-    face = rays[max(rays)]                       # ~178 deg ray
-    mid = rays[sorted(rays, key=lambda t: abs(t - 90))[0]]
-    c0, b_near, _ = fit_regular_residual(
-        near["r"], near["Y1"], WINDOW, 1.25
-    )
-
-    prof = np.load(ROOT / "data" / "analytic" / "mr_leading_profile.npz")
-    th_p, g_p = prof["theta"], prof["g"]
-    g_at = lambda t: np.interp(t, th_p, g_p)
-
-    fig, (axA, axB) = plt.subplots(1, 2, figsize=(11.0, 4.3))
-
-    # ---- (a) radial power laws --------------------------------------------
-    rline = np.logspace(np.log10(4e-5), np.log10(2.5e-3), 100)
-    sets = [
-        (face["r"], face["Y2"], P * np.sqrt(rline),
-         "#1f77b4", "o", r"opening $y_2$ on the face$\;\propto r^{1/2}$"),
-        (near["r"], np.abs(near["Y1"] - c0 - b_near * near["r"]),
-         P ** -0.5 * g_at(np.deg2rad(min(rays))) * rline ** 1.25,
-         "#c1272d", "^", r"detrended in-plane residual$\;\propto r^{5/4}$"),
-        (mid["r"], mid["J"], np.sqrt(P / 2.0) * rline ** -0.25,
-         "#3d8c40", "s", r"Jacobian $J$ at $\theta=90^\circ\propto r^{-1/4}$"),
-    ]
-    for rr, vv, theo, color, mark, lab in sets:
-        m = (rr >= 5e-5) & (rr <= 2e-3) & np.isfinite(vv) & (vv > 0)
-        axA.loglog(rline, theo, color=color, lw=1.8)
-        axA.loglog(rr[m][::2], vv[m][::2], ls="none", marker=mark, ms=6,
-                   mfc="none", mew=1.5, color=color, label=lab)
-    axA.axvspan(*WINDOW, color="0.5", alpha=0.10, zorder=0)
-    axA.annotate("fit window", (1.1e-4, 11.5), fontsize=9.5, color="0.4")
-    axA.annotate("slope $-1/4$", (4.5e-4, 8.2), color="#3d8c40",
-                 fontsize=10.5)
-    axA.annotate("slope $1/2$", (8e-4, 2.1e-2), color="#1f77b4",
-                 fontsize=10.5)
-    axA.annotate("slope $5/4$", (5.5e-4, 2.0e-5), color="#c1272d",
-                 fontsize=10.5)
-    axA.set_xlabel(r"distance from the tip $r$ (reference)")
-    axA.set_ylabel("field value")
-    axA.legend(frameon=False, fontsize=9.5, loc="center left",
-               bbox_to_anchor=(0.02, 0.74))
-    panel_label(axA, "a")
-
-    # ---- (b) angular profiles ---------------------------------------------
-    th_deg = np.array(sorted(rays))
-    r_pick = [1e-4, 3e-4, 1e-3]
-    fills = [0.35, 0.65, 1.0]
-    thc = np.linspace(0, np.pi, 200)
-    axB.plot(np.rad2deg(thc), np.sin(thc / 2), color="#1f77b4", lw=1.9,
-             label=r"theory $f(\theta)=\sin(\theta/2)$")
-    axB.plot(np.rad2deg(th_p), g_p, color="#c1272d", lw=1.9,
-             label=r"theory residual $g(\theta)$")
-    # opening profile: pointwise collapse of Y2/(P sqrt(r)) at three radii
-    for rp, al in zip(r_pick, fills):
-        fvals = []
-        for tdeg in th_deg:
-            ray = rays[tdeg]
-            i = np.argmin(np.abs(ray["r"] - rp))
-            fvals.append(ray["Y2"][i] / (P * np.sqrt(ray["r"][i])))
-        axB.plot(th_deg, fvals, "o", color="#1f77b4", alpha=al, ms=6.5,
-                 mfc="none", mew=1.6)
-    # in-plane profile: the r^{5/4} term is tiny and rides on a smooth
-    # background (c + b r from the outer field), so extract its amplitude by
-    # a per-ray window fit  Y1 = c + b r + a r^{5/4}  and plot a sqrt(P).
-    gvals = []
-    lo, hi = WINDOW
-    for tdeg in th_deg:
-        ray = rays[tdeg]
-        m = (ray["r"] >= lo * 0.5) & (ray["r"] <= hi * 2.0)
-        rr, y1 = ray["r"][m], ray["Y1"][m]
-        A = np.column_stack([np.ones_like(rr), rr, rr ** 1.25])
-        coef, *_ = np.linalg.lstsq(A, y1, rcond=None)
-        gvals.append(coef[2] * P ** 0.5)
-    axB.plot(th_deg, gvals, "^", color="#c1272d", ms=7.5, mfc="none",
-             mew=1.7)
-    axB.plot([], [], "o", color="#1f77b4", mfc="none",
-             label=r"FEM opening at $r=10^{-4},3{\cdot}10^{-4},10^{-3}$")
-    axB.plot([], [], "^", color="#c1272d", mfc="none",
-             label=r"FEM in-plane $r^{5/4}$ amplitude (per-ray fit)")
-    axB.set_xlabel(r"angle $\theta$ (deg)")
-    axB.set_ylabel("angular profile")
-    axB.set_xticks([0, 45, 90, 135, 180])
-    axB.set_ylim(-0.05, 2.95)
-    axB.annotate(r"$g(\theta)$: residual", (155, 2.42), color="#c1272d",
-                 fontsize=11)
-    axB.annotate(r"$f(\theta)$: opening", (120, 0.62), color="#1f77b4",
-                 fontsize=11)
-    axB.legend(frameon=False, fontsize=9, loc="upper left")
-    panel_label(axB, "b")
-
-    fig.tight_layout()
-    save_pair(fig, "fig_solution_compare")
-    plt.close(fig)
-    print(f"wrote fig_solution_compare  "
-          f"(P = {P:.4f}, c0 = {c0:.4f}, b_2deg = {b_near:.4f})")
-
-
-def fig_profile_correction():
-    """Regenerate the C_s-aware profile audit and its structured output."""
-    subprocess.run(
-        [sys.executable, str(ROOT / "analysis" / "profile_mode_audit.py"),
-         "--write"],
-        cwd=ROOT,
-        check=True,
-    )
-
-
-def fig_sigma_G():
-    fig, ax = plt.subplots(figsize=(5.8, 4.3))
-    style = {"MR_lam15": dict(color=MR_COLOR, marker="o", ls="--",
-                              label=r"MR, $\lambda=1.5$"),
-             "MR_lam20": dict(color=MR_COLOR, marker="^", ls="-",
-                              label=r"MR, $\lambda=2.0$"),
-             "NH_lam15": dict(color=NH_COLOR, marker="s", ls="--",
-                              label=r"neo-Hookean, $\lambda=1.5$"),
-             "NH_lam20": dict(color=NH_COLOR, marker="v", ls="-",
-                              label=r"neo-Hookean, $\lambda=2.0$")}
-    for tag, st in style.items():
-        d, rays = load_case(tag)
-        c1, c2 = d["c1"], d["c2"]
-        P = fit_face_P(rays)
-        pred = c1 * P ** 2 / 2.0
-
-        def s1r(ray, c1=c1, c2=c2):
-            lam1, lam2 = ray["lam1"], ray["lam2"]
-            lam3 = 1.0 / (lam1 * lam2)
-            return (2.0 * (lam1 ** 2 - lam3 ** 2)
-                    * (c1 + c2 * lam2 ** 2) * ray["r"])
-
-        th, v = window_mean_vs_theta(rays, s1r)
-        ax.plot(th, v / pred, mfc="none", mew=1.5, **st)
-    ax.axhspan(0.95, 1.05, color="0.5", alpha=0.12, zorder=0)
-    ax.axhline(1.0, color="k", lw=1.8)
-    ax.annotate(r"theory: $\sigma_{22}\,r=G/\pi$   ($\pm5\%$ band)",
-                (6, 1.058), fontsize=11.5)
-    ax.annotate("all four cases collapse onto one line",
-                (28, 0.855), fontsize=11, color="0.35", style="italic")
-    ax.set_xlabel(r"angle $\theta$ (deg)")
-    ax.set_ylabel(r"near-tip stress  $\sigma_1 r\,/\,(G/\pi)$")
-    ax.set_xticks([0, 45, 90, 135, 180])
-    ax.set_ylim(0.72, 1.18)
-    ax.legend(frameon=False, ncol=2, loc="lower left", columnspacing=1.0)
-    save_pair(fig, "fig_sigma_G")
-    plt.close(fig)
-    print("wrote fig_sigma_G")
-
-
-# =============================== pure-shear era figures (2026-07-03)
-PSOUT = ROOT / "data" / "fem" / "strip"
 
 
 def fig_master():
@@ -716,154 +510,14 @@ def fig_cratio_ps(tags=(("psfield_NH_lam16", "0 (neo-Hookean)"),
           + ", ".join(f"P={s['P']:.3f}" for s, _ in snaps))
 
 
-def fig_hierarchy():
-    """Combined hierarchy figure: (a) the crank, (b) ladder + computed
-    eigenvalues on one axis, (c) the 9/4 obstruction in plain terms."""
-    import sys
-    sys.path.insert(0, str(ROOT / "analysis"))
-    from symplectic_dae import (assemble_pencil, classified_mode_roots,
-                                finite_real_eigs, cluster,
-                                reaction_basis_spectrum)
-    from matplotlib.patches import FancyBboxPatch
-
-    fig = plt.figure(figsize=(13.6, 7.2))
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.0, 1.08],
-                          height_ratios=[0.44, 0.56], hspace=0.42,
-                          wspace=0.16)
-    axA = fig.add_subplot(gs[:, 0])
-    axB = fig.add_subplot(gs[0, 1])
-    axC = fig.add_subplot(gs[1, 1])
-
-    # ---- (a) the crank ------------------------------------------------------
-    def box(xy, w, h, text, fc="0.96", ec="0.25", fs=12.5):
-        axA.add_patch(FancyBboxPatch(xy, w, h, boxstyle="round,pad=0.07",
-                                     fc=fc, ec=ec, lw=1.3))
-        axA.text(xy[0] + w / 2, xy[1] + h / 2, text, ha="center",
-                 va="center", fontsize=fs)
-
-    def arr(p, q, text="", dx=0.12, fs=11, color="0.25"):
-        axA.annotate("", xy=q, xytext=p,
-                     arrowprops=dict(arrowstyle="-|>", color=color, lw=1.6))
-        if text:
-            axA.text((p[0] + q[0]) / 2 + dx, (p[1] + q[1]) / 2, text,
-                     fontsize=fs, color=color, ha="left", va="center")
-
-    box((1.3, 8.9), 4.2, 0.95, "levels $<k$ solved")
-    arr((3.4, 8.9), (3.4, 8.15), "residue $=$ forcing")
-    box((1.3, 7.15), 4.2, 1.0,
-        "$(A-\\Lambda_k E)\\,\\varphi_k=$ forcing\n(same operator)", fs=12)
-    arr((3.4, 7.15), (3.4, 6.4))
-    box((1.85, 5.5), 3.1, 0.9, "$\\Lambda_k$ eigenvalue?", fc="0.99")
-    arr((2.3, 5.5), (1.55, 4.7), "no", dx=-0.5)
-    arr((4.5, 5.5), (5.25, 4.7), "yes", dx=0.12)
-    box((0.1, 3.55), 2.9, 1.15, "solve; endpoints\nfix the constants",
-        fs=11.5)
-    box((3.95, 3.55), 2.9, 1.15,
-        "$\\Omega$-solvable:\n$+$ free amplitude\n($P,\\,B,\\,Q_k$)",
-        fs=11.5)
-    arr((6.2, 3.55), (6.2, 2.75), "if not:", dx=-1.1, fs=10.5)
-    box((4.2, 1.85), 2.45, 0.9, "half powers\n($\\Lambda=9/4$)",
-        fc="#fbeaea", ec=MR_COLOR, fs=11.5)
-    arr((1.55, 3.55), (1.55, 0.95))
-    arr((5.0, 1.85), (4.2, 0.95))
-    box((1.3, 0.05), 4.2, 0.9, "next level: $\\Lambda\\to\\Lambda+1/2$")
-    axA.plot([5.5, 7.05], [0.5, 0.5], color="0.6", lw=1.5)
-    axA.annotate("", xy=(7.05, 9.4), xytext=(7.05, 0.5),
-                 arrowprops=dict(arrowstyle="-|>", color="0.6", lw=1.5))
-    axA.plot([7.05, 5.5], [9.37, 9.37], color="0.6", lw=1.5)
-    axA.text(7.28, 4.9, "repeat", fontsize=11.5, color="0.5", rotation=90,
-             va="center")
-    axA.set_xlim(-0.15, 7.75)
-    axA.set_ylim(-0.3, 10.15)
-    axA.axis("off")
-    panel_label(axA, "a", x=0.0, y=1.0)
-
-    # ---- (b) ladder + computed eigenvalues on one axis ----------------------
-    th, A, E = assemble_pencil(N=40)
-    raw = cluster(finite_real_eigs(A, E))
-    win = np.array(classified_mode_roots(raw))
-    mus = [(1.0, "filled", "shear $s$", 1),
-           (1.25, "filled", "slave $g$", -1),
-           (1.5, "filled", "shear $s^{3/2}$", 1),
-           (2.0, "open", "$Q_2$", 1),
-           (2.25, "flag", "obstruction", -1),
-           (2.5, "filled", "reaction $f^{2}$", 1),
-           (3.0, "open", "$Q_3$", 1)]
-    axB.axhline(0.55, color="0.3", lw=1.1)
-    for mu, kind, lab, side in mus:
-        y0 = 0.55
-        if kind == "open":
-            axB.plot(mu, y0, "o", ms=13, mfc="white", mec=MR_COLOR,
-                     mew=2.2, zorder=5)
-        elif kind == "filled":
-            axB.plot(mu, y0, "o", ms=10, color="0.35", zorder=4)
-        else:
-            axB.plot(mu, y0, "s", ms=13, mfc="#fbeaea", mec=MR_COLOR,
-                     mew=2.2, zorder=5)
-        if side > 0:
-            axB.annotate(lab, (mu, 0.78), fontsize=10, ha="center",
-                         va="bottom")
-        else:
-            axB.annotate(lab, (mu, 0.32), fontsize=10, ha="center",
-                         va="top")
-    # computed values, plotted beneath the same axis
-    axB.plot(win, np.full_like(win, -0.25), "x", ms=9, mew=2.2,
-             color="k", zorder=5)
-    for v in win:
-        axB.plot([v, v], [-0.25, 0.72], color="0.85", lw=0.9, zorder=1)
-    axB.annotate("computed eigenvalues (collocation)", (0.95, -0.62),
-                 fontsize=10.5, color="k")
-    axB.annotate("the homogeneous modes, and what they are",
-                 (0.95, 1.28), fontsize=11, color="0.25")
-    for mu in (1.0, 1.5, 2.0, 2.5, 3.0):
-        axB.annotate(f"{mu:g}", (mu, -0.05), fontsize=9.5, ha="center",
-                     color="0.45")
-    axB.set_xlim(0.88, 3.25)
-    axB.set_ylim(-0.85, 1.5)
-    axB.axis("off")
-    panel_label(axB, "b", x=0.0, y=1.04)
-
-    # ---- (c) the obstruction, plainly ---------------------------------------
-    ms_ = (3, 4, 5, 6, 8)
-    dsm, dhf = [], []
-    for m in ms_:
-        sm = np.array(reaction_basis_spectrum(list(range(2, 2 * m + 1, 2))))
-        hf = np.array(reaction_basis_spectrum([1.5 + 0.5 * k
-                                               for k in range(2 * m)]))
-        dsm.append(min(abs(sm - 2.25)))
-        dhf.append(max(min(abs(hf - 2.25)), 1e-16))
-    axC.semilogy(ms_, dsm, "s-", color=MR_COLOR, ms=8, lw=1.8,
-                 label="smooth functions only")
-    axC.semilogy(ms_, dhf, "o-", color="0.3", ms=7, lw=1.8,
-                 label="half powers allowed")
-    axC.annotate("the $9/4$ mode never appears\n(gap stuck at $1/4$)",
-                 (3.15, 2.5e-3), fontsize=10.5, color=MR_COLOR, va="top")
-    axC.annotate("it appears exactly", (5.1, 2e-11), fontsize=10.5,
-                 color="0.3")
-    axC.set_xlabel("number of basis functions", fontsize=11)
-    axC.set_ylabel("how far the $9/4$ mode is missed", fontsize=11)
-    axC.set_xticks(ms_)
-    axC.set_ylim(1e-16, 1.5)
-    axC.legend(fontsize=10, loc="center right", framealpha=0.95)
-    panel_label(axC, "c", x=-0.14, y=1.06)
-
-    fig.tight_layout()
-    save_pair(fig, "fig_hierarchy")
-    plt.close(fig)
-    print("wrote fig_hierarchy")
-
 if __name__ == "__main__":
     required = [
-        *(FEMOUT / f"fem_case_{tag}.json" for tag in
-          ("MR_lam15", "MR_lam20", "NH_lam15", "NH_lam20")),
-        ROOT / "data" / "analytic" / "mr_leading_profile.npz",
         PSOUT / "summary.csv",
         *(PSOUT / f"psfield_{tag}.npz" for tag in
           ("MR_lam13", "MR_lam16", "MR_lam22", "NH_lam16",
            "MR_lam16_c2_third", "MR_lam16_c2_3")),
         *(PSOUT / f"rays_{tag}_theta{theta}.csv" for tag in
-          ("MR_lam15", "MR_lam16", "MR_lam18", "MR_lam22",
-           "NH_lam15", "NH_lam18")
+          ("MR_lam15", "MR_lam18", "NH_lam15", "NH_lam18")
           for theta in (2, 45, 90, 135, 178)),
     ]
     missing = [path.relative_to(ROOT) for path in required if not path.exists()]
@@ -871,16 +525,9 @@ if __name__ == "__main__":
         raise SystemExit("missing figure inputs:\n  "
                          + "\n  ".join(map(str, missing)))
 
-    # Reproducibility set: strip = physical specimen; disk = a deep-window
-    # consistency check.  The profile figure is the C_s-aware replacement for
-    # the withdrawn target-selected raw-tip-shape plot.
     fig_master()
-    fig_hierarchy()
     fig_chain()
     fig_ps_portrait()
     fig_plateau_ps()
     fig_cratio_ps()
-    fig_solution_compare()
-    fig_profile_correction()
-    fig_sigma_G()
     print("done ->", FIG)

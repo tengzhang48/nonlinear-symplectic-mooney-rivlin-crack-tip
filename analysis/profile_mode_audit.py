@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Reanalyse the public FEM rays after restoring the regular ``C_s s`` mode.
+"""Reproduce the ESI finite-window strip table with the regular ``C_s s`` mode.
 
 The discarded raw-tip-shape routine omitted the linear term in the deformed
 horizontal coordinate and selected a tangent by proximity to the desired
 slope.  This replacement selects no target shape slope.
 
-For every curated Mooney--Rivlin case, the standard annulus is fitted jointly
-across all five rays with
+For the two curated Mooney--Rivlin strip loads reported in the ESI, the
+standard annulus is fitted jointly across all five rays with
 
     Y1(r, theta) = c0 + b(theta) r + a(theta) r**(5/4),
 
@@ -20,9 +20,10 @@ are retained as sensitivity diagnostics.  The audit reports:
 3. a target-free grid fit of ``Y1=c0+b*r+a*r**q`` on the face proxy and the
    same nested windows.
 
-The inputs are tracked public data; no FEM solve is run.  The output is a
-structured JSON record and a deterministic PDF/PNG figure pair.  This is a
-finite-window audit, not an asymptotic matching calculation for ``C_s``.
+The inputs are tracked public strip data; no FEM solve is run. The output is a
+structured JSON record only. This is a finite-window table-reproduction audit,
+not an asymptotic matching calculation for ``C_s`` and not evidence that the
+residual exponent is universal or asymptotically resolved.
 
 Run:
     python analysis/profile_mode_audit.py
@@ -39,18 +40,11 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import NullFormatter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DISK_OUT = ROOT / "data" / "fem" / "disk"
 STRIP_OUT = ROOT / "data" / "fem" / "strip"
-FIG = ROOT / "figures" / "rendered"
 RESULTS = ROOT / "data" / "derived" / "profile_mode_audit.json"
 
 THETAS = (2, 45, 90, 135, 178)
@@ -69,23 +63,15 @@ NESTED_FACTORS = (
 class Case:
     key: str
     label: str
-    geometry: str
     tag: str
     window: tuple[float, float]
-    color: str
-    marker: str
-    linestyle: str
 
 
 CASES = (
-    Case("disk_lam15", r"disk, $\lambda=1.5$", "disk", "MR_lam15",
-         (1.0e-4, 1.0e-3), "#b2182b", "o", "-"),
-    Case("disk_lam20", r"disk, $\lambda=2.0$", "disk", "MR_lam20",
-         (1.0e-4, 1.0e-3), "#ef8a62", "^", "--"),
-    Case("strip_lam16", r"strip, $\lambda=1.6$", "strip", "MR_lam16",
-         (3.0e-4, 8.0e-3), "#2166ac", "s", "-"),
-    Case("strip_lam22", r"strip, $\lambda=2.2$", "strip", "MR_lam22",
-         (3.0e-4, 8.0e-3), "#67a9cf", "D", "--"),
+    Case("strip_lam16", r"strip, $\lambda=1.6$", "MR_lam16",
+         (3.0e-4, 8.0e-3)),
+    Case("strip_lam22", r"strip, $\lambda=2.2$", "MR_lam22",
+         (3.0e-4, 8.0e-3)),
 )
 
 
@@ -95,20 +81,6 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1 << 20), b""):
             digest.update(block)
     return digest.hexdigest()
-
-
-def load_disk(tag: str) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
-    path = DISK_OUT / f"fem_case_{tag}.json"
-    data = json.loads(path.read_text(encoding="utf-8"))
-    rays = {
-        int(ray["theta_deg"]): {
-            key: np.asarray(value, dtype=float)
-            for key, value in ray.items()
-            if isinstance(value, list)
-        }
-        for ray in data["rays"]
-    }
-    return rays, [path]
 
 
 def load_strip(tag: str) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
@@ -127,7 +99,7 @@ def load_strip(tag: str) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
 
 
 def load_case(case: Case) -> tuple[dict[int, dict[str, np.ndarray]], list[Path]]:
-    return load_disk(case.tag) if case.geometry == "disk" else load_strip(case.tag)
+    return load_strip(case.tag)
 
 
 def window_mask(r: np.ndarray, window: tuple[float, float]) -> np.ndarray:
@@ -390,7 +362,7 @@ def analyse(case: Case) -> tuple[dict, dict[int, dict[str, np.ndarray]]]:
     result = {
         "case": case.key,
         "label": case.label,
-        "geometry": case.geometry,
+        "geometry": "strip",
         "tag": case.tag,
         "standard_window": list(case.window),
         "input_files": [
@@ -463,11 +435,12 @@ def analyse(case: Case) -> tuple[dict, dict[int, dict[str, np.ndarray]]]:
 
 def build_payload() -> dict:
     return {
-        "schema": "mr-characteristic-shear-profile-audit-v2-public",
+        "schema": "mr-strip-finite-window-table-v3-public",
         "interpretation": {
             "finite_window_consistency": (
                 "fits are consistent with a nonzero s-like O(r) background "
-                "and raw face-proxy slopes near 1/2"
+                "and raw face-proxy slopes near 1/2 on the reported strip "
+                "annulus"
             ),
             "not_established": (
                 "ultimate matched C_s, a universal residual 5/4 power, or a "
@@ -481,116 +454,15 @@ def build_payload() -> dict:
                 "the production fixed-q fit uses one c0 across all five rays; "
                 "independent per-ray fits are retained only as diagnostics"
             ),
+            "publication_role": (
+                "reproduces the ESI strip table; produces no manuscript figure"
+            ),
         },
         "local_regression_points": LOCAL_POINTS,
         "free_q_search_interval": [float(FREE_Q_GRID[0]),
                                    float(FREE_Q_GRID[-1])],
         "cases": [analyse(case)[0] for case in CASES],
     }
-
-
-def make_figure(results: list[dict]) -> None:
-    plt.rcParams.update({
-        "font.size": 10.5,
-        "axes.labelsize": 11.5,
-        "axes.titlesize": 11.5,
-        "legend.fontsize": 8.3,
-        "xtick.labelsize": 9.5,
-        "ytick.labelsize": 9.5,
-        "lines.linewidth": 1.6,
-        "pdf.fonttype": 42,
-        "ps.fonttype": 42,
-        "mathtext.fontset": "cm",
-        "savefig.bbox": "tight",
-        "savefig.dpi": 300,
-    })
-    fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.05))
-    ax_raw, ax_mode, ax_q = axes
-    by_key = {case.key: case for case in CASES}
-
-    for result in results:
-        case = by_key[result["case"]]
-        curve = result["raw_local_curve"]
-        radius = np.asarray(curve["r"])
-        slope = np.asarray(curve["slope"])
-        lower = np.asarray(curve["intercept_ensemble_min"])
-        upper = np.asarray(curve["intercept_ensemble_max"])
-        ax_raw.fill_between(radius, lower, upper, color=case.color,
-                            alpha=0.13, linewidth=0)
-        ax_raw.plot(radius, slope, color=case.color,
-                    linestyle=case.linestyle, label=case.label)
-    ax_raw.axhline(0.5, color="0.25", linewidth=1.0, linestyle=(0, (5, 2)),
-                   label=r"raw $1/2$")
-    ax_raw.axhline(0.4, color="0.55", linewidth=1.0, linestyle=":",
-                   label=r"conditional residual $2/5$")
-    ax_raw.set_xscale("log")
-    ax_raw.xaxis.set_minor_formatter(NullFormatter())
-    ax_raw.set_ylim(0.38, 0.535)
-    ax_raw.set_xlabel(r"reference radius $r$")
-    ax_raw.set_ylabel(r"raw local slope $d\log y_2/d\log|y_1-c_0|$")
-    ax_raw.set_title(r"raw face-proxy slope ($178^\circ$)")
-    ax_raw.legend(frameon=False, ncol=2, loc="lower right",
-                  columnspacing=0.8, handlelength=2.2)
-
-    x_line = np.linspace(0.0, 1.0, 200)
-    ax_mode.plot(x_line, x_line, color="0.2", linestyle="--", linewidth=1.1,
-                 label=r"$b/C_s=\sin^2(\theta/2)$")
-    residuals = []
-    for result in results:
-        case = by_key[result["case"]]
-        angular = result["angular_joint_fixed_q_fit"]
-        c_s = angular["C_s_through_origin"]
-        points = angular["per_theta"]
-        x = np.asarray([point["sin2_half_theta"] for point in points])
-        y = np.asarray([point["b"] / c_s for point in points])
-        residuals.append(angular["relative_residual"])
-        ax_mode.plot(x, y, linestyle="none", marker=case.marker,
-                     color=case.color, markerfacecolor="none",
-                     markeredgewidth=1.4, markersize=6.3)
-    ax_mode.set_xlim(-0.03, 1.04)
-    ax_mode.set_ylim(-0.04, 1.06)
-    ax_mode.set_xlabel(r"$\sin^2(\theta/2)$")
-    ax_mode.set_ylabel(r"fitted $b(\theta)/C_s$")
-    ax_mode.set_title(r"finite-window $s$-like background")
-    ax_mode.legend(frameon=False, loc="upper left")
-    ax_mode.text(
-        0.97, 0.05,
-        "angular relative residual\n"
-        + ", ".join(f"{100*residual:.1f}%" for residual in residuals),
-        transform=ax_mode.transAxes, ha="right", va="bottom",
-        fontsize=8.0, color="0.35",
-    )
-
-    x_nested = np.arange(len(NESTED_FACTORS))
-    for result in results:
-        case = by_key[result["case"]]
-        q_values = [entry["free_q"] for entry in result["nested_face_fits"]]
-        ax_q.plot(x_nested, q_values, color=case.color,
-                  linestyle=case.linestyle, marker=case.marker,
-                  markerfacecolor="white", markersize=5.5)
-    ax_q.axhline(1.25, color="0.25", linewidth=1.0, linestyle=(0, (5, 2)),
-                 label=r"chosen-branch residual $5/4$")
-    ax_q.set_xticks(x_nested)
-    ax_q.set_xticklabels([entry[2] for entry in NESTED_FACTORS],
-                         rotation=32, ha="right")
-    ax_q.set_ylim(1.20, 1.37)
-    ax_q.set_ylabel(r"free residual power $q$")
-    ax_q.set_title(r"nested-window sensitivity")
-    ax_q.legend(frameon=False, loc="lower right")
-
-    for letter, axis in zip(("a", "b", "c"), axes):
-        axis.text(0.015, 0.985, letter, transform=axis.transAxes,
-                  fontweight="bold", fontsize=12, ha="left", va="top")
-        axis.grid(False)
-    fig.tight_layout(w_pad=1.5)
-    FIG.mkdir(exist_ok=True)
-    fig.savefig(
-        FIG / "fig_profile_correction.pdf",
-        metadata={"Creator": "analysis/profile_mode_audit.py",
-                  "CreationDate": None, "ModDate": None},
-    )
-    fig.savefig(FIG / "fig_profile_correction.png")
-    plt.close(fig)
 
 
 def encoded_payload(payload: dict) -> str:
@@ -637,7 +509,12 @@ def audit_checks(payload: dict) -> dict[str, bool]:
     free_q = [[entry["free_q"] for entry in case["nested_face_fits"]]
               for case in cases]
     return {
-        "four curated c2>0 cases": len(cases) == 4,
+        "two curated strip loads": (
+            len(cases) == 2
+            and {case["case"] for case in cases}
+            == {"strip_lam16", "strip_lam22"}
+            and all(case["geometry"] == "strip" for case in cases)
+        ),
         "fitted regular coefficient is nonzero": all(
             abs(item["C_s_through_origin"]) > 0.5 for item in angular
         ),
@@ -651,15 +528,11 @@ def audit_checks(payload: dict) -> dict[str, bool]:
             FREE_Q_GRID[0] < value < FREE_Q_GRID[-1]
             for values in free_q for value in values
         ),
-        "stored disk and strip free-q ranges do not collapse": (
-            min(min(values) for values in free_q[2:])
-            - max(max(values) for values in free_q[:2]) > 0.05
-        ),
     }
 
 
 def print_summary(payload: dict) -> None:
-    print("Corrected profile-mode audit (one shared c0 across five rays)")
+    print("Strip finite-window ESI table (one shared c0 across five rays)")
     for result in payload["cases"]:
         face = result["face_proxy_raw_shape"]
         angular = result["angular_joint_fixed_q_fit"]
@@ -678,13 +551,13 @@ def print_summary(payload: dict) -> None:
         print(f"    [{'PASS' if passed else 'FAIL'}] {name}")
     if not all(checks.values()):
         raise SystemExit("profile-mode audit FAILED")
-    print("\nProfile-mode audit passed; no universal raw-2/5 claim is tested.")
+    print("\nStrip table audit passed; the residual exponent remains unresolved.")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write", action="store_true",
-                        help="write the JSON and corrected figure pair")
+                        help="write the strip-only derived JSON")
     parser.add_argument("--check-stored", action="store_true",
                         help="require stored JSON to match fresh analysis "
                              "up to numerical roundoff")
@@ -695,9 +568,7 @@ def main() -> None:
     if args.write:
         RESULTS.parent.mkdir(parents=True, exist_ok=True)
         RESULTS.write_text(encoded, encoding="utf-8")
-        make_figure(payload["cases"])
         print(f"wrote {RESULTS.relative_to(ROOT)}")
-        print("wrote figures/rendered/fig_profile_correction.{pdf,png}")
     if args.check_stored:
         if not RESULTS.exists():
             raise SystemExit(

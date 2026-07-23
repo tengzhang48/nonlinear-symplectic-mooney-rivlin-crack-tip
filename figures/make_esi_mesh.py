@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""ESI mesh figure: annotated strip half-model (schematic + mesh) on top;
-strip and disk tip zooms below, in units of 10^-3 h.
+"""ESI mesh figure: annotated strip half-model and two mesh zooms.
 
-Builds both meshes fresh with the repo's own generators (no solve) and
+Builds the strip mesh fresh with the repository generator (no solve) and
 writes figures/rendered/fig_esi_mesh.{pdf,png}.
 """
 import sys
@@ -18,10 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FEM = str(ROOT / "fem")
 FIG = str(Path(__file__).resolve().parent / "rendered")
 sys.path.insert(0, FEM + "/pure_shear")
-sys.path.insert(0, FEM)
 
 from ps_mesh import StripConfig, build_strip          # noqa: E402
-from mr_fem_mesh import MeshConfig, build_mesh        # noqa: E402
 
 plt.rcParams.update({"font.size": 10, "pdf.fonttype": 42, "ps.fonttype": 42,
                      "savefig.dpi": 300, "savefig.bbox": "tight"})
@@ -36,11 +33,9 @@ def tri_arrays(msh):
 
 strip, _info = build_strip(StripConfig())
 xs, cs = tri_arrays(strip)
-disk, _dinfo = build_mesh(MeshConfig())
-xd, cd = tri_arrays(disk)
 
-fig = plt.figure(figsize=(12.4, 5.9))
-gs = GridSpec(2, 3, height_ratios=[0.8, 2.0], hspace=0.10, wspace=0.30)
+fig = plt.figure(figsize=(10.0, 6.0))
+gs = GridSpec(2, 2, height_ratios=[0.8, 2.0], hspace=0.12, wspace=0.26)
 
 # (a) full strip half-model with boundary-condition annotations
 ax = fig.add_subplot(gs[0, :])
@@ -94,20 +89,7 @@ ax.set_xlabel(r"$x/h\ \times10^{-3}$", labelpad=1)
 ax.set_ylabel(r"$y/h\ \times10^{-3}$")
 ax.set_title("(c) strip, tip zoom", fontsize=10)
 
-# (d) disk tip zoom in units of 1e-3 h
-ax = fig.add_subplot(gs[1, 2])
-ax.triplot(xd[:, 0] / S, xd[:, 1] / S, cd, lw=0.3, color="0.3")
-ax.plot([-0.8, 0], [0, 0], color="crimson", lw=1.8)
-ax.set_xlim(-0.8, 0.8)
-ax.set_ylim(0, 0.8)
-ax.set_aspect("equal")
-ax.set_xticks([-0.8, -0.4, 0, 0.4, 0.8])
-ax.set_yticks([0, 0.4, 0.8])
-ax.set_xlabel(r"$x/h\ \times10^{-3}$", labelpad=1)
-ax.set_ylabel(r"$y/h\ \times10^{-3}$")
-ax.set_title("(d) disk, tip zoom", fontsize=10)
-
 fig.savefig(f"{FIG}/fig_esi_mesh.pdf",
             metadata={"CreationDate": None, "ModDate": None})
 fig.savefig(f"{FIG}/fig_esi_mesh.png")
-print("wrote fig_esi_mesh; strip cells:", len(cs), "disk cells:", len(cd))
+print("wrote fig_esi_mesh; strip cells:", len(cs))

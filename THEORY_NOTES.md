@@ -80,19 +80,19 @@ d/dxi integral_0^pi (u . pi_bar - u_bar . pi) dtheta
 ```
 
 The endpoint term determines whether the pairing is conserved. This project
-establishes the conserved pairing exactly on the opening block and uses the
-constrained action to derive selected higher-order blocks. It does not claim a
-completed all-grade reaction-carrying endpoint operator.
+establishes the conserved pairing exactly on the opening block. Separate
+higher-order scripts are retained as non-paper research provenance; they are
+not promoted to a completed all-grade reaction-carrying endpoint operator.
 
 Public checks:
 
 - `verification/verify_equations.py`, opening-block identities
 - `analysis/second_variation_reduction.py`
 - `analysis/derive_constraint_row.py`
-- `analysis/coupled_shear_completion.py`
 
 `analysis/symplectic_dae.py` is retained only as a historical spectral
-scaffold. Its non-opening rows are not the completed canonical operator.
+scaffold. Its non-opening rows are not the completed canonical operator, and
+the script is outside the standard verification lane.
 
 ## 3. Why the second invariant becomes a constraint
 
@@ -153,7 +153,7 @@ f(theta) = sin(theta/2),
 s = r sin^2(theta/2).
 ```
 
-The formal leading map is
+The formal constrained/null-family map is
 
 ```text
 y2 = P r^(1/2) f(theta),
@@ -176,18 +176,21 @@ y1 -> y1 + F(y2).
 `Cs s` is its first analytic Mode-I member. It is a physical displacement,
 not a gauge. The local theory does not select `Cs`.
 
-On the crack face, `s=r`. A persistent nonzero `Cs` makes the raw face profile
-scale with exponent `1/2`. The `2/5` profile applies to the detrended
-`r^(5/4)` residual or if global matching selects `Cs=0`. The stored finite-
-window data are consistent with a nonzero `s`-like background, but they do not
-determine its ultimate matched value.
+The `r^(5/4) g(theta)` term is a formal constraint-active outer
+representative. Its full finite-compliance axis and global matching selection
+are unresolved. On the crack face, the physical `Cs r` term can dominate it,
+so no universal raw crack-face-shape exponent is claimed.
 
-Public checks and data:
+Public formal checks:
 
 - `analysis/leading_field.py`
-- `analysis/profile_mode_audit.py`
-- `data/derived/profile_mode_audit.json`
-- `figures/rendered/fig_profile_correction.*`
+- `analysis/check_g_selection.py`
+- `verification/verify_equations.py`
+
+`analysis/profile_mode_audit.py` has a narrower numerical role: it reproduces
+the ESI strip table of fitted `b`, raw slopes, and nested target-free `q`
+values. The short-window fit does not validate `g(theta)` or establish the
+asymptotic residual exponent.
 
 ## 5. Parameter-free leading predictions
 
@@ -215,16 +218,19 @@ G = h (c1+c2) (lambda^2 + lambda^(-2) - 2),
 ```
 
 so the remote loading predicts `P` without fitting it to a specimen-scale
-simulation. The strip is the primary comparison; the disk is a deeper-window
-cross-check with a different remote boundary condition.
+simulation. The strip is the sole FEM comparison used by the paper.
 
 Public checks and figures:
 
 - `analysis/energy_release_rate.py`
 - `analysis/check_g_selection.py`
 - `analysis/check_row1_flux.py`
-- `fem/check_new_signatures.py`
-- paper Figures 2 and 5–7 in `figures/rendered/`
+- paper Figures 2, 4, and 5 in `figures/rendered/`
+
+The preserved disk BVP is not a second validation geometry. Its full-arc
+Dirichlet condition imposes crack-parallel compression and is not equivalent
+to the strip loading; its high-load branch also loses global geometric
+admissibility. It is quarantined from the evidence chain.
 
 ## 6. Exact opening block
 
@@ -273,21 +279,22 @@ Public check:
 - `verification/verify_equations.py`, opening-block endpoint, orthogonality,
   and dual-pair gates
 
-## 7. Bounded higher-order results
+## 7. Non-paper higher-order research provenance
 
-The constraint admits characteristic shears `Q_k s^k`. The `k=1` member is
-the base-map null coefficient `Cs`; for `k>=2`, the constrained action supplies
-reaction and opening companions. The public scripts establish only the named
-blocks in their headers:
+The constraint admits formal characteristic shears `Q_k s^k`. The `k=1`
+member is the base-map null coefficient `Cs`; for `k>=2`, exploratory scripts
+investigate reaction and opening companions:
 
 - leading constrained-action `Q_k` reaction and first slaved opening;
 - the first full-Mooney–Rivlin material block at `Lambda=k+1/2`; and
 - the next constraint/row-one companions at `Lambda=k+3/2`.
 
-These results do not complete the all-source tower, mixed adjoints, physical
-endpoint matching, or specimen-scale selection of `B` and `Q_k`.
+These calculations are outside the current manuscript claim ledger and
+standard verification runner. They do not complete the all-source tower,
+mixed adjoints, physical endpoint matching, or specimen-scale selection of
+`B` and `Q_k`.
 
-Public checks:
+Retained research scripts:
 
 - `analysis/coupled_shear_completion.py`
 - `analysis/qk_full_mr_ordering.py`

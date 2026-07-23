@@ -1,9 +1,9 @@
 """The semi-analytical leading-order Mooney-Rivlin crack-tip field.
 
 This module evaluates the field predicted by the asymptotic theory and provides
-an interpolation utility for comparisons or separately designed boundary
-conditions.  The disk solver in ``mr_fem_solve.py`` instead prescribes a
-homogeneous remote isochoric stretch and does not import this module.
+an interpolation utility for separately designed boundary conditions. The
+quarantined disk solver in ``mr_fem_solve.py`` prescribes a different,
+non-pure-shear remote stretch and does not import this module.
 
 Leading deformed map, with amplitude P:
 

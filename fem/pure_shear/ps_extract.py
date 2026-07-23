@@ -1,8 +1,8 @@
 """Extraction for the pure-shear MR strip: near-tip signatures + energy release.
 
-Reuses the near-tip ray extraction (opening/J powers, a near-axis residual
-power, J r^1/4 plateau, principal stretches, and opening intensity P) from
-../mr_fem_extract, and adds the
+Reuses the near-tip ray extraction (opening/J powers, J r^1/4 plateau,
+principal stretches, opening intensity P, and one legacy in-plane diagnostic)
+from ../mr_fem_extract, and adds the
 energy-release-rate machinery specific to the pure-shear specimen:
 
   * far-field strain-energy density  W_ff  measured ahead of the tip, checked
@@ -114,6 +114,7 @@ def analyze(res, window=(3e-3, 6e-2)):
                  "a": res["a"], "b": res["b"], "h0": h0},
         "signatures": {
             "open_exp": t["p_open"], "J_exp": t["J_exp_mean"],
+            # Kept for backwards-compatible provenance; not a paper gate.
             "inplane_exp": t["p_inplane"],
             "Jr14_plateau": t["plateau_mean"], "Jr14_spread": t["plateau_rel_spread"],
             "P_measured": P,
