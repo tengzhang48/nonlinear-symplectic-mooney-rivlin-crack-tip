@@ -33,6 +33,10 @@ CHECKS = [
     Check("analysis/derive_constraint_row.py", "[PASS] derived linearized constraint", "analysis"),
     Check("analysis/second_variation_reduction.py", "GATES: 14/14 passed", "analysis"),
     Check("analysis/reduction_steps234.py", "GATES: ALL PASS", "analysis"),
+    Check("analysis/gate4_first_material_background.py",
+          "PASSED 35   FAILED 0", "analysis"),
+    Check("analysis/verify_lambda13_restricted_log.py",
+          "Restricted Lambda=13/4 log verifier: 10/10 passed", "analysis"),
 ]
 
 

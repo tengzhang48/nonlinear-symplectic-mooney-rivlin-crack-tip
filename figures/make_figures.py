@@ -1,11 +1,14 @@
-"""Render the five current paper figures from analytic and strip FEM inputs.
+"""Render the seven current paper figures from analytic and strip FEM inputs.
 
 Outputs:
   fig_master       Figure 1: specimen, radial state, constrained tip state
-  fig_chain        Figure 2: pure-shear loading-to-tip-amplitude chain
-  fig_ps_portrait  Figure 3: strip solution portraits
-  fig_plateau      Figure 4: compensated-Jacobian angular comparison
-  fig_cratio       Figure 5: material-ratio comparison
+  fig_asymap       Figure 2: constrained-field and hierarchy physics map
+  fig_chain        Figure 3: pure-shear loading-to-tip-amplitude chain
+  fig_ps_portrait  Figure 4: strip solution portraits
+  fig_plateau      Figure 5: compensated-Jacobian angular comparison
+  fig_cratio       Figure 6: material-ratio comparison
+  fig_r54_axis_convergence
+                   Figure 7: exact-axis residual convergence
 
 The quarantined disk boundary-value problem, withdrawn profile estimator, and
 historical hierarchy scaffold are deliberately outside this dispatcher.
@@ -15,6 +18,8 @@ Run from the repository root:  python figures/make_figures.py
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 
 import numpy as np
 import matplotlib
@@ -50,6 +55,15 @@ def save_pair(fig, stem):
     fig.savefig(FIG / f"{stem}.pdf",
                 metadata={"CreationDate": None, "ModDate": None})
     fig.savefig(FIG / f"{stem}.png")
+
+
+def run_standalone_figure(script: str) -> None:
+    """Render a standalone figure without leaking its matplotlib rcParams."""
+    subprocess.run(
+        [sys.executable, str(HERE / script)],
+        cwd=ROOT,
+        check=True,
+    )
 
 
 def fig_master():
@@ -526,8 +540,10 @@ if __name__ == "__main__":
                          + "\n  ".join(map(str, missing)))
 
     fig_master()
+    run_standalone_figure("make_fig_asymap.py")
     fig_chain()
     fig_ps_portrait()
     fig_plateau_ps()
     fig_cratio_ps()
+    run_standalone_figure("make_fig_r54_axis_convergence.py")
     print("done ->", FIG)

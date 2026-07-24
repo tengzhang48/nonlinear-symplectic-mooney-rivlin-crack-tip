@@ -22,6 +22,7 @@ fem/logs/
 fem/pure_shear/logs/
 fem/pure_shear/figures/
 fem/pure_shear/PS_RESULTS.md
+fem/global_local_outputs/
 
 # Local figure scratch files. Publication renderings are tracked explicitly.
 figures/tmp/

@@ -26,6 +26,12 @@
       "evidence": ["analysis/check_g_selection.py", "data/analytic/mr_leading_profile.npz"]
     },
     {
+      "id": "five-quarters-fem",
+      "status": "supported-for-tested-strip",
+      "statement": "For the tested c1=c2=1, lambda=1.6 pure-shear strip, a matching-radius, core, and angular sequence supports the exact-axis r^(5/4) residual class and its parameter-free amplitude. The full-angle residual is consistent with the analytical ODE family when its homogeneous C_h member is admitted. The campaign does not select C_s or C_h and is not a two-way coupled global-local calculation",
+      "evidence": ["fem/GLOBAL_LOCAL_RESULTS.md", "data/fem/global_local/global_local_campaign_summary_2026-07-23.json", "figures/rendered/fig_r54_axis_convergence.pdf", "tests/check_claims.py"]
+    },
+    {
       "id": "jacobian-plateau",
       "status": "established-and-fem-tested",
       "statement": "J r^(1/4) = sqrt(P/2), independent of theta at leading order",
@@ -54,10 +60,23 @@
       "status": "analytic-corollary",
       "statement": "sigma22 r = G/pi at leading order; this relation is class-universal and is shared by the c2=0 control",
       "evidence": ["analysis/energy_release_rate.py", "verification/verify_equations.py"]
+    },
+    {
+      "id": "first-material-rung",
+      "status": "closed-on-selected-base",
+      "statement": "On the chosen F=0 representative, the first finite material correction is the Lambda=7/4 rung. Its total face traction closes and no new local amplitude is introduced at that rung",
+      "evidence": ["analysis/gate4_first_material_background.py", "THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
+    },
+    {
+      "id": "restricted-opening-resonance",
+      "status": "restricted-formal-coefficient",
+      "statement": "On the chosen F=0 (C_s=0) analytic-axis representative, the audited restricted interaction reaches the Lambda=13/4 opening kernel, corresponding to an r^(5/2) opening coefficient. Its nonzero restricted Fredholm projection forces a logarithmic companion in that formal coefficient. The complete same-grade source, coupled response, and specimen-selected net logarithmic amplitude remain open",
+      "evidence": ["analysis/verify_lambda13_restricted_log.py", "THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
     }
   ],
   "open_work": [
-    "global matching of C_s and the formal r^(5/4) residual",
+    "global matching of C_s and C_h in the r^(5/4) field",
+    "two-way coupling of an independently refined local mesh to the outer strip",
     "a completed coupled finite-compliance spectrum and normalized higher-order extraction integrals"
   ]
 }

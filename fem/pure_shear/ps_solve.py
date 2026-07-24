@@ -38,6 +38,7 @@ class SolveConfig:
     atol: float = 1e-10
     max_it: int = 40
     quad_degree: int = 6
+    factor_solver: str | None = None
 
 
 def W_inf(lam, c1, c2):
@@ -88,12 +89,17 @@ def solve(scfg: SolveConfig, mcfg: StripConfig | None = None):
     bc_lig = fem.dirichletbc(zero_y, lig_y, V.sub(1))            # u_y = 0 on ligament
     bcs = [bc_grip_x, bc_grip_y, bc_lig]
 
+    factor_solver = (
+        scfg.factor_solver
+        if scfg.factor_solver is not None
+        else ("mumps" if msh.comm.size > 1 else "petsc")
+    )
     petsc_options = {
         "snes_type": "newtonls", "snes_linesearch_type": "bt",
         "snes_rtol": scfg.rtol, "snes_atol": scfg.atol, "snes_stol": 1e-10,
         "snes_max_it": scfg.max_it,
         "ksp_type": "preonly", "pc_type": "lu",
-        "pc_factor_mat_solver_type": "petsc",
+        "pc_factor_mat_solver_type": factor_solver,
     }
     problem = NonlinearProblem(
         Res, u, bcs=bcs, petsc_options_prefix="ps_",
@@ -136,6 +142,7 @@ def solve(scfg: SolveConfig, mcfg: StripConfig | None = None):
         "t_reached": float(t), "c1": scfg.c1, "c2": scfg.c2,
         "n_steps": scfg.n_steps,
         "n_newton": n_newton, "H": H, "a": a, "b": b, "h0": info["h0"],
+        "factor_solver": factor_solver,
         "W_inf": float(W_inf(lam_reached, scfg.c1, scfg.c2)),
     }
 

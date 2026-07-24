@@ -8,8 +8,8 @@ authors:
     affiliation: Syracuse University
 repository-code: "https://github.com/tengzhang48/nonlinear-symplectic-mooney-rivlin-crack-tip"
 license: MIT
-version: 1.1.0
-date-released: 2026-07-20
+version: 1.2.0
+date-released: 2026-07-24
 keywords:
   - fracture mechanics
   - soft materials

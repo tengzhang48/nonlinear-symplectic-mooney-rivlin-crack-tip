@@ -1,8 +1,7 @@
 """Extraction for the pure-shear MR strip: near-tip signatures + energy release.
 
-Reuses the near-tip ray extraction (opening/J powers, J r^1/4 plateau,
-principal stretches, opening intensity P, and one legacy in-plane diagnostic)
-from ../mr_fem_extract, and adds the
+Reuses the near-tip ray extraction (exponents, J r^1/4 plateau, principal
+stretches, opening intensity P) from ../mr_fem_extract, and adds the
 energy-release-rate machinery specific to the pure-shear specimen:
 
   * far-field strain-energy density  W_ff  measured ahead of the tip, checked
@@ -23,6 +22,64 @@ from dolfinx import fem, geometry
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # ../ (fem/)
 import mr_fem_extract as mfx  # noqa: E402
+
+
+# ------------------------------------------------------------- live-P2 export
+def sample_p2_polar_grid(res, theta_deg, r):
+    """Evaluate the live quadratic displacement on a polar sampling grid.
+
+    Unlike ``ps_export.write_snapshot``, this routine does not project the
+    displacement to a P1 vertex field.  It is intended for subleading-mode
+    audits that need the exact crack-face trace (theta=180 degrees) and dense
+    angular data before the solved P2 function is discarded.
+
+    Parameters
+    ----------
+    res
+        Result dictionary returned by :func:`ps_solve.solve`.
+    theta_deg, r
+        One-dimensional arrays of angles in degrees and reference radii.
+
+    Returns
+    -------
+    dict
+        Arrays have shape ``(n_theta, n_r)``.  Boundary angles 0 and 180
+        degrees are evaluated directly on the P2 trace when requested.
+    """
+    theta_deg = np.asarray(theta_deg, dtype=float)
+    r = np.asarray(r, dtype=float)
+    if theta_deg.ndim != 1 or r.ndim != 1:
+        raise ValueError("theta_deg and r must be one-dimensional")
+    if theta_deg.size < 2 or r.size < 2:
+        raise ValueError("polar grid needs at least two angles and two radii")
+    if np.any(np.diff(theta_deg) <= 0) or np.any(np.diff(r) <= 0):
+        raise ValueError("theta_deg and r must be strictly increasing")
+    if theta_deg[0] < 0.0 or theta_deg[-1] > 180.0:
+        raise ValueError("upper-half strip angles must lie in [0, 180] degrees")
+    if r[0] <= res["info"]["r_min"]:
+        raise ValueError("all sample radii must lie outside the excised core")
+
+    theta = np.deg2rad(theta_deg)
+    rr, tt = np.meshgrid(r, theta)
+    X = rr * np.cos(tt)
+    Y = rr * np.sin(tt)
+    pts = np.column_stack([X.ravel(), Y.ravel()])
+    evaluate = mfx._make_evaluator(res["msh"])
+    uvals = evaluate(res["u"], pts, value_size=2).reshape(
+        theta_deg.size, r.size, 2)
+    ux = uvals[:, :, 0]
+    uy = uvals[:, :, 1]
+    return {
+        "theta_deg": theta_deg,
+        "r": r,
+        "X": X,
+        "Y": Y,
+        "ux": ux,
+        "uy": uy,
+        "Y1": X + ux,
+        "Y2": Y + uy,
+        "valid": np.isfinite(uvals).all(axis=2),
+    }
 
 
 # ------------------------------------------------------------- far-field W
@@ -114,7 +171,6 @@ def analyze(res, window=(3e-3, 6e-2)):
                  "a": res["a"], "b": res["b"], "h0": h0},
         "signatures": {
             "open_exp": t["p_open"], "J_exp": t["J_exp_mean"],
-            # Kept for backwards-compatible provenance; not a paper gate.
             "inplane_exp": t["p_inplane"],
             "Jr14_plateau": t["plateau_mean"], "Jr14_spread": t["plateau_rel_spread"],
             "P_measured": P,

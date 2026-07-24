@@ -80,13 +80,15 @@ d/dxi integral_0^pi (u . pi_bar - u_bar . pi) dtheta
 ```
 
 The endpoint term determines whether the pairing is conserved. This project
-establishes the conserved pairing exactly on the opening block. Separate
-higher-order scripts are retained as non-paper research provenance; they are
-not promoted to a completed all-grade reaction-carrying endpoint operator.
+establishes the conserved pairing on the closed normal-opening sector. The
+paper-scope higher-order lane contains only the closed first-material rung and
+the restricted scalar opening-resonance check described below. Other
+higher-order scripts remain research provenance and are not promoted to a
+completed all-grade reaction-carrying endpoint operator.
 
 Public checks:
 
-- `verification/verify_equations.py`, opening-block identities
+- `verification/verify_equations.py`, opening-sector identities
 - `analysis/second_variation_reduction.py`
 - `analysis/derive_constraint_row.py`
 
@@ -176,21 +178,43 @@ y1 -> y1 + F(y2).
 `Cs s` is its first analytic Mode-I member. It is a physical displacement,
 not a gauge. The local theory does not select `Cs`.
 
-The `r^(5/4) g(theta)` term is a formal constraint-active outer
-representative. Its full finite-compliance axis and global matching selection
-are unresolved. On the crack face, the physical `Cs r` term can dominate it,
-so no universal raw crack-face-shape exponent is claimed.
+The angular equation also admits the homogeneous member
 
-Public formal checks:
+```text
+Ch sin(theta/2)^(5/2).
+```
+
+The analytic-axis representative sets `Ch=0`, but the local calculation does
+not select it. Both the `Cs` and `Ch` angular factors vanish at `theta=0`.
+The matching-circle campaign can therefore fit
+
+```text
+Y1(r,0) = c0 + A_ax r^q + D r^(7/4)
+```
+
+without either coefficient. The final core/angular refinement gives
+`q=1.251529` and `A_ax/A_ax,pred=1.012420`. A free two-power audit returns
+`1.24980 <= q <= 1.25152`, so the recovered value is not produced by fixing
+the nuisance exponent. The full-angle residual is consistent with the ODE
+family after `Ch` is admitted. The campaign supports the asymptotic class for
+the tested strip but does not select `Cs`, `Ch`, or the analytic-axis member.
+
+On the crack face, the physical `Cs r` term can dominate the residual, so no
+universal raw crack-face-shape exponent is claimed.
+
+Public checks and data:
 
 - `analysis/leading_field.py`
 - `analysis/check_g_selection.py`
 - `verification/verify_equations.py`
+- `fem/GLOBAL_LOCAL_RESULTS.md`
+- `data/fem/global_local/global_local_campaign_summary_2026-07-23.json`
+- `figures/rendered/fig_r54_axis_convergence.*`
 
-`analysis/profile_mode_audit.py` has a narrower numerical role: it reproduces
+`analysis/profile_mode_audit.py` has a separate numerical role: it reproduces
 the ESI strip table of fitted `b`, raw slopes, and nested target-free `q`
-values. The short-window fit does not validate `g(theta)` or establish the
-asymptotic residual exponent.
+values. That short-window table is not the dedicated matching-circle
+convergence test.
 
 ## 5. Parameter-free leading predictions
 
@@ -225,14 +249,14 @@ Public checks and figures:
 - `analysis/energy_release_rate.py`
 - `analysis/check_g_selection.py`
 - `analysis/check_row1_flux.py`
-- paper Figures 2, 4, and 5 in `figures/rendered/`
+- paper Figures 3 and 5–7 in `figures/rendered/`
 
 The preserved disk BVP is not a second validation geometry. Its full-arc
 Dirichlet condition imposes crack-parallel compression and is not equivalent
 to the strip loading; its high-load branch also loses global geometric
 admissibility. It is quarantined from the evidence chain.
 
-## 6. Exact opening block
+## 6. Closed normal-opening sector
 
 Because the in-plane and opening increments carry different radial weights,
 the pencil label `Lambda` represents
@@ -242,7 +266,7 @@ delta y1 ~ r^Lambda a(theta),
 delta y2 ~ r^(Lambda-3/4) b(theta).
 ```
 
-Let `nu=Lambda-3/4`. The exact opening block is
+Let `nu=Lambda-3/4`. The closed opening equation is
 
 ```text
 -b'' = nu^2 b,
@@ -270,31 +294,61 @@ Nonzero dual pairings require
 Lambda' = 3/2 - Lambda.
 ```
 
-This is an exact opening-block statement. The public code does not promote it
+This is an exact statement within the closed opening sector. The public code
+does not promote it
 to a completed coupled spectrum or a finite-radius extractor for every
 higher-order amplitude.
 
 Public check:
 
-- `verification/verify_equations.py`, opening-block endpoint, orthogonality,
+- `verification/verify_equations.py`, opening-sector endpoint, orthogonality,
   and dual-pair gates
 
-## 7. Non-paper higher-order research provenance
+## 7. Bounded higher-order results and the physics map
 
-The constraint admits formal characteristic shears `Q_k s^k`. The `k=1`
-member is the base-map null coefficient `Cs`; for `k>=2`, exploratory scripts
-investigate reaction and opening companions:
+The first finite constitutive correction on the chosen `F=0` base has pencil
+label `Lambda=7/4`. It is not a fitted nuisance exponent. Its closed
+calculation gives
 
-- leading constrained-action `Q_k` reaction and first slaved opening;
-- the first full-Mooney–Rivlin material block at `Lambda=k+1/2`; and
-- the next constraint/row-one companions at `Lambda=k+3/2`.
+```text
+delta y2  = (c2/c1) r v(theta),
+delta y1  = (c2/c1) P^(-3/2) r^(7/4) w(theta),
+v(theta)  = -(2/3) sin(theta/2),
+w(0)      = 4 sqrt(2)/21.
+```
 
-These calculations are outside the current manuscript claim ledger and
-standard verification runner. They do not complete the all-source tower,
-mixed adjoints, physical endpoint matching, or specimen-scale selection of
-`B` and `Q_k`.
+The total face traction closes at this rung and no new local amplitude is
+introduced. This statement is conditional on the selected `F=0`
+representative.
 
-Retained research scripts:
+The `Lambda=11/4` stationary-background calculation is a separate formal
+checkpoint. It is not a globally matched physical mode. The audited
+restricted interaction of the `7/4` and `11/4` sources reaches the
+`Lambda=13/4` opening kernel. Since opening displacement has radial power
+`Lambda-3/4`, this label corresponds to `r^(5/2)`. A nonzero restricted
+Fredholm projection forces an
+`r^(5/2) log(r/r0) sin(5 theta/2)` companion in that formal opening
+coefficient.
+
+This is the stopping line. The complete same-grade source, reaction-carrying
+coupled response, and specimen-selected net logarithmic amplitude have not
+been assembled. The opening harmonic `B r^(3/2) sin(3 theta/2)` and contour
+shears `Q_k s^k` remain parallel matching sectors whose amplitudes come from
+the outer specimen. Figure 2 maps these established and open objects. It is
+not a data plot or a complete higher-order expansion.
+
+Public checks:
+
+- `analysis/gate4_first_material_background.py`
+- `analysis/verify_lambda13_restricted_log.py`
+- `figures/rendered/fig_asymap.*`
+
+Other formal `Q_k s^k` calculations remain outside the manuscript claim
+ledger and standard verification runner. They do not complete the all-source
+tower, mixed adjoints, physical endpoint matching, or specimen-scale
+selection of `B` and `Q_k`.
+
+Retained non-paper research scripts:
 
 - `analysis/coupled_shear_completion.py`
 - `analysis/qk_full_mr_ordering.py`

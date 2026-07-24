@@ -7,10 +7,11 @@ is homogeneous pure shear $(1,\lambda,1/\lambda)$, giving
 $$G=h(c_1+c_2)(\lambda^2+\lambda^{-2}-2).$$
 
 `run_ps.py` solves one case and exports scalar JSON plus five angular ray CSVs.
-`ps_export.py` exports the six full-field snapshots required by the figures.
-`ps_report.py` aggregates a locally generated sweep. Output defaults to the
-local `outputs/` directory and is ignored by Git; the immutable publication
-inputs are under `data/fem/strip/`.
+With `--export-p2-profile`, it also samples the live quadratic finite-element
+field on a polar grid. `ps_export.py` exports the six full-field snapshots
+required by the figures. `ps_report.py` aggregates a locally generated sweep.
+Output defaults to the local `outputs/` directory and is ignored by Git; the
+immutable publication inputs are under `data/fem/strip/`.
 
 The production rosette has 120 angular sectors and 15,360 triangles at
 `n_r=64`. The two nearest angular rays are aligned exactly to the far rectangle
@@ -29,3 +30,30 @@ but it is not a current paper gate. The strip-only
 `analysis/profile_mode_audit.py` instead reproduces the ESI finite-window
 table with a regular $O(r)$ term and explicitly leaves the residual exponent
 unresolved.
+
+## Matching-circle campaign
+
+`ps_mesh.py` can place an exact internal semicircular row at a chosen matching
+radius. This is a mesh interface inside the strip, not a hole or a boundary
+condition. The nonlinear strip solve remains unchanged. The complete P2
+displacement on that row can then drive the inner calculations in
+`../run_global_local.py`.
+
+From the repository root, the retained campaign is reproduced with:
+
+```bash
+conda activate mr-crack-tip-fem
+bash fem/run_global_local_campaign.sh
+```
+
+The campaign varies matching radius, core size, and angular resolution. Its
+accepted $r^{5/4}$ estimate comes from the globally solved, tip-refined strip
+sequence. The exact inner restriction checks P2 transfer and discrete
+equilibrium. A separately refined inner solve demonstrates one-way
+displacement submodeling, but its reaction is not returned to the strip.
+
+The code path, interface-node convention, MPI checks, estimators, and precise
+scope are documented in
+[`../GLOBAL_LOCAL_WORKFLOW.md`](../GLOBAL_LOCAL_WORKFLOW.md). Results and
+claim limits are in
+[`../GLOBAL_LOCAL_RESULTS.md`](../GLOBAL_LOCAL_RESULTS.md).

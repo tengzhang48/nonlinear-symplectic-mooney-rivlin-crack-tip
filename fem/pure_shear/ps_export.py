@@ -4,7 +4,7 @@ The compressed arrays contain coordinates, displacement, cells, achieved
 stretch, material coefficients, and strip dimensions—the fields consumed by
 the specimen and material-ratio figures.
 
-Run in the environment defined by ``environment-fem.yml``:
+Run in the repository's FEniCSx environment:
   python ps_export.py            # batch
   python ps_export.py 1.6 1.0    # one case
 """

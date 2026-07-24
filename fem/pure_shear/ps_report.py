@@ -1,4 +1,5 @@
-"""Combine the pure-shear sweep into a summary table and validation plots."""
+"""Combine the pure-shear sweep into a summary table, validation plots, and a
+results note for Fable to pick up."""
 from __future__ import annotations
 
 import csv
@@ -139,12 +140,16 @@ def main():
         A(f"| {r['tag']} | {r['material']} | {r['lam']:.2f} | {r['a']:.1f} | "
           f"{r['G_J']:.4f} | {r['G_spec']:.4f} | {100*r['GJ_err']:.2f}% | "
           f"{r['P_meas']:.4f} | {r['P_pred']:.4f} | {100*r['P_err']:.1f}% |")
-    A("\n## Near-tip signatures (finite window)\n")
+    A("\n## Near-tip diagnostics (asymptotic window)\n")
     A("| case | open exp (->0.5) | J exp (->-0.25) | J r^1/4 spread |")
     A("|---|---|---|---|")
     for r in sorted(rows, key=lambda r: (r["material"], r["a"], r["lam"])):
         A(f"| {r['tag']} | {r['open_exp']:.3f} | {r['J_exp']:.3f} | "
           f"{100*r['spread']:.1f}% |")
+    A("\nThe stored near-axis in-plane slopes remain available in `summary.csv` for")
+    A("provenance. They are not used to validate the `r^(5/4)` face residual or")
+    A("`g(theta)`, because the admitted order-`r` background is not independently")
+    A("separated over this finite window.")
     A("\n## Figures\n")
     A("- `figures/ps_P_vs_lambda.png` — measured near-tip P vs the parameter-free")
     A("  prediction `P(lambda)` from the specimen G (the `G=(pi/2)c1 P^2` tie).")
@@ -174,9 +179,8 @@ def main():
       f"`W_inf h0` by `{base_g_error:.3f}%`; the local far-ahead energy-density "
       f"diagnostic is `{base_w_ratio:.1f}%` of ideal `W_inf`.")
     A("- **Finite-window caveat**: near-tip magnitudes are `theta`-flat to about")
-    A("  `6%`; the affordable strip window therefore leaves about `2.5%`")
-    A("  amplitude sensitivity. The legacy near-axis in-plane estimator remains")
-    A("  in scalar provenance but is not used as residual-exponent evidence.\n")
+    A("  `6%`; the affordable strip window therefore leaves about `2.5%` amplitude")
+    A("  sensitivity. No result from the quarantined disk is used as a comparator.\n")
     A("## Data for pick-up\n")
     A("- `outputs/ps_*.json` — per-case signatures + energy release.")
     A("- `outputs/rays_*_theta*.csv` — near-tip fields (r, theta, Y1, Y2, J, lam1, lam2).")

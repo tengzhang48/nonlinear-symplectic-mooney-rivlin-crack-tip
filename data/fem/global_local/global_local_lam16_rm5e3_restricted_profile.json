@@ -1,0 +1,135 @@
+{
+  "tag": "lam16_rm5e3_restricted_profile",
+  "method": "one-way-global-local-submodel",
+  "local_mesh_mode": "nested",
+  "mpi_ranks": 8,
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "material": {
+    "c1": 1.0,
+    "c2": 1.0
+  },
+  "case": {
+    "c1": 1.0,
+    "c2": 1.0,
+    "lam": 1.5999999999999985
+  },
+  "load": {
+    "lambda_target": 1.6,
+    "lambda_reached": 1.5999999999999985
+  },
+  "strip": {
+    "cells": 5760,
+    "n_r": 48,
+    "n_theta": 60,
+    "r_min": 1e-05,
+    "matching_radius": 0.005,
+    "matching_ring": 28,
+    "matching_n_inner": 28,
+    "matching_n_outer": 20,
+    "load_steps_initial": 18,
+    "newton_iterations": 428,
+    "factor_solver": "mumps",
+    "wall_time_s": 14.376960842000017,
+    "min_J": 0.9862955229753431
+  },
+  "local": {
+    "cells": 3360,
+    "n_r": 28,
+    "n_theta": 60,
+    "factor_solver": "mumps",
+    "wall_time_s": 0.17991526400010116,
+    "direct": {
+      "converged": true,
+      "reason": 4,
+      "iterations": 4,
+      "exception": null,
+      "min_J": 1.5020891777003083
+    },
+    "used_continuation_fallback": false,
+    "fallback_iterations": 0,
+    "fallback_failures": 0,
+    "load_reached": 1.0,
+    "raw_P2_seed_min_J": 1.5084926444403377,
+    "seed_strategy": "full-P2-prolongation",
+    "seed_min_J": 1.5084926444403377,
+    "final_min_J": 1.5020891777003083,
+    "seed_energy": 0.00494779049430393,
+    "final_energy": 0.0049477901845000425,
+    "relative_change_from_seed": 4.3807584963061883e-07,
+    "outer_trace_max_error": 0.0
+  },
+  "interface": {
+    "same_theta_vertices": true,
+    "source_interface_kind": "strip-internal",
+    "n_strip_interface_facets": 60,
+    "n_disk_outer_facets": 60,
+    "n_expected_facets": 60,
+    "facet_counts_match": true,
+    "geometry": "shared-p1-chord",
+    "max_chord_sag": 3.4164153106858166e-06,
+    "normal_convention": {
+      "strip_inner_subdomain_outward": "+e_r",
+      "strip_outer_subdomain_outward": "-e_r",
+      "local_disk_outward": "+e_r"
+    }
+  },
+  "interface_reaction": {
+    "n_scalar_trace_dofs": 238,
+    "coordinate_key_max_error": 1.734723475976807e-18,
+    "reaction_l2_local": 0.01795416503654707,
+    "reaction_l2_strip_outer": 0.017954165012944636,
+    "reaction_l2_defect": 9.577354376851676e-11,
+    "relative_reaction_defect": 5.3343357174513035e-09,
+    "resultant_local": [
+      8.44933237280352e-05,
+      0.16269767228980953
+    ],
+    "resultant_strip_outer": [
+      -8.44924807156238e-05,
+      -0.1626976721542277
+    ],
+    "resultant_defect": [
+      8.430124113969345e-10,
+      1.355818235460049e-10
+    ],
+    "norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+    "endpoint_scope": "both vector blocks at theta=0 and theta=pi are excluded to remove the symmetry/crack-corner support ambiguity"
+  },
+  "manufactured_P2_transfer_max_error": 1.942890293094024e-16,
+  "energy_release": {
+    "W_inf_theory": 1.9012499999999921,
+    "G_spec_theory": 1.9012499999999921,
+    "P_pred_from_G_spec": 1.1001696879181224,
+    "P_measured": 1.1419543133909804
+  },
+  "polar_profile": {
+    "source": "restricted_local",
+    "r_range": [
+      0.0001,
+      0.004
+    ],
+    "n_r": 160,
+    "n_theta": 181,
+    "all_points_valid": true,
+    "owner_multiplicity_max": 2,
+    "face_fit_window": [
+      0.00030000000000000003,
+      0.0025
+    ],
+    "face_fit_points": 91,
+    "P_measured": 1.1419543133909804,
+    "C_face": -1.6981881038634166,
+    "face_fit_rms": 7.958611342933165e-05
+  },
+  "scope": {
+    "one_way": true,
+    "traction_feedback_to_strip": false,
+    "same_core_radius_in_global_and_local": true,
+    "coefficients_claimable_from_this_single_run": false
+  }
+}

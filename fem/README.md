@@ -26,6 +26,35 @@ Fresh output is written beneath ignored local output directories. Curated
 publication inputs live under `data/fem/strip/` and are never overwritten
 implicitly.
 
+## Matching-circle residual campaign
+
+The matching-circle calculation uses the same pure-shear strip rather than a
+second specimen. An explicit internal semicircle makes the complete P2
+displacement trace available without imposing a near-tip asymptotic field.
+The accepted convergence sequence refines the strip core and angular mesh,
+then reads the field on the intact axis where the undetermined \(C_s\) and
+\(C_h\) contributions vanish. It gives the Figure 7 test of the
+\(r^{5/4}\) residual exponent and its parameter-free amplitude.
+
+Run the frozen seven-case MPI campaign from the repository root:
+
+```bash
+bash fem/run_global_local_campaign.sh
+```
+
+The same code can restrict the solved strip to the cells inside the matching
+circle or solve an independently refined inner mesh with the complete strip
+trace prescribed. The first path is a transfer and equilibrium check. The
+second is a one-way Dirichlet submodel: its changed reaction is not fed back
+to the outer strip. Neither path is presented as a fully coupled algorithm or
+as a selection of \(C_s\) and \(C_h\).
+
+Implementation, convergence, and claim boundaries are recorded in
+[`GLOBAL_LOCAL_WORKFLOW.md`](GLOBAL_LOCAL_WORKFLOW.md) and
+[`GLOBAL_LOCAL_RESULTS.md`](GLOBAL_LOCAL_RESULTS.md). Curated campaign
+records live under `data/fem/global_local/`; fresh outputs go to the ignored
+`fem/global_local_outputs/` directory.
+
 ## Quarantined auxiliary model: focused disk
 
 The top-level disk mesh and solver files are retained only as negative

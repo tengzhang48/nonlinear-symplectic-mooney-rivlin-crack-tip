@@ -7,7 +7,9 @@ dependencies:
   - fenics-basix=0.10.0
   - fenics-ffcx=0.10.1
   - fenics-ufl=2025.2.0
+  - mpich=4.3.2
   - mpi4py=4.1.1
+  - mumps-mpi=5.8.1
   - petsc=3.24.2
   - petsc4py=3.24.2
   - numpy=2.3.5

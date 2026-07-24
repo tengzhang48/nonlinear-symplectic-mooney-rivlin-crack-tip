@@ -5,11 +5,18 @@
   `python data/analytic/build_profile.py`. It supports analytic checks, not a
   FEM-validated residual-exponent claim.
 
-- `fem/strip/`: the sole paper-facing FEM evidence. It contains scalar
-  summaries, angular rays, and six full-field snapshots used by the five paper
-  figures. Every JSON, CSV, and NPZ records continuation and corner-aligned
-  mesh settings. `ARTIFACTS.sha256` locks every curated strip artifact to its
+- `fem/strip/`: the specimen-scale pure-shear records used by Figures 3--6.
+  It contains scalar summaries, angular rays, and six full-field snapshots.
+  Every JSON, CSV, and NPZ records continuation and corner-aligned mesh
+  settings. `ARTIFACTS.sha256` locks every curated strip artifact to its
   filename.
+
+- `fem/global_local/`: the matching-circle records used by Figure 7. These
+  are live-P2 profiles and metadata from the same pure-shear strip, together
+  with deterministic residual estimators and a hashed campaign summary. They
+  support the tested \(r^{5/4}\) class but do not select the specimen
+  coefficients \(C_s\) or \(C_h\), and they are not outputs of a fully coupled
+  two-way submodel.
 
 - `derived/profile_mode_audit.json`: strip-only reproduction record for the
   ESI finite-window table at `lambda=1.6` and `2.2`. It stores the fitted
@@ -24,7 +31,7 @@
   paper claims, figures, and standard tests. See `fem/disk/README.md`.
 
 - `claims/principal_claims.json`: compact ledger linking current paper claims
-  to equations, code, and strip stored-data checks.
+  to equations, code, and stored-data checks.
 
 Fresh solver output is written beneath ignored `fem/` output directories and
 is never consumed implicitly by the publication figure script.

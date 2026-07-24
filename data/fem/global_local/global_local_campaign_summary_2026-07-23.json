@@ -1,0 +1,842 @@
+{
+  "schema": "global-local-campaign-summary-v1",
+  "author": "Codex",
+  "date": "2026-07-23",
+  "problem": {
+    "material": "reduced incompressible plane-stress Mooney-Rivlin",
+    "c1": 1.0,
+    "c2": 1.0,
+    "pure_shear_lambda": 1.6,
+    "method": "one-way global strip to exact/nested local crack-tip submodel with a shared P2 interface"
+  },
+  "run_provenance": {
+    "base_git_commit": "8c4abac",
+    "worktree_was_dirty_during_production_runs": true,
+    "source_freeze": "The implementation, curated inputs, deterministic estimators, and this summary are frozen together by the repository commit containing this file.",
+    "environment": {
+      "python": "3.11.14",
+      "dolfinx": "0.10.0",
+      "basix": "0.10.0",
+      "ufl": "2025.2.0",
+      "petsc": "3.24.2",
+      "petsc4py": "3.24.2",
+      "mpich": "4.3.2",
+      "mpi4py": "4.1.1",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "matching_radius_cases": {
+    "Rm_0.005": {
+      "solver": {
+        "r_min": 1e-05,
+        "matching_radius": 0.005,
+        "n_r": 48,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 5760,
+        "local_cells": 3360,
+        "local_direct": true,
+        "local_direct_iterations": 4,
+        "local_used_fallback": false,
+        "minimum_J": 1.5020891777003083,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 1.942890293094024e-16,
+        "relative_weak_reaction_defect": 5.3343357174513035e-09,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.1419543133909804,
+        "P_from_strip_energy": 1.1001696879181224,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.2747035458496412,
+          1.262891584534918,
+          1.258613268121369
+        ],
+        "axis_amplitude_relative_error": [
+          0.2236178968816408,
+          0.10859722874415075,
+          0.07274290232570736
+        ],
+        "axis_holdout_relative_error": [
+          6.498642560347349e-05,
+          4.996315592143125e-05,
+          4.201576192375352e-05
+        ],
+        "background_Cs": -4.325754425046922,
+        "background_Cs_shape_relative_L2_error": 0.08207164310758927,
+        "background_subtracted_q": [
+          1.1609632656370148,
+          1.1337659872207446,
+          1.1276934900666484
+        ],
+        "background_subtracted_Ch": [
+          2.6442944250680145,
+          1.645305027995893,
+          1.4649422532719625
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.1069408665279719,
+          0.05449576154144108,
+          0.04311118362772044
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.010988039235370568,
+          0.0037293028040971733,
+          0.0010836788826937946
+        ],
+        "simultaneous_full_angle_q": [
+          0.8,
+          0.960641709261415,
+          1.0653362971530003
+        ],
+        "simultaneous_full_angle_Cs": [
+          -1.3967952532865366,
+          3.652165361698095,
+          -6.109102685062237
+        ],
+        "simultaneous_full_angle_Ch": [
+          -3.5574196699207308,
+          -8.440387428736317,
+          2.905691471798552
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_rm5e3_restricted_profile.json",
+        "metadata_sha256": "5bd894d4defabc07ee0afac381f70c39576dcfdb3df95ffc6bdeab45a3782fc3",
+        "profile": "global_local_profile_lam16_rm5e3_restricted_profile.npz",
+        "profile_sha256": "b66bcbb0609ff919858ddef98b0589f0a87cda8c92ab06bf96ae607fbb3cc77a",
+        "estimator": "r54_lam16_rm5e3_restricted_profile.json",
+        "estimator_sha256": "dc1252fc76297ee60715e9469fcc28793d0f2713ecb84f8fc3bff08b95989177"
+      }
+    },
+    "Rm_0.01": {
+      "solver": {
+        "r_min": 1e-05,
+        "matching_radius": 0.01,
+        "n_r": 48,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 5760,
+        "local_cells": 3720,
+        "local_direct": true,
+        "local_direct_iterations": 4,
+        "local_used_fallback": false,
+        "minimum_J": 1.5067521628773721,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 1.6653345369377348e-16,
+        "relative_weak_reaction_defect": 6.923476849766643e-08,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.1330972210057102,
+        "P_from_strip_energy": 1.1001696879181235,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.2745870609868843,
+          1.2628068624788513,
+          1.2580635342616957
+        ],
+        "axis_amplitude_relative_error": [
+          0.21764494598295608,
+          0.10354244577216384,
+          0.06405665426194236
+        ],
+        "axis_holdout_relative_error": [
+          7.171867862737339e-05,
+          5.101822345764993e-05,
+          4.315330403134978e-05
+        ],
+        "background_Cs": -4.261343671896262,
+        "background_Cs_shape_relative_L2_error": 0.0782121544556047,
+        "background_subtracted_q": [
+          1.1662271723454607,
+          1.1379447681470485,
+          1.1316565145333053
+        ],
+        "background_subtracted_Ch": [
+          2.621369600861475,
+          1.589985019542144,
+          1.405693713573483
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.10549639223768978,
+          0.05056728849401342,
+          0.038766354256884024
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.011389087057084156,
+          0.0038308988804938377,
+          0.0010888498286074513
+        ],
+        "simultaneous_full_angle_q": [
+          0.8,
+          0.9618002680043622,
+          1.0658734338498697
+        ],
+        "simultaneous_full_angle_Cs": [
+          -1.398864477635893,
+          3.8278412914449365,
+          -6.074265803753329
+        ],
+        "simultaneous_full_angle_Ch": [
+          -3.5554723167321214,
+          -8.609174271009016,
+          2.845281261746166
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_rm1e2_restricted_profile.json",
+        "metadata_sha256": "d9bee262cdead52f683cf7bff0b7618c187115a5b11cec688214a56a498279b9",
+        "profile": "global_local_profile_lam16_rm1e2_restricted_profile.npz",
+        "profile_sha256": "03f2318f57d8067c0bce82318157a54bc5f73727db6863c9388f006524bbb37b",
+        "estimator": "r54_lam16_rm1e2_restricted_common_windows.json",
+        "estimator_sha256": "ab692c6b6f25164e79f1581dbcbc9c962ac42640b79440142d04e36f0d0fecc5"
+      }
+    },
+    "Rm_0.02": {
+      "solver": {
+        "r_min": 1e-05,
+        "matching_radius": 0.02,
+        "n_r": 48,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 5760,
+        "local_cells": 4080,
+        "local_direct": true,
+        "local_direct_iterations": 5,
+        "local_used_fallback": false,
+        "minimum_J": 1.510593240088176,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 2.498001805406602e-16,
+        "relative_weak_reaction_defect": 2.7945420843794584e-09,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.126291933794349,
+        "P_from_strip_energy": 1.1001696879181224,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.2745651492408814,
+          1.2628611947792847,
+          1.2582252752761263
+        ],
+        "axis_amplitude_relative_error": [
+          0.21380519721175847,
+          0.10078303102546868,
+          0.0622167693402971
+        ],
+        "axis_holdout_relative_error": [
+          7.578641232054027e-05,
+          5.935519724689923e-05,
+          5.414652221501066e-05
+        ],
+        "background_Cs": -4.285087833596582,
+        "background_Cs_shape_relative_L2_error": 0.07974498089636113,
+        "background_subtracted_q": [
+          1.1643730867762065,
+          1.1360587154893587,
+          1.1299381812943574
+        ],
+        "background_subtracted_Ch": [
+          2.611946019760948,
+          1.5804551144052188,
+          1.4012152490923615
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.10545893160078632,
+          0.05036279988206511,
+          0.03886110992614881
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.011249137313996805,
+          0.0037052907002071075,
+          0.0010860251434485094
+        ],
+        "simultaneous_full_angle_q": [
+          0.8,
+          0.9613898584008698,
+          1.0658219722436773
+        ],
+        "simultaneous_full_angle_Cs": [
+          -1.4020564502690869,
+          3.756386904490055,
+          -6.072614282114756
+        ],
+        "simultaneous_full_angle_Ch": [
+          -3.553427058449231,
+          -8.51756541867318,
+          2.8228940380307512
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_rm2e2_restricted_profile.json",
+        "metadata_sha256": "54e050e802f35ef31567e0142dd6770dd0d430da652bde6ff1e17be60ff71a68",
+        "profile": "global_local_profile_lam16_rm2e2_restricted_profile.npz",
+        "profile_sha256": "4c9fc4f56ffa35e95e159ee86e8bc04490a461ce74792721cfed894fe04a05dc",
+        "estimator": "r54_lam16_rm2e2_restricted_common_windows.json",
+        "estimator_sha256": "182c7c5ac0dd7a4fdd7cb81fd801d5db441e8a78d4947944380bc679be3b1914"
+      }
+    }
+  },
+  "core_and_angular_cases": {
+    "core_1e-5_ntheta60": {
+      "solver": {
+        "r_min": 1e-05,
+        "matching_radius": 0.01,
+        "n_r": 48,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 5760,
+        "local_cells": 3720,
+        "local_direct": true,
+        "local_direct_iterations": 4,
+        "local_used_fallback": false,
+        "minimum_J": 1.5067521628773721,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 1.6653345369377348e-16,
+        "relative_weak_reaction_defect": 6.923476849766643e-08,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.1330972210057102,
+        "P_from_strip_energy": 1.1001696879181235,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.2745870609868843,
+          1.2628068624788513,
+          1.2580635342616957
+        ],
+        "axis_amplitude_relative_error": [
+          0.21764494598295608,
+          0.10354244577216384,
+          0.06405665426194236
+        ],
+        "axis_holdout_relative_error": [
+          7.171867862737339e-05,
+          5.101822345764993e-05,
+          4.315330403134978e-05
+        ],
+        "background_Cs": -4.261343671896262,
+        "background_Cs_shape_relative_L2_error": 0.0782121544556047,
+        "background_subtracted_q": [
+          1.1662271723454607,
+          1.1379447681470485,
+          1.1316565145333053
+        ],
+        "background_subtracted_Ch": [
+          2.621369600861475,
+          1.589985019542144,
+          1.405693713573483
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.10549639223768978,
+          0.05056728849401342,
+          0.038766354256884024
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.011389087057084156,
+          0.0038308988804938377,
+          0.0010888498286074513
+        ],
+        "simultaneous_full_angle_q": [
+          0.8,
+          0.9618002680043622,
+          1.0658734338498697
+        ],
+        "simultaneous_full_angle_Cs": [
+          -1.398864477635893,
+          3.8278412914449365,
+          -6.074265803753329
+        ],
+        "simultaneous_full_angle_Ch": [
+          -3.5554723167321214,
+          -8.609174271009016,
+          2.845281261746166
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_rm1e2_restricted_profile.json",
+        "metadata_sha256": "d9bee262cdead52f683cf7bff0b7618c187115a5b11cec688214a56a498279b9",
+        "profile": "global_local_profile_lam16_rm1e2_restricted_profile.npz",
+        "profile_sha256": "03f2318f57d8067c0bce82318157a54bc5f73727db6863c9388f006524bbb37b",
+        "estimator": "r54_lam16_rm1e2_restricted_common_windows.json",
+        "estimator_sha256": "ab692c6b6f25164e79f1581dbcbc9c962ac42640b79440142d04e36f0d0fecc5"
+      }
+    },
+    "core_5e-6_ntheta60": {
+      "solver": {
+        "r_min": 5e-06,
+        "matching_radius": 0.01,
+        "n_r": 56,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 6720,
+        "local_cells": 4440,
+        "local_direct": false,
+        "local_direct_iterations": 12,
+        "local_used_fallback": true,
+        "minimum_J": 1.6966259409576614,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 6.106226635438361e-16,
+        "relative_weak_reaction_defect": 1.7006168278741634e-09,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.1207907277058278,
+        "P_from_strip_energy": 1.1001696879181224,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.262965981983291,
+          1.256846037865062,
+          1.2548601121494785
+        ],
+        "axis_amplitude_relative_error": [
+          0.10967865725579601,
+          0.05423796367774344,
+          0.03808038277915636
+        ],
+        "axis_holdout_relative_error": [
+          3.930333505405832e-05,
+          3.5164904504218544e-05,
+          3.5030456059549664e-05
+        ],
+        "background_Cs": -3.4818381979358364,
+        "background_Cs_shape_relative_L2_error": 0.02607319280660793,
+        "background_subtracted_q": [
+          1.2321696142896492,
+          1.2075763809744249,
+          1.2025338622280883
+        ],
+        "background_subtracted_Ch": [
+          1.9624468497079284,
+          1.1581083651162656,
+          1.0233425630678248
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.0770710534221625,
+          0.0252884205292962,
+          0.016402228115839128
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.009937036128349211,
+          0.003142947123056152,
+          0.0008550214631310481
+        ],
+        "simultaneous_full_angle_q": [
+          0.9094018335810997,
+          1.1158920261761214,
+          1.171862922257059
+        ],
+        "simultaneous_full_angle_Cs": [
+          -0.258422016061831,
+          -4.2673789635372,
+          -3.666332353589195
+        ],
+        "simultaneous_full_angle_Ch": [
+          -4.556485951299135,
+          1.0155728702297708,
+          0.8763967735917257
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_core5e6_rm1e2.json",
+        "metadata_sha256": "915e9888eaa8cdff800c39323e51b1b1a91e5620c686b5187f3ed61d17fedec9",
+        "profile": "global_local_profile_lam16_core5e6_rm1e2.npz",
+        "profile_sha256": "e2cc43c492041241e387e0e456079f9015760bdd4748a6de7dc9d57edd14d3c7",
+        "estimator": "r54_lam16_core5e6_rm1e2.json",
+        "estimator_sha256": "e741aeee9b9fee63742dc2c741f679ed0f065796efa7cbb8d8e9d8b7e9ba5d8b"
+      }
+    },
+    "core_2.5e-6_ntheta60": {
+      "solver": {
+        "r_min": 2.5e-06,
+        "matching_radius": 0.01,
+        "n_r": 64,
+        "n_theta": 60,
+        "mpi_ranks": 8,
+        "strip_cells": 7680,
+        "local_cells": 5160,
+        "local_direct": false,
+        "local_direct_iterations": 0,
+        "local_used_fallback": true,
+        "minimum_J": 1.9401249765020412,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 6.938893903907228e-16,
+        "relative_weak_reaction_defect": 2.5070834946979387e-10,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.11457453571983,
+        "P_from_strip_energy": 1.1001696879181222,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.2560556626474146,
+          1.2527637281998274,
+          1.2519323660317205
+        ],
+        "axis_amplitude_relative_error": [
+          0.049544587153399336,
+          0.02134174732020349,
+          0.014918023414622112
+        ],
+        "axis_holdout_relative_error": [
+          3.421214645045475e-05,
+          2.7434887688638977e-05,
+          3.092997442733642e-05
+        ],
+        "background_Cs": -3.204176101249717,
+        "background_Cs_shape_relative_L2_error": 0.003604757080794454,
+        "background_subtracted_q": [
+          1.267610889883232,
+          1.2547538922858044,
+          1.2521603680118387
+        ],
+        "background_subtracted_Ch": [
+          1.6415558911345385,
+          1.231764664201242,
+          1.1607788608105607
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.05853337466393331,
+          0.030419574611391224,
+          0.025196712519085947
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.005587928044451558,
+          0.0017520516159158057,
+          0.0005637152604678207
+        ],
+        "simultaneous_full_angle_q": [
+          1.0857250951065702,
+          1.2016362651846308,
+          1.2312109208797088
+        ],
+        "simultaneous_full_angle_Cs": [
+          -4.661678636421892,
+          -3.4124311586186518,
+          -3.28239347824432
+        ],
+        "simultaneous_full_angle_Ch": [
+          1.009406110817054,
+          0.7670339567388537,
+          0.9802486371395893
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_core2p5e6_rm1e2.json",
+        "metadata_sha256": "17e7ae1f79d03ae5ae12ccc8be86d351b7478526ca606bea42532bed05e4ca19",
+        "profile": "global_local_profile_lam16_core2p5e6_rm1e2.npz",
+        "profile_sha256": "43b88815f446fbd79d707364f0b74db43de982ab13c0378374c69743449117ec",
+        "estimator": "r54_lam16_core2p5e6_rm1e2.json",
+        "estimator_sha256": "3eff784c342e866e77f3aae558ad79bb07b29043814f0a7f91875c6d7bc9f2d2"
+      }
+    },
+    "core_2.5e-6_ntheta120": {
+      "solver": {
+        "r_min": 2.5e-06,
+        "matching_radius": 0.01,
+        "n_r": 64,
+        "n_theta": 120,
+        "mpi_ranks": 16,
+        "strip_cells": 15360,
+        "local_cells": 10320,
+        "local_direct": true,
+        "local_direct_iterations": 4,
+        "local_used_fallback": false,
+        "minimum_J": 1.8711557144588373,
+        "trace_max_error": 0.0,
+        "manufactured_P2_transfer_max_error": 1.6930901125533637e-15,
+        "relative_weak_reaction_defect": 4.207859289538339e-09,
+        "reaction_norm_scope": "Euclidean norm of matching P2 weak-reaction coefficients; not yet the trace-mass dual norm",
+        "P_face": 1.114190773717402,
+        "P_from_strip_energy": 1.1001696879181224,
+        "profile_samples": 28960,
+        "all_profile_samples_valid": true
+      },
+      "estimator": {
+        "windows": [
+          [
+            0.00015,
+            0.0016
+          ],
+          [
+            0.0003,
+            0.003
+          ],
+          [
+            0.0006,
+            0.0038
+          ]
+        ],
+        "axis_q": [
+          1.255611887448513,
+          1.252296767340074,
+          1.2515292964993656
+        ],
+        "axis_amplitude_relative_error": [
+          0.04665055329079524,
+          0.018326030157825267,
+          0.01241967751933517
+        ],
+        "axis_holdout_relative_error": [
+          3.539351011062782e-05,
+          2.756803258179573e-05,
+          3.0872807252209386e-05
+        ],
+        "background_Cs": -3.197653607252368,
+        "background_Cs_shape_relative_L2_error": 0.00370654911708624,
+        "background_subtracted_q": [
+          1.268602594558796,
+          1.2560198369742859,
+          1.2534925101011027
+        ],
+        "background_subtracted_Ch": [
+          1.6360760741271019,
+          1.2351359456575586,
+          1.165903000162139
+        ],
+        "background_subtracted_angular_relative_L2_error": [
+          0.05815683196437,
+          0.03062730569453166,
+          0.02553357163019972
+        ],
+        "background_subtracted_radial_holdout_relative_error": [
+          0.0055070109543468035,
+          0.0017187132593081828,
+          0.000554961625677866
+        ],
+        "simultaneous_full_angle_q": [
+          1.0894125948956508,
+          1.2038630170933442,
+          1.2329296512979155
+        ],
+        "simultaneous_full_angle_Cs": [
+          -4.565197584458424,
+          -3.398847402880797,
+          -3.273545818208718
+        ],
+        "simultaneous_full_angle_Ch": [
+          0.9260221688606055,
+          0.7722161445488062,
+          0.9869082123056805
+        ]
+      },
+      "source_files": {
+        "metadata": "global_local_lam16_core2p5e6_nt120_rm1e2.json",
+        "metadata_sha256": "9c0870ad043675b3829924a310ba3db9049697831cb4e80ecf5c7f21954ddb98",
+        "profile": "global_local_profile_lam16_core2p5e6_nt120_rm1e2.npz",
+        "profile_sha256": "7ea18ceb83d3d92811a97580d4d908b0f835bca6896ae2eabc98be79d0a6af45",
+        "estimator": "r54_lam16_core2p5e6_nt120_rm1e2.json",
+        "estimator_sha256": "56b7c69d800830674fd6f555a495681fbea06f65df6a00b45af3eedfbc62ae56"
+      }
+    }
+  },
+  "derived_robustness_checks": {
+    "matching_radius_axis_q_span_by_window": [
+      0.00013839660875980542,
+      8.472205606668837e-05,
+      0.0005497338596733847
+    ],
+    "axis_absolute_error_from_1.25_by_core_case": {
+      "core_1e-5_ntheta60": [
+        0.024587060986884346,
+        0.012806862478851322,
+        0.008063534261695704
+      ],
+      "core_5e-6_ntheta60": [
+        0.01296598198329102,
+        0.0068460378650621045,
+        0.004860112149478457
+      ],
+      "core_2.5e-6_ntheta60": [
+        0.006055662647414639,
+        0.0027637281998273977,
+        0.0019323660317205338
+      ],
+      "core_2.5e-6_ntheta120": [
+        0.005611887448512931,
+        0.002296767340074002,
+        0.0015292964993656177
+      ]
+    },
+    "axis_q_change_ntheta60_to_ntheta120_at_smallest_core": [
+      0.000443775198901708,
+      0.00046696085975339585,
+      0.00040306953235491605
+    ],
+    "smallest_core_widest_window": {
+      "axis_q": 1.2515292964993656,
+      "axis_amplitude_relative_error": 0.01241967751933517,
+      "background_subtracted_q": 1.2534925101011027,
+      "background_subtracted_angular_relative_L2_error": 0.02553357163019972
+    }
+  },
+  "free_two_power_axis_check": {
+    "model": "y_axis=c0+A*r^q+D*r^p_next",
+    "q": [
+      1.2498045540700193,
+      1.2505624758181273,
+      1.251517356179518,
+      1.250342990597486,
+      1.2514409453377435
+    ],
+    "p_next": [
+      1.6897065404026705,
+      1.7138380204876027,
+      1.747461776453758,
+      1.713502600770119,
+      1.7442992770259782
+    ],
+    "windows": [
+      [
+        0.0006,
+        0.0045
+      ],
+      [
+        0.0006,
+        0.005
+      ],
+      [
+        0.0006,
+        0.006
+      ],
+      [
+        0.0008,
+        0.006
+      ],
+      [
+        0.001,
+        0.006
+      ]
+    ],
+    "amplitude_relative_error": [
+      -0.004650827161171378,
+      0.0029008598681201647,
+      0.012186658481818435,
+      0.0012374055244142035,
+      0.011422498915030443
+    ],
+    "holdout_relative_error": [
+      2.763663712676943e-05,
+      3.140781504374394e-05,
+      2.783841797945401e-05,
+      2.7922641545195655e-05,
+      2.7772126270091782e-05
+    ],
+    "checks": {
+      "all_holdout_relative_errors_below_5e-5": true,
+      "all_next_powers_between_1.68_and_1.76": true,
+      "all_q_within_0.002_of_1.25": true
+    },
+    "source_file": "r54_axis_two_power_sensitivity.json",
+    "source_sha256": "f0c3ad5d4bd3925cd9b5a665fecd834775b0486977986fc79656ea4f913a3864"
+  },
+  "separately_refined_local_case": {
+    "metadata": "global_local_lam16_rm1e2_refine1_profile.json",
+    "metadata_sha256": "d837fe78c7b2b09adbb67f4f15152a658d2a5eedca0b6f15f39178337dcc01b2",
+    "restricted_reaction_defect": 4.230601511006306e-09,
+    "refined_cells": 14820,
+    "refined_minimum_J": 0.9567465202470871,
+    "refined_used_fallback": true,
+    "refined_reaction_defect": 0.020977256150577692
+  },
+  "findings": {
+    "five_quarters": "Supported numerically as an asymptotic class by matching-radius independence, systematic core convergence, angular convergence, and exact-axis amplitude convergence. The free two-power audit recovers both q near 5/4 and the next power near 7/4 without fixing either exponent. The background-subtracted full-angle exponent approaches the same value, and its angular profile is consistent with the ODE family after admitting the homogeneous Ch member.",
+    "Cs": "Specimen-specific and approximately -3.2 to -3.3 at the smallest core, but a strict radial-window plateau is not established.",
+    "Ch": "Fits consistently favor a nonzero value near 1.2 in the broader windows, but core/window convergence is insufficient for a selected-coefficient claim.",
+    "one_way_scope": "The exact restricted submodel balances weak interface reactions to solver tolerance. Independent local refinement has a roughly two-percent P2 reaction-coefficient defect in the stated Euclidean norm and is not a two-way coupled equilibrium."
+  },
+  "stopping_decision": "No further solve is required for the numerical support of the 5/4 exponent. Further work is needed only if the paper elects to claim selected Cs or Ch rather than report them as provisional specimen-level estimates."
+}

@@ -1,0 +1,134 @@
+{
+  "checks": {
+    "all_holdout_relative_errors_below_5e-5": true,
+    "all_next_powers_between_1.68_and_1.76": true,
+    "all_q_within_0.002_of_1.25": true
+  },
+  "date": "2026-07-23",
+  "exponent_bounds": {
+    "minimum_separation": 0.08,
+    "p_next": [
+      1.4,
+      2.5
+    ],
+    "q": [
+      1.0,
+      1.4
+    ]
+  },
+  "fits": [
+    {
+      "A": 1.0668433777849184,
+      "A_predicted_from_measured_P": 1.0718282657955918,
+      "A_relative_error": -0.004650827161171378,
+      "D": 0.42063796749094834,
+      "c0": 0.12753061721469205,
+      "holdout_rmse": 1.5320634909521742e-08,
+      "holdout_rmse_over_target_component": 2.763663712676943e-05,
+      "n_holdout": 36,
+      "n_train": 37,
+      "optimizer_iterations": 48,
+      "optimizer_train_rss": 1.0610397034216196e-14,
+      "p_next": 1.6897065404026705,
+      "q": 1.2498045540700193,
+      "window": [
+        0.0006,
+        0.0045
+      ]
+    },
+    {
+      "A": 1.0749374893973551,
+      "A_predicted_from_measured_P": 1.0718282657955918,
+      "A_relative_error": 0.0029008598681201647,
+      "D": 0.43366690795523044,
+      "c0": 0.12753063203459566,
+      "holdout_rmse": 1.953011926642653e-08,
+      "holdout_rmse_over_target_component": 3.140781504374394e-05,
+      "n_holdout": 38,
+      "n_train": 38,
+      "optimizer_iterations": 47,
+      "optimizer_train_rss": 1.0618382805730528e-14,
+      "p_next": 1.7138380204876027,
+      "q": 1.2505624758181273,
+      "window": [
+        0.0006,
+        0.005
+      ]
+    },
+    {
+      "A": 1.0848902708220023,
+      "A_predicted_from_measured_P": 1.0718282657955918,
+      "A_relative_error": 0.012186658481818435,
+      "D": 0.4557870550175214,
+      "c0": 0.12753065436967692,
+      "holdout_rmse": 2.0593223239329777e-08,
+      "holdout_rmse_over_target_component": 2.783841797945401e-05,
+      "n_holdout": 41,
+      "n_train": 42,
+      "optimizer_iterations": 42,
+      "optimizer_train_rss": 2.300825629650028e-14,
+      "p_next": 1.747461776453758,
+      "q": 1.251517356179518,
+      "window": [
+        0.0006,
+        0.006
+      ]
+    },
+    {
+      "A": 1.0731545520129104,
+      "A_predicted_from_measured_P": 1.0718282657955918,
+      "A_relative_error": 0.0012374055244142035,
+      "D": 0.43937428807072376,
+      "c0": 0.12753060981358927,
+      "holdout_rmse": 2.1908362871265087e-08,
+      "holdout_rmse_over_target_component": 2.7922641545195655e-05,
+      "n_holdout": 36,
+      "n_train": 37,
+      "optimizer_iterations": 41,
+      "optimizer_train_rss": 2.2955356479445122e-14,
+      "p_next": 1.713502600770119,
+      "q": 1.250342990597486,
+      "window": [
+        0.0008,
+        0.006
+      ]
+    },
+    {
+      "A": 1.0840712229987408,
+      "A_predicted_from_measured_P": 1.0718282657955918,
+      "A_relative_error": 0.011422498915030443,
+      "D": 0.45338125576078386,
+      "c0": 0.12753065507368413,
+      "holdout_rmse": 2.314612627292837e-08,
+      "holdout_rmse_over_target_component": 2.7772126270091782e-05,
+      "n_holdout": 32,
+      "n_train": 33,
+      "optimizer_iterations": 48,
+      "optimizer_train_rss": 2.2839711057812446e-14,
+      "p_next": 1.7442992770259782,
+      "q": 1.2514409453377435,
+      "window": [
+        0.001,
+        0.006
+      ]
+    }
+  ],
+  "inputs": {
+    "P_measured": 1.114190773717402,
+    "metadata": "fem/audit_data/global_local/global_local_lam16_core2p5e6_nt120_rm1e2.json",
+    "metadata_sha256": "9c0870ad043675b3829924a310ba3db9049697831cb4e80ecf5c7f21954ddb98",
+    "profile": "fem/audit_data/global_local/global_local_profile_lam16_core2p5e6_nt120_rm1e2.npz",
+    "profile_sha256": "7ea18ceb83d3d92811a97580d4d908b0f835bca6896ae2eabc98be79d0a6af45"
+  },
+  "interpretation": "The data recover q near 5/4 and a next power near 7/4 without fixing either exponent. This supports the exact-axis asymptotic class but does not select the full-angle Ch=0 branch.",
+  "model": "y_axis=c0+A*r^q+D*r^p_next",
+  "optimizer": {
+    "method": "scipy.optimize.differential_evolution",
+    "polish": true,
+    "seed": 4,
+    "tol": 1e-09
+  },
+  "purpose": "Test whether the exact-axis 5/4 exponent survives when the next radial power is inferred rather than fixed at 7/4.",
+  "schema": "r54-axis-free-two-power-v1",
+  "split": "alternating radii within each window; exponents and coefficients fitted on the first fold and evaluated on the second"
+}

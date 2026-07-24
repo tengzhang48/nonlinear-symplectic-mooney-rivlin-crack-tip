@@ -35,6 +35,8 @@ class StripConfig:
     r_min: float = 1.0e-5  # core radius at the tip
     n_r: int = 64          # graded rings per ray
     n_theta: int = 120     # base angular divisions over [0, pi]
+    matching_radius: float | None = None
+    matching_n_inner: int | None = None
 
     @property
     def h0(self) -> float:
@@ -58,9 +60,8 @@ def _R_max(theta, a, b, H):
     return min(cand)
 
 
-def build_strip(cfg: StripConfig | None = None):
-    if cfg is None:
-        cfg = StripConfig()
+def strip_theta_nodes(cfg: StripConfig) -> np.ndarray:
+    """Return the deterministic angular rays used by the strip mesh."""
     theta = np.linspace(0.0, np.pi, cfg.n_theta + 1)
     # Align the nearest two interior rays with the far corners.  Merely using
     # uniform angles cuts a small triangle from each corner; inserting extra
@@ -79,33 +80,103 @@ def build_strip(cfg: StripConfig | None = None):
         theta[j] = theta_corner
         available.remove(j)
     theta.sort()
-    krow = np.arange(cfg.n_r + 1) / cfg.n_r
+    return theta
+
+
+def _matching_ring(cfg: StripConfig, theta: np.ndarray) -> int | None:
+    """Choose the radial row occupied by the explicit matching semicircle."""
+    if cfg.matching_radius is None:
+        if cfg.matching_n_inner is not None:
+            raise ValueError(
+                "matching_n_inner requires a matching_radius")
+        return None
+    Rm = float(cfg.matching_radius)
+    if not (cfg.r_min < Rm):
+        raise ValueError("matching_radius must exceed r_min")
+    shortest_ray = min(
+        _R_max(th, cfg.a, cfg.b, cfg.H) for th in theta)
+    if not (Rm < shortest_ray):
+        raise ValueError(
+            "matching_radius must lie strictly inside every strip ray "
+            f"(matching_radius={Rm:g}, shortest ray={shortest_ray:g})")
+    if cfg.n_r < 4:
+        raise ValueError(
+            "n_r must be at least 4 when a matching interface is requested")
+    if cfg.matching_n_inner is not None:
+        n_inner = int(cfg.matching_n_inner)
+    else:
+        # Allocate radial cells approximately uniformly per logarithmic
+        # decade on the shortest ray, then retain at least two cells on each
+        # side of the matching interface.
+        fraction = (
+            np.log(Rm / cfg.r_min)
+            / np.log(shortest_ray / cfg.r_min)
+        )
+        n_inner = int(round(cfg.n_r * fraction))
+    if not (2 <= n_inner <= cfg.n_r - 2):
+        raise ValueError(
+            "matching_n_inner must leave at least two radial cells on each "
+            f"side of the interface; got {n_inner} for n_r={cfg.n_r}")
+    return n_inner
+
+
+def build_strip(
+        cfg: StripConfig | None = None,
+        comm: MPI.Comm = MPI.COMM_WORLD):
+    if cfg is None:
+        cfg = StripConfig()
+    theta = strip_theta_nodes(cfg)
+    theta_corners = np.array([
+        np.arctan2(cfg.H, cfg.b),
+        np.pi - np.arctan2(cfg.H, cfg.a),
+    ])
+    interface_ring = _matching_ring(cfg, theta)
     nth = theta.size
     nr = cfg.n_r + 1
 
     X = np.empty((nr, nth))
     Y = np.empty((nr, nth))
     for j, th in enumerate(theta):
-        Rm = _R_max(th, cfg.a, cfg.b, cfg.H)
-        r = cfg.r_min * (Rm / cfg.r_min) ** krow          # geometric r_min..R_max
+        Rmax = _R_max(th, cfg.a, cfg.b, cfg.H)
+        if interface_ring is None:
+            eta = np.arange(cfg.n_r + 1) / cfg.n_r
+            r = cfg.r_min * (Rmax / cfg.r_min) ** eta
+        else:
+            Rm = float(cfg.matching_radius)
+            n_inner = interface_ring
+            n_outer = cfg.n_r - n_inner
+            eta_inner = np.arange(n_inner + 1) / n_inner
+            eta_outer = np.arange(1, n_outer + 1) / n_outer
+            r = np.concatenate([
+                cfg.r_min * (Rm / cfg.r_min) ** eta_inner,
+                Rm * (Rmax / Rm) ** eta_outer,
+            ])
         X[:, j] = r * np.cos(th)
         Y[:, j] = r * np.sin(th)
-    points = np.column_stack([X.ravel(), Y.ravel()]).astype(np.float64)
 
     def idx(k, j):
         return k * nth + j
 
-    cells = []
-    for k in range(cfg.n_r):
-        for j in range(nth - 1):
-            p00, p10 = idx(k, j), idx(k + 1, j)
-            p11, p01 = idx(k + 1, j + 1), idx(k, j + 1)
-            cells.append([p00, p10, p11])
-            cells.append([p00, p11, p01])
-    cells = np.array(cells, dtype=np.int64)
+    # DOLFINx expects one global input mesh, not one copy per MPI rank.
+    # Supplying the arrays only on rank zero lets create_mesh partition the
+    # cells collectively.  The previous all-ranks construction duplicated the
+    # complete mesh under mpiexec.
+    if comm.rank == 0:
+        points = np.column_stack([X.ravel(), Y.ravel()]).astype(np.float64)
+        cells = []
+        for k in range(cfg.n_r):
+            for j in range(nth - 1):
+                p00, p10 = idx(k, j), idx(k + 1, j)
+                p11, p01 = idx(k + 1, j + 1), idx(k, j + 1)
+                cells.append([p00, p10, p11])
+                cells.append([p00, p11, p01])
+        cells = np.asarray(cells, dtype=np.int64)
+    else:
+        points = np.empty((0, 2), dtype=np.float64)
+        cells = np.empty((0, 3), dtype=np.int64)
 
     elem = basix.ufl.element("Lagrange", "triangle", 1, shape=(2,))
-    msh = dmesh.create_mesh(MPI.COMM_WORLD, cells, elem, points)
+    msh = dmesh.create_mesh(comm, cells, elem, points)
 
     info = {
         "a": cfg.a, "b": cfg.b, "H": cfg.H, "h0": cfg.h0, "w": cfg.w,
@@ -113,7 +184,17 @@ def build_strip(cfg: StripConfig | None = None):
         "n_sectors": int(nth - 1), "r_min": cfg.r_min,
         "angular_scheme": "corner-snapped-v1",
         "corner_angles": theta_corners.tolist(),
-        "n_points": int(points.shape[0]), "n_cells": int(cells.shape[0]),
+        "theta_nodes": theta.copy(),
+        "matching_radius": (
+            None if cfg.matching_radius is None
+            else float(cfg.matching_radius)),
+        "matching_ring": interface_ring,
+        "matching_n_inner": interface_ring,
+        "matching_n_outer": (
+            None if interface_ring is None
+            else int(cfg.n_r - interface_ring)),
+        "n_points": int(nr * nth),
+        "n_cells": int(2 * cfg.n_r * (nth - 1)),
         "w_over_h0": cfg.w / cfg.h0,
     }
     return msh, info

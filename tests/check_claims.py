@@ -20,6 +20,10 @@ SUMMARY = STRIP / "summary.csv"
 LEDGER = ROOT / "data" / "claims" / "principal_claims.json"
 STRIP_MANIFEST = STRIP / "ARTIFACTS.sha256"
 FIGURES = ROOT / "figures" / "rendered"
+GLOBAL_LOCAL = ROOT / "data" / "fem" / "global_local"
+GLOBAL_LOCAL_SUMMARY = (
+    GLOBAL_LOCAL / "global_local_campaign_summary_2026-07-23.json"
+)
 
 
 def gate(name: str, condition: bool, detail: str) -> None:
@@ -116,10 +120,12 @@ def main() -> None:
     )
     expected_figure_stems = {
         "fig_master",
+        "fig_asymap",
         "fig_chain",
         "fig_ps_portrait",
         "fig_plateau",
         "fig_cratio",
+        "fig_r54_axis_convergence",
         "fig_esi_mesh",
     }
     figure_pdfs = sorted(FIGURES.glob("*.pdf"))
@@ -134,6 +140,64 @@ def main() -> None:
          and {path.stem for path in figure_pngs} == expected_figure_stems
          and not type3_pdfs),
         f"{len(figure_pdfs)} PDF/PNG pairs; no embedded Type 3 fonts",
+    )
+
+    residual_claim = claims.get("five-quarters-fem", {})
+    residual_statement = residual_claim.get("statement", "")
+    gate(
+        "five-quarters FEM scope",
+        (residual_claim.get("status")
+         == "supported-for-tested-strip"
+         and "c1=c2=1" in residual_statement
+         and "lambda=1.6" in residual_statement
+         and "does not select C_s or C_h" in residual_statement
+         and "is not a two-way coupled global-local calculation"
+         in residual_statement),
+        "tested-strip support without coefficient or two-way claims",
+    )
+    first_material_claim = claims.get("first-material-rung", {})
+    first_material_statement = first_material_claim.get("statement", "")
+    gate(
+        "first-material rung scope",
+        (first_material_claim.get("status") == "closed-on-selected-base"
+         and "chosen F=0 representative" in first_material_statement
+         and "Lambda=7/4" in first_material_statement
+         and "total face traction closes" in first_material_statement
+         and "no new local amplitude" in first_material_statement),
+        "closed Lambda=7/4 rung on the selected base",
+    )
+    resonance_claim = claims.get("restricted-opening-resonance", {})
+    resonance_statement = resonance_claim.get("statement", "")
+    gate(
+        "restricted opening-resonance scope",
+        (resonance_claim.get("status") == "restricted-formal-coefficient"
+         and "chosen F=0 (C_s=0) analytic-axis representative"
+         in resonance_statement
+         and "restricted interaction" in resonance_statement
+         and "Lambda=13/4" in resonance_statement
+         and "logarithmic companion" in resonance_statement
+         and "complete same-grade source, coupled response, and "
+             "specimen-selected net logarithmic amplitude remain open"
+         in resonance_statement),
+        "restricted Lambda=13/4 coefficient on the selected base",
+    )
+    global_local = json.loads(
+        GLOBAL_LOCAL_SUMMARY.read_text(encoding="utf-8"))
+    finest = global_local["derived_robustness_checks"][
+        "smallest_core_widest_window"]
+    gate(
+        "five-quarters archived campaign values",
+        (math.isclose(finest["axis_q"], 1.2515292964993656,
+                      rel_tol=0.0, abs_tol=5e-13)
+         and math.isclose(
+             finest["axis_amplitude_relative_error"],
+             0.01241967751933517,
+             rel_tol=0.0, abs_tol=5e-13)
+         and math.isclose(
+             finest["background_subtracted_q"],
+             1.2534925101011027,
+             rel_tol=0.0, abs_tol=5e-13)),
+        "q=1.251529, amplitude error=1.242%, full-angle q=1.253493",
     )
 
     with SUMMARY.open(newline="", encoding="utf-8") as stream:
