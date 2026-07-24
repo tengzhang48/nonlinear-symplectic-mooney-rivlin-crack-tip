@@ -32,7 +32,8 @@ The matching-circle calculation uses the same pure-shear strip rather than a
 second specimen. An explicit internal semicircle makes the complete P2
 displacement trace available without imposing a near-tip asymptotic field.
 The accepted convergence sequence refines the strip core and angular mesh,
-then reads the field on the intact axis where the undetermined \(C_s\) and
+then solves the exact inner cell restriction with the complete P2 strip trace
+and reads that field on the intact axis, where the undetermined \(C_s\) and
 \(C_h\) contributions vanish. It gives the Figure 7 test of the
 \(r^{5/4}\) residual exponent and its parameter-free amplitude.
 
@@ -44,9 +45,10 @@ bash fem/run_global_local_campaign.sh
 
 The same code can restrict the solved strip to the cells inside the matching
 circle or solve an independently refined inner mesh with the complete strip
-trace prescribed. The first path is a transfer and equilibrium check. The
-second is a one-way Dirichlet submodel: its changed reaction is not fed back
-to the outer strip. Neither path is presented as a fully coupled algorithm or
+trace prescribed. The first path supplies the Figure 7 profiles as well as
+the transfer and equilibrium checks. The second is a one-way Dirichlet
+submodel: its changed reaction is not fed back to the outer strip and it does
+not enter Figure 7. Neither path is presented as a fully coupled algorithm or
 as a selection of \(C_s\) and \(C_h\).
 
 Implementation, convergence, and claim boundaries are recorded in

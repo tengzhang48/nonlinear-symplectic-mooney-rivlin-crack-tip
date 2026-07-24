@@ -31,6 +31,7 @@ blanket proof of nearby scientific claims.
 | `figures/make_fig_asymap.py` | Figure 2 physics map | conceptual fork-and-merge map; no fitted plotting data |
 | `figures/make_fig_r54_axis_convergence.py` | Figure 7 residual convergence | reads only the compact hashed matching-circle summary |
 | `figures/make_esi_mesh.py` | strip-only ESI mesh figure | fresh mesh construction in the pinned FEniCSx environment |
+| `figures/make_esi_matching_circle.py` | ESI matching-circle field and radial-window map | reads the final retained exact-restriction P2 profile; no derivative reconstruction |
 
 ## Quarantined auxiliary disk calculation
 

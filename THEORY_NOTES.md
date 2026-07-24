@@ -198,6 +198,10 @@ without either coefficient. The final core/angular refinement gives
 the nuisance exponent. The full-angle residual is consistent with the ODE
 family after `Ch` is admitted. The campaign supports the asymptotic class for
 the tested strip but does not select `Cs`, `Ch`, or the analytic-axis member.
+The six retained profiles come from same-cell exact-restriction consistency
+solves driven by six new global matching-circle strip configurations. Four
+form the plotted core/angular sequence and two test the matching radius. The
+independently refined local submodel does not enter this result.
 
 On the crack face, the physical `Cs r` term can dominate the residual, so no
 universal raw crack-face-shape exponent is claimed.
@@ -210,6 +214,7 @@ Public checks and data:
 - `fem/GLOBAL_LOCAL_RESULTS.md`
 - `data/fem/global_local/global_local_campaign_summary_2026-07-23.json`
 - `figures/rendered/fig_r54_axis_convergence.*`
+- `figures/rendered/fig_esi_matching_circle.*`
 
 `analysis/profile_mode_audit.py` has a separate numerical role: it reproduces
 the ESI strip table of fitted `b`, raw slopes, and nested target-free `q`

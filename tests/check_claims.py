@@ -127,6 +127,7 @@ def main() -> None:
         "fig_cratio",
         "fig_r54_axis_convergence",
         "fig_esi_mesh",
+        "fig_esi_matching_circle",
     }
     figure_pdfs = sorted(FIGURES.glob("*.pdf"))
     figure_pngs = sorted(FIGURES.glob("*.png"))
@@ -150,6 +151,12 @@ def main() -> None:
          == "supported-for-tested-strip"
          and "c1=c2=1" in residual_statement
          and "lambda=1.6" in residual_statement
+         and "six new global matching-circle configurations"
+         in residual_statement
+         and "same-cell exact-restriction consistency solves"
+         in residual_statement
+         and "independently refined local submodel does not enter Figure 7"
+         in residual_statement
          and "does not select C_s or C_h" in residual_statement
          and "is not a two-way coupled global-local calculation"
          in residual_statement),

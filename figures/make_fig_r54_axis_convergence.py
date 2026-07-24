@@ -10,8 +10,9 @@ Reader
     Soft-matter and fracture-mechanics readers assessing the numerical
     evidence behind the asymptotic result.
 Evidence
-    The three common radial windows from the curated global--local campaign,
-    plotted through the core/angular refinement sequence.
+    Three overlapping exact-axis radial fit windows from the curated
+    global--local campaign, plotted through the four-case core/angular
+    refinement sequence.
 Takeaway
     Both the freely fitted exponent and the amplitude ratio approach their
     analytical values. Matching-radius and free-two-power sensitivities are
@@ -50,9 +51,12 @@ CASE_ORDER = (
 )
 
 SERIES = (
-    ("inner annulus", "#666666", "o", (0, (4, 2))),
-    ("middle annulus", "#0072B2", "s", (0, (5, 1.5, 1.5, 1.5))),
-    ("outer annulus", "#c1272d", "^", "-"),
+    (r"I: $[1.5{\times}10^{-4},\,1.6{\times}10^{-3}]$",
+     "#666666", "o", (0, (4, 2))),
+    (r"II: $[3.0{\times}10^{-4},\,3.0{\times}10^{-3}]$",
+     "#0072B2", "s", (0, (5, 1.5, 1.5, 1.5))),
+    (r"III: $[6.0{\times}10^{-4},\,3.8{\times}10^{-3}]$",
+     "#c1272d", "^", "-"),
 )
 
 
@@ -85,7 +89,7 @@ def make_figure(
     ])
 
     labels = []
-    for case in cases:
+    for case_index, case in enumerate(cases, start=1):
         solver = case["solver"]
         core = solver["r_min"]
         core_label = {
@@ -94,7 +98,8 @@ def make_figure(
             2.5e-6: r"$2.5{\times}10^{-6}$",
         }[core]
         labels.append(
-            core_label + "\n" + rf"$n_\theta={solver['n_theta']}$"
+            rf"case {case_index}" + "\n" + core_label + "\n"
+            + rf"$n_\theta={solver['n_theta']}$"
         )
 
     plt.rcParams.update({
@@ -159,7 +164,9 @@ def make_figure(
         ax.set_xlim(-0.18, 3.18)
         ax.grid(axis="y", color="0.88", lw=0.7)
         ax.tick_params(direction="out")
-        ax.set_xlabel(r"$r_{\min}/h$ and angular sectors")
+        ax.set_xlabel(
+            r"global strip mesh: $r_{\min}/h$ and $n_\theta$"
+        )
 
     ax_q.set_ylim(1.2475, 1.2790)
     ax_a.set_ylim(0.99, 1.235)
@@ -173,10 +180,12 @@ def make_figure(
     handles, legend_labels = ax_q.get_legend_handles_labels()
     fig.legend(
         handles, legend_labels, loc="upper center", ncol=3,
-        bbox_to_anchor=(0.5, 1.015), frameon=False,
-        handlelength=2.8, columnspacing=1.5,
+        bbox_to_anchor=(0.5, 1.055), frameon=False,
+        handlelength=2.4, columnspacing=1.0, fontsize=8.4,
+        title=r"overlapping exact-axis fit windows in $r/h$",
+        title_fontsize=9.2,
     )
-    fig.subplots_adjust(top=0.82, bottom=0.22, left=0.105, right=0.985)
+    fig.subplots_adjust(top=0.76, bottom=0.255, left=0.105, right=0.985)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     fig.savefig(

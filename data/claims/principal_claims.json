@@ -28,7 +28,7 @@
     {
       "id": "five-quarters-fem",
       "status": "supported-for-tested-strip",
-      "statement": "For the tested c1=c2=1, lambda=1.6 pure-shear strip, a matching-radius, core, and angular sequence supports the exact-axis r^(5/4) residual class and its parameter-free amplitude. The full-angle residual is consistent with the analytical ODE family when its homogeneous C_h member is admitted. The campaign does not select C_s or C_h and is not a two-way coupled global-local calculation",
+      "statement": "For the tested c1=c2=1, lambda=1.6 pure-shear strip, six new global matching-circle configurations followed by same-cell exact-restriction consistency solves support the exact-axis r^(5/4) residual class and its parameter-free amplitude. Four configurations form the plotted core/angular sequence and two test matching radius; the independently refined local submodel does not enter Figure 7. The full-angle residual is consistent with the analytical ODE family when its homogeneous C_h member is admitted. The campaign does not select C_s or C_h and is not a two-way coupled global-local calculation",
       "evidence": ["fem/GLOBAL_LOCAL_RESULTS.md", "data/fem/global_local/global_local_campaign_summary_2026-07-23.json", "figures/rendered/fig_r54_axis_convergence.pdf", "tests/check_claims.py"]
     },
     {

@@ -64,7 +64,11 @@ $$y_1-c_0-C_s s
 
 Local theory does not select either $C_s$ or $C_h$. A dedicated
 matching-circle campaign avoids both coefficients on the intact axis, where
-their angular factors vanish. Systematic core and angular refinement gives
+their angular factors vanish. Six new global strip configurations are each
+followed by a same-cell exact-restriction consistency solve, which supplies
+the retained profiles. Four cases form the plotted core/angular sequence and
+two test the matching radius. The independently refined local submodel is not
+used in Figure 7. Systematic core and angular refinement gives
 
 $$q=1.251529,\qquad
 \frac{A_{\rm ax}}{A_{\rm ax,pred}}=1.012420.$$
@@ -128,12 +132,14 @@ must not be interpreted as a collection of independent proofs.
 The figure command rebuilds the seven current paper figures from the tracked
 analytic and strip inputs.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
-environment below. See [FIGURES.md](FIGURES.md) for the exact input map.
+environment below. `figures/make_esi_matching_circle.py` rebuilds the
+matching-circle field and overlapping-window figure from the retained final
+P2 profile. See [FIGURES.md](FIGURES.md) for the exact input map.
 The complete clean-clone workflow and current manuscript numbering are in
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 The claims check also rejects embedded Type 3 fonts and enforces the exact
-eight-figure PDF/PNG inventory. The generators request embedded TrueType fonts for publisher
-preflight compatibility.
+nine-figure PDF/PNG inventory. The generators request embedded TrueType fonts
+for publisher preflight compatibility.
 
 ## Re-run the finite elements
 

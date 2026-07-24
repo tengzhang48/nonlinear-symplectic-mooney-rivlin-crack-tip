@@ -47,10 +47,11 @@ bash fem/run_global_local_campaign.sh
 ```
 
 The campaign varies matching radius, core size, and angular resolution. Its
-accepted $r^{5/4}$ estimate comes from the globally solved, tip-refined strip
-sequence. The exact inner restriction checks P2 transfer and discrete
-equilibrium. A separately refined inner solve demonstrates one-way
-displacement submodeling, but its reaction is not returned to the strip.
+accepted $r^{5/4}$ estimate comes from exact-restriction profiles driven by
+the globally solved, tip-refined strip sequence. The same-cell restriction
+also checks P2 transfer and discrete equilibrium. A separately refined inner
+solve demonstrates one-way displacement submodeling, but its reaction is not
+returned to the strip and its field is not used in Figure 7.
 
 The code path, interface-node convention, MPI checks, estimators, and precise
 scope are documented in

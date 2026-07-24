@@ -12,11 +12,11 @@
   filename.
 
 - `fem/global_local/`: the matching-circle records used by Figure 7. These
-  are live-P2 profiles and metadata from the same pure-shear strip, together
-  with deterministic residual estimators and a hashed campaign summary. They
-  support the tested \(r^{5/4}\) class but do not select the specimen
-  coefficients \(C_s\) or \(C_h\), and they are not outputs of a fully coupled
-  two-way submodel.
+  are live-P2 exact-restriction profiles driven by newly solved pure-shear
+  strip configurations, together with solver metadata, deterministic
+  residual estimators, and a hashed campaign summary. They support the tested
+  \(r^{5/4}\) class but do not select the specimen coefficients \(C_s\) or
+  \(C_h\), and they are not outputs of a fully coupled two-way submodel.
 
 - `derived/profile_mode_audit.json`: strip-only reproduction record for the
   ESI finite-window table at `lambda=1.6` and `2.2`. It stores the fitted

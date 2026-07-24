@@ -21,7 +21,15 @@ The baseline local domain is the exact strip-cell submesh inside \(R_m\). The
 complete live-P2 displacement field supplies both the local initial state and
 the imposed outer trace. The local nonlinear problem is then solved at the
 final load. Opposing weak reactions are assembled without Dirichlet
-elimination and compared on the common P2 trace.
+elimination and compared on the common P2 trace. The retained profiles used
+by the estimators are sampled from this exact-restriction solution, not
+directly from the untouched global-strip object.
+
+Six new global strip configurations enter the Figure 7 evidence. Four at
+\(R_m=0.01h\) form the plotted core/angular sequence, and two additional
+configurations test \(R_m=0.005h\) and \(0.02h\). Each is followed by its
+exact-restriction consistency solve. A seventh campaign entry contains the
+independently refined local submodel and does not enter Figure 7.
 
 This is a one-way global--local submodel. It is not a fully coupled
 deformation--traction algorithm because the outer strip does not respond to
@@ -38,6 +46,7 @@ The final production case used 16 MPI ranks, 15,360 strip triangles, and
 | prescribed interface trace error | 0 |
 | valid live-P2 polar samples | 28,960 / 28,960 |
 | exact-restriction P2 reaction-coefficient defect | \(4.21\times10^{-9}\) |
+| final restricted-field change from transferred seed | \(1.02\times10^{-7}\) |
 | local full-load Newton iterations | 4 |
 | local minimum sampled \(J\) | 1.871 |
 | strip minimum sampled \(J\) | 0.99988 |
@@ -49,6 +58,13 @@ endpoint-excluded reaction defect is \(2.51\)–\(3.44\times10^{-14}\).
 The reaction value is the relative Euclidean norm of matching,
 endpoint-excluded P2 weak-reaction coefficients. It is an exact-space
 equilibrium diagnostic, not a mesh-invariant traction norm.
+
+Five of the six exact-restriction configurations change the transferred seed
+by at most \(4.46\times10^{-7}\) in relative norm. The 60-sector,
+\(r_{\min}=2.5\times10^{-6}h\) case requires continuation from a mixed
+interior seed and changes by \(2.02\times10^{-4}\). The reported sequence is
+therefore an exact-cell matching-circle calculation, not a claim that the
+profile bytes are an untouched export of the global field.
 
 ## Matching-radius independence
 
@@ -63,7 +79,7 @@ Both \(C_s r\sin^2(\theta/2)\) and
 
 At \(r_{\min}=10^{-5}\) and \(n_\theta=60\):
 
-| \(R_m\) | \(1.5\times10^{-4}\)–\(1.6\times10^{-3}\) | \(3.0\times10^{-4}\)–\(3.0\times10^{-3}\) | \(6.0\times10^{-4}\)–\(3.8\times10^{-3}\) |
+| \(R_m\) | \(W_{\rm I}\) | \(W_{\rm II}\) | \(W_{\rm III}\) |
 |---:|---:|---:|---:|
 | 0.005 | 1.274704 | 1.262892 | 1.258613 |
 | 0.010 | 1.274587 | 1.262807 | 1.258064 |
@@ -71,11 +87,17 @@ At \(r_{\min}=10^{-5}\) and \(n_\theta=60\):
 
 The maximum span is \(5.50\times10^{-4}\).
 
+Here
+\(W_{\rm I}=[1.5\times10^{-4},1.6\times10^{-3}]h\),
+\(W_{\rm II}=[3.0\times10^{-4},3.0\times10^{-3}]h\), and
+\(W_{\rm III}=[6.0\times10^{-4},3.8\times10^{-3}]h\). These are
+overlapping exact-axis fit windows, not disjoint annuli.
+
 ## Core and angular convergence
 
 At \(R_m=0.01\):
 
-| \(r_{\min}\) | \(n_\theta\) | inner \(q\) | middle \(q\) | outer \(q\) | outer amplitude error |
+| \(r_{\min}\) | \(n_\theta\) | \(W_{\rm I}\ q\) | \(W_{\rm II}\ q\) | \(W_{\rm III}\ q\) | \(W_{\rm III}\) amplitude error |
 |---:|---:|---:|---:|---:|---:|
 | \(10^{-5}\) | 60 | 1.274587 | 1.262807 | 1.258064 | 6.41% |
 | \(5\times10^{-6}\) | 60 | 1.262966 | 1.256846 | 1.254860 | 3.81% |
@@ -96,7 +118,7 @@ y_1(r,0)=c_0+A_{\rm ax} r^q+D r^p.
 \]
 
 Alternating radii were used for fitting and holdout. Across five broader
-annuli, the data recovered
+radial windows, the data recovered
 
 \[
 1.24980\le q\le1.25152,\qquad

@@ -26,14 +26,16 @@ Three related calculations appear in the records and must not be conflated:
 
 | calculation | mesh change | role in the result |
 |---|---|---|
-| tip-refined matching-circle strip sequence | reduces \(r_{\min}\) and increases angular resolution in the global strip | supplies the accepted \(q\to5/4\) and amplitude convergence |
-| exact inner restriction | reuses the strip cells inside \(R_m\) | verifies transfer, reaction assembly, and MPI-safe profile extraction |
-| independently refined inner submodel | refines only the local cells at fixed \(r_{\min}=10^{-5}\) | demonstrates the displacement-driven submodel and measures the reaction change without outer feedback |
+| tip-refined matching-circle strip sequence | reduces \(r_{\min}\) and increases angular resolution in the global strip | supplies the complete P2 matching trace for each configuration |
+| exact inner restriction | reuses and re-solves the strip cells inside \(R_m\) | supplies the sampled profiles used for the accepted \(q\to5/4\) and amplitude sequence, while also checking transfer and reactions |
+| independently refined inner submodel | refines only the local cells at fixed \(r_{\min}=10^{-5}\) | demonstrates the displacement-driven submodel and measures the reaction change without outer feedback; it does not enter Figure 7 |
 
-Thus the accepted \(5/4\) result does not require a separate local re-solve:
-the globally solved strip is already strongly refined near the tip. The
-independent inner refinement tests how that result can later be obtained more
-economically from a converged outer trace.
+Figure 7 therefore belongs to a global-strip plus exact-restriction
+calculation. It uses six new global configurations, each followed by the
+same-cell inner consistency solve. Four form the plotted core/angular
+sequence and two test the matching radius. The separate inner-refinement run
+tests how the method could later be used more economically; it is not a
+source for the reported exponent.
 
 ## End-to-end map
 
@@ -45,26 +47,24 @@ Strip geometry with an explicit internal semicircle
 Global nonlinear pure-shear solution
     fem/pure_shear/ps_solve.py
                   |
+                  v                               v
+Exact inner-cell consistency solve
+    solve_restricted_local()
+                  |
                   +-------------------------------+
                   |                               |
                   v                               v
-Exact inner-cell restriction             Independently refined inner mesh
-solve_restricted_local()                  solve_refined_local()
-                  |                               |
-                  +---------------+---------------+
-                                  |
-                                  v
-P2 interface and reaction audits
-sampled 181-angle x 160-radius field
+P2 interface/reaction audits             Optional refined inner mesh
+181-angle x 160-radius profile            solve_refined_local()
     fem/global_local_submodel.py
-                                  |
-                                  v
+                  |                       method check only
+                  v
 Exact-axis and full-angle estimators
     fem/pure_shear/fit_r54_campaign_stage0.py
-                                  |
-                    +-------------+-------------+
-                    |                           |
-                    v                           v
+                  |
+        +---------+---------+
+        |                   |
+        v                   v
 Free two-power audit                  Campaign summary and figure
 fem/audit_r54_two_power.py            fem/summarize_global_local_campaign.py
 ```
@@ -124,16 +124,21 @@ search ambiguity.
 same inner discrete problem with the strip displacement prescribed on the
 outer semicircle.
 
-Because this mesh is an exact restriction of the strip mesh, this path is
-primarily a consistency check:
+Because this mesh is an exact restriction of the strip mesh, this path is a
+same-cell consistency solve rather than an independently refined local model:
 
 - the P2 transfer must be exact;
-- the local Newton solve must return the restricted strip state; and
+- the local Newton solve should remain close to the transferred strip state;
+  and
 - the opposing weak reactions must cancel to solver tolerance.
 
-The exact restriction is also a convenient MPI-safe source for dense polar
-sampling. It should not be described as a second independent boundary-value
-solution.
+The exact-restriction solution is the MPI-safe source for the dense polar
+profiles used in Figure 7. In the final case its relative change from the
+transferred seed is \(1.02\times10^{-7}\). Five of the six configurations
+change by at most \(4.46\times10^{-7}\); the 60-sector smallest-core case
+requires continuation from a mixed interior seed and changes by
+\(2.02\times10^{-4}\). It should not be described either as the untouched raw
+global field or as a separately refined boundary-value solution.
 
 ### 3.2 Independently refined local submodel
 
@@ -231,8 +236,12 @@ Y_1(r,0)=c_0+A_{\rm ax} r^q+D r^{7/4}
 \]
 
 without either matching coefficient. Alternating radii are used for fitting
-and holdout. Three common annuli test window sensitivity. The predicted
-amplitude is
+and holdout. Three overlapping radial windows test sensitivity:
+\(W_{\rm I}=[1.5\times10^{-4},1.6\times10^{-3}]h\),
+\(W_{\rm II}=[3.0\times10^{-4},3.0\times10^{-3}]h\), and
+\(W_{\rm III}=[6.0\times10^{-4},3.8\times10^{-3}]h\). They are
+post-processing intervals on the same exact-axis field, not separate
+subdomains. The predicted amplitude is
 
 \[
 A_{\rm ax,pred}=\frac{4\sqrt2}{5\sqrt P},
@@ -256,7 +265,7 @@ A_{\rm ax}/A_{\rm ax,pred}=1.012420.
 Y_1(r,0)=c_0+A_{\rm ax} r^q+D r^{p_{\rm next}},
 \]
 
-and fits both exponents. Across five annuli it returns
+and fits both exponents. Across five radial windows it returns
 
 \[
 1.24980\le q\le1.25152,\qquad

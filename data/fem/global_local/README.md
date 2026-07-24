@@ -21,10 +21,11 @@ contains the hashes of its profile and solver metadata.
 
 ## Scope
 
-The profiles come from exact restrictions of the solved pure-shear strip.
-They support the \(5/4\) exact-axis asymptotic class and permit a
-window-sensitive full-angle decomposition. They are not outputs of a fully
-coupled two-way hybrid algorithm.
+The profiles come from same-cell exact restrictions of newly solved
+pure-shear strips. Each restriction is re-solved with the complete P2 strip
+trace before sampling. The profiles support the \(5/4\) exact-axis asymptotic
+class and permit a window-sensitive full-angle decomposition. They are not
+outputs of a fully coupled two-way hybrid algorithm.
 
 The refined-submodel metadata is retained because it records the exact
 prescribed P2 trace, the positive-\(J\) local solution, and the change in the
