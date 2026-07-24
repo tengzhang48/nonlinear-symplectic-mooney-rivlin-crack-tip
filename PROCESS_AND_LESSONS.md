@@ -10,6 +10,14 @@ Raw conversations, review reports, development commits, and superseded files
 are deliberately excluded. This concise record retains only lessons that can
 be checked against the public scientific artifacts.
 
+This account was reconstructed from the repository history, signed review
+records in the research workspace, executable checks, stored numerical data,
+and manuscript diffs. It does not use conversation memory as evidence. Git
+author fields identify the human account that recorded the work, not which
+model performed a particular audit. Agent attribution in the internal record
+therefore comes only from signed reports, named branch handoffs, and commit
+subjects.
+
 The longer, research-method case study is maintained separately in
 [`ai-mechanics-resources`](https://github.com/tengzhang48/ai-mechanics-resources/blob/main/case_studies/symplectic_mooney_rivlin_crack_tip.md).
 The present repository keeps only the process information needed to understand
@@ -139,3 +147,109 @@ Automation can expose residuals and inconsistencies; it cannot decide how much
 of a formal hierarchy belongs in a paper. The author retained responsibility
 for constitutive assumptions, established-versus-open boundaries, claims of
 novelty, and the decision to stop extending the derivation.
+
+## 12. A challenge should produce a test, not only a narrower claim
+
+During revision, uncertainty sometimes triggered a defensive response:
+remove the disputed figure, narrow the statement, and describe the calculation
+as outside the paper. This is useful as temporary publication control, but it
+is not a scientific resolution. It can turn an unresolved mechanism into an
+apparently absent result.
+
+The focused disk calculation provides the concrete example. Its stored
+high-load boundary-vertex trace is nonmonotone and has segment crossings in
+post-processing. That observation does not by itself prove self-contact of
+the continuous P2 boundary, and the original face fit did not separate the
+allowed \(O(r)\) motion from the \(r^{5/4}\) residual. These findings require
+the disk claim to be scoped carefully. They also open specific questions about
+remote loading, dimensionless disk geometry, stationary-branch selection,
+stability, contact, and convergence of the inner field. The appropriate
+response is to vary those factors and retain the calculation as a named
+hypothesis, not to make the troublesome observation disappear.
+
+The project now uses four dispositions for a challenged result: false,
+unsupported, conditional, or open but testable. Only the first justifies
+retraction as the scientific conclusion. An unsupported result is demoted,
+a conditional result keeps its assumptions, and an open result receives a
+discriminating test. Editorial narrowing can accompany any of these states
+while the work is incomplete, but it does not replace the mechanism audit.
+
+For a scale-free membrane calculation, “disk size” means dimensionless ratios
+such as outer radius to crack length and core radius to outer radius, not a
+uniform change of all lengths. Once bending is included, thickness supplies
+another length. The released tip-centered half-disk has only
+$R_{\mathrm{disk}}/a=1$, because its slit runs from the tip at the center to
+the circular rim. It therefore contains no disk-size sweep. A genuine test
+must hold crack length fixed and vary the outer radius, for example with an
+eccentric edge-cracked disk, while also comparing the existing
+$\operatorname{diag}(1/\lambda,\lambda)$ loading with a
+$\operatorname{diag}(1,\lambda)$ control. This distinction turns a vague
+objection into a reproducible size, loading, and contact study.
+
+## 13. The collaboration was a sequence of claims, audits, and dispositions
+
+The work did not proceed as one uninterrupted derivation. The human author
+set the physical problem, decided which claims mattered, and set the stopping
+line. Multiple AI agents then worked in bounded roles: derivation,
+implementation, numerical testing, manuscript integration, or adversarial
+review. A result was promoted only after its equations, boundary conditions,
+amplitude scaling, and manuscript wording were checked together.
+
+The recurring cycle was:
+
+1. state a bounded claim and its assumptions;
+2. attach an executable identity, convergence test, or clearly stated
+   analytical argument;
+3. give the claim to a different review pass;
+4. classify each challenge as false, unsupported, conditional, or open but
+   testable;
+5. correct the mathematics or scope, then rerun the affected tests;
+6. synchronize the manuscript, ESI, figures, code, and stored data; and
+7. stop only after a clean release audit.
+
+This process found both ordinary implementation defects and conceptual scope
+errors. Examples include the missing power of \(P\), the initially suppressed
+\(C_s s\) null motion, an incomplete \(13/4\) source census, and a disk
+boundary-value problem that did not represent the intended strip validation.
+The corrections did not all narrow the paper. The \(C_s\) challenge, for
+example, led to a sharper numerical observable rather than abandonment of the
+\(r^{5/4}\) prediction.
+
+The internal chronology records named-agent contributions and exact commits.
+It is kept with the research project because those reports contain abandoned
+branches and review discussion. The public case study extracts the reusable
+method without presenting AI review as external peer review.
+
+## 14. Remove nuisance directions before estimating a singular power
+
+The local constraint allows specimen-selected \(C_s\) and \(C_h\) terms. A
+full-angle fit must account for both, and the available window does not select
+\(C_h=0\). On the intact axis, however, both nuisance contributions vanish
+identically. That observation determined the final matching-circle test.
+
+The same global pure-shear strip supplies a converged displacement trace on an
+interior circle. A tip-refined submodel receives that P2 trace without
+interpolation through a separate geometric parametrization. Across matching
+radius, core size, and angular-resolution checks, the exact-axis estimator
+converges to
+
+\[
+q=1.251529,\qquad
+A_{\mathrm{ax}}/A_{\mathrm{ax,pred}}=1.012420 .
+\]
+
+A free two-power fit recovers a leading power near \(5/4\) and a next power
+near \(7/4\) without fixing either exponent. The test therefore supports the
+predicted asymptotic class and its parameter-free exact-axis amplitude. It
+does not determine the specimen-level values of \(C_s\) or \(C_h\), and the
+one-way submodel is not presented as a two-way global--local coupling.
+
+## 15. Final release checks are part of the scientific record
+
+The release gate checks more than whether the PDF compiles. It verifies the
+symbolic identities and cross-file claim ledger, checks the stored FEM
+provenance and matching-circle campaign summary, rebuilds the retained
+figures, and confirms that the manuscript, ESI, code, and data state the same
+scope. The version tag identifies the exact public state used by the paper.
+The DOI is a later archival identifier and is not needed to make that state
+reproducible now.
