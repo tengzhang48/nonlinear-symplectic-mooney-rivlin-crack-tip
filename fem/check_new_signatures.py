@@ -1,9 +1,11 @@
-"""Archival diagnostic for the quarantined stored disk cases.
+"""Archival diagnostic for the stored auxiliary focused-disk cases.
 
 Reads the curated ``data/fem/disk/fem_case_*.json`` files (no re-solve
 needed). This script is excluded from standard tests and paper claims because
-the disk BVP is not a valid pure-shear surrogate and its high-load branch is
-globally inadmissible. Within that narrow archival context it evaluates:
+the disk BVP is not a pure-shear surrogate. Its stored high-load
+boundary-vertex trace also develops folding that requires separate contact,
+stability, and global-admissibility checks. Within that archival context it
+evaluates:
 
   S1  Cauchy stress amplitude:  sigma1 * r -> c1 P^2 / 2  (= G / pi),
       flat in theta.  sigma1 is the largest principal Cauchy stress computed

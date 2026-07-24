@@ -10,8 +10,8 @@ Outputs:
   fig_r54_axis_convergence
                    Figure 7: matching circle, windows, and residual convergence
 
-The quarantined disk boundary-value problem, withdrawn profile estimator, and
-historical hierarchy scaffold are deliberately outside this dispatcher.
+The auxiliary focused-disk boundary-value problem, legacy profile estimator,
+and historical hierarchy scaffold are deliberately outside this dispatcher.
 
 Run from the repository root:  python figures/make_figures.py
 """

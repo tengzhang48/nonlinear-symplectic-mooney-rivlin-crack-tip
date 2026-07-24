@@ -180,7 +180,8 @@ def main():
       f"diagnostic is `{base_w_ratio:.1f}%` of ideal `W_inf`.")
     A("- **Finite-window caveat**: near-tip magnitudes are `theta`-flat to about")
     A("  `6%`; the affordable strip window therefore leaves about `2.5%` amplitude")
-    A("  sensitivity. No result from the quarantined disk is used as a comparator.\n")
+    A("  sensitivity. No result from the auxiliary focused-disk calculation "
+      "is used as a comparator.\n")
     A("## Data for pick-up\n")
     A("- `outputs/ps_*.json` — per-case signatures + energy release.")
     A("- `outputs/rays_*_theta*.csv` — near-tip fields (r, theta, Y1, Y2, J, lam1, lam2).")

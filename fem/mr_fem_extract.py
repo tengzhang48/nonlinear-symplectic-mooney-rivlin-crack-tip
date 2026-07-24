@@ -1,4 +1,4 @@
-"""Archival extraction for the quarantined focused-disk calculation.
+"""Archival extraction for the auxiliary focused-disk calculation.
 
 Given a solved state (from mr_fem_solve.solve), sample the deformed
 coordinates (Y1, Y2) and the in-plane Jacobian J = det F along rays. The

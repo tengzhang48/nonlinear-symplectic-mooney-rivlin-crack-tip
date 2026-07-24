@@ -36,22 +36,13 @@ not establish a universal or asymptotically resolved residual exponent.
 The analytic checks are heterogeneous and partly overlapping; their count is
 not a count of independent proofs.
 
-## 2. Current paper and ESI figure map
+## 2. Current paper and ESI figures
 
-| Placement | Public output | Regeneration route |
-|---|---|---|
-| Figure 1 | `fig_master.{pdf,png}` | analytic schematic; `figures/make_figures.py` |
-| Figure 2 | `fig_asymap.{pdf,png}` | conceptual physics map; `figures/make_fig_asymap.py` |
-| Figure 3 | `fig_chain.{pdf,png}` | stored strip summary; `figures/make_figures.py` |
-| Figure 4 | `fig_ps_portrait.{pdf,png}` | stored strip full fields; `figures/make_figures.py` |
-| Figure 5 | `fig_plateau.{pdf,png}` | stored strip rays; `figures/make_figures.py` |
-| Figure 6 | `fig_cratio.{pdf,png}` | stored strip full fields; `figures/make_figures.py` |
-| Figure 7 | `fig_r54_axis_convergence.{pdf,png}` | hashed matching-circle campaign summary and final retained P2 profile; `figures/make_fig_r54_axis_convergence.py` |
-| ESI Figure S1 | `fig_esi_mesh.{pdf,png}` | fresh strip mesh construction; `figures/make_esi_mesh.py` |
+The exact figure numbers, output names, generators, and file-level inputs are
+listed once in [`FIGURES.md`](FIGURES.md). The standard renderer emits the
+seven paper figure pairs. The ESI mesh pair is generated separately and
+requires FEniCSx.
 
-The exact file-level inputs are listed in [`FIGURES.md`](FIGURES.md). The
-standard renderer emits exactly the seven paper pairs. The committed ESI
-mesh pair is generated separately and requires FEniCSx.
 For Figure 7, the retained P2 profile supplies the field and radial-window
 panels (a,b), while the hashed campaign summary supplies the convergence
 panels (c,d). The generator checks that the profile hash matches the summary.
@@ -95,9 +86,10 @@ A fresh finite-element solve answers a different question:
 
 Neither lane silently substitutes for the other.
 
-`data/fem/disk/` is different: it preserves a quarantined auxiliary
-boundary-value problem that is not equivalent to pure shear and is not used by
-the paper, claims tests, or figure generators. See its directory README.
+`data/fem/disk/` is different: it preserves an auxiliary cross-geometry
+boundary-value problem that is not equivalent to pure shear and is not used
+for the paper's quantitative comparisons, claims tests, or figure generators.
+See its directory README.
 
 ## 5. Fresh FEniCSx strip recomputation
 
@@ -117,8 +109,8 @@ Fresh single-strip output is written beneath ignored
 ignored `fem/global_local_outputs/`. The figure code never consumes either
 location implicitly. Before replacing any curated input, verify the mesh,
 continuation, case metadata, numerical tolerances, and cross-file provenance
-described in [`data/README.md`](data/README.md) and
-[`fem/README.md`](fem/README.md).
+described in [`data/README.md`](../data/README.md) and
+[`fem/README.md`](../fem/README.md).
 
 The production strip mesh uses 120 angular sectors and aligns the two nearest
 interior rays exactly with the far corners. The `c2/c1=1/3` production case
@@ -170,25 +162,15 @@ It does not establish:
 - the complete same-grade $\Lambda=13/4$ source and coupled response;
 - a completed coupled finite-compliance spectrum;
 - normalized higher-order extraction integrals; or
-- the quarantined disk solution as physical evidence.
+- the current focused-disk calculation as quantitative physical validation.
 
 Other higher-order and historical-scaffold scripts remain available as
 non-paper research provenance and are excluded from the standard runner.
 
 ## 8. Maintainer release check
 
-```bash
-python tests/run_verification.py
-python tests/check_claims.py
-python figures/make_figures.py
-# In the pinned FEniCSx environment when the mesh figure changes:
-python figures/make_esi_mesh.py
-python make_manifest.py
-(cd data/fem/strip && sha256sum -c ARTIFACTS.sha256)
-sha256sum -c MANIFEST.sha256
-git diff --check
-```
-
-Run the manifest generator last and review every changed rendering before
-committing. The release procedure is documented in
-[`PUBLICATION_WORKFLOW.md`](PUBLICATION_WORKFLOW.md).
+The complete maintainer circuit, dependency-propagation checklist, and
+correction protocol are maintained in
+[`PUBLICATION_WORKFLOW.md`](PUBLICATION_WORKFLOW.md). Run the manifest
+generator last, then review every changed rendering and manifest entry before
+committing.

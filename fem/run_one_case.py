@@ -1,4 +1,4 @@
-"""Reproduce one quarantined focused-disk case and save its sampled rays.
+"""Reproduce one auxiliary focused-disk case and save its sampled rays.
 
 This command does not solve the paper's pure-shear specimen. Its output is
 excluded from the standard claims and figure workflow.

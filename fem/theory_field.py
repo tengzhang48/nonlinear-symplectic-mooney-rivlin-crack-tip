@@ -2,8 +2,9 @@
 
 This module evaluates the field predicted by the asymptotic theory and provides
 an interpolation utility for separately designed boundary conditions. The
-quarantined disk solver in ``mr_fem_solve.py`` prescribes a different,
-non-pure-shear remote stretch and does not import this module.
+auxiliary focused-disk solver in ``mr_fem_solve.py`` prescribes a different,
+non-pure-shear remote stretch, lies outside the current quantitative evidence
+lane, and does not import this module.
 
 Leading deformed map, with amplitude P:
 

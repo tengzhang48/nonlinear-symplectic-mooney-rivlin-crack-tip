@@ -17,8 +17,9 @@ ESI mesh figure in the pinned FEniCSx environment.
 | ESI Figure S1 | `fig_esi_mesh.{png,pdf}` | `figures/make_esi_mesh.py` | fresh strip mesh from `fem/pure_shear/ps_mesh.py` |
 
 The standard rendered inventory contains exactly these eight PDF/PNG pairs.
-The disk-derived comparison, stress, and profile figures and the historical
-hierarchy rendering are retired and are not regenerated.
+Auxiliary disk-derived comparison, stress, and profile figures and the
+historical hierarchy rendering are not part of the current figure set and are
+not regenerated.
 
 Additional strip JSON and ray files support the machine-readable validation
 checks and document the full load, crack-length, mesh, and material-ratio

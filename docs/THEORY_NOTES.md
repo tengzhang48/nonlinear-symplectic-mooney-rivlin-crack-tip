@@ -260,10 +260,13 @@ Public checks and figures:
 - `analysis/check_row1_flux.py`
 - paper Figures 3 and 5–7 in `figures/rendered/`
 
-The preserved disk BVP is not a second validation geometry. Its full-arc
-Dirichlet condition imposes crack-parallel compression and is not equivalent
-to the strip loading; its high-load branch also loses global geometric
-admissibility. It is quarantined from the evidence chain.
+The focused-disk BVP is retained as an auxiliary cross-geometry calculation,
+not as a second quantitative validation. Its full-arc Dirichlet condition
+imposes crack-parallel compression and is not equivalent to the strip
+loading. On the stored high-load branch, the upper-face boundary-vertex trace
+becomes nonmonotone and contains segment crossings away from the tip. Its use
+as quantitative evidence therefore awaits revised loading and systematic
+continuation, size-ratio, stability, contact, and global-admissibility checks.
 
 ## 6. Closed normal-opening sector
 

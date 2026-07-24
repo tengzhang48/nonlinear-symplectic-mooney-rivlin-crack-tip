@@ -13,24 +13,17 @@ third-party reference files are intentionally not part of this repository.
 
 ## Documentation map
 
-- [`THEORY_NOTES.md`](THEORY_NOTES.md) — plane-stress reduction, constrained
-  tip field, radial Hamiltonian structure, closed normal-opening sector,
-  predictions, and explicit open boundaries.
-- [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) — clean-clone commands, expected
-  checks, current paper/ESI figure numbers, stored-data reproduction, and fresh
-  FEM recomputation.
-- [`FIGURES.md`](FIGURES.md) — exact input file map for every rendered panel.
-- [`CODE_MAP.md`](CODE_MAP.md) — evidence level and role of every public
-  analysis and solver script.
+- [`docs/README.md`](docs/README.md) — index to the scientific,
+  reproducibility, and process documentation.
+- [`docs/THEORY_NOTES.md`](docs/THEORY_NOTES.md) — derivation map,
+  predictions, and explicit claim boundaries.
+- [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) — clean-clone checks,
+  figure reproduction, and fresh FEM recomputation.
 - [`fem/GLOBAL_LOCAL_WORKFLOW.md`](fem/GLOBAL_LOCAL_WORKFLOW.md) — the
   matching-circle mesh, P2 transfer, local submodel, estimators, and
   code-to-data map.
 - [`fem/GLOBAL_LOCAL_RESULTS.md`](fem/GLOBAL_LOCAL_RESULTS.md) — the bounded
   numerical campaign and its claim limits.
-- [`PUBLICATION_WORKFLOW.md`](PUBLICATION_WORKFLOW.md) — public inclusion and
-  exclusion policy, release circuit, and correction protocol.
-- [`PROCESS_AND_LESSONS.md`](PROCESS_AND_LESSONS.md) — concise project lessons
-  retained in the scientific companion.
 
 ## Main result
 
@@ -102,12 +95,14 @@ coupled response, and net specimen amplitude remain open. Figure 2 shows this
 fork-and-merge structure without presenting the open program as a completed
 expansion.
 
-An older focused-disk boundary-value problem is retained only as quarantined
-negative provenance. Its full-arc displacement condition imposes strong
-crack-parallel compression and is not equivalent to Rivlin–Thomas pure shear;
-the high-load stored branch also develops a same-face self-intersection
-without a contact or global-injectivity model. It is excluded from claims,
-figures, and standard tests.
+A focused half-disk boundary-value problem is retained as a separate
+cross-geometry calculation. Its full-arc displacement condition imposes
+crack-parallel compression and is not equivalent to Rivlin–Thomas pure shear.
+On the high-load stored branch, the upper-face boundary-vertex trace becomes
+nonmonotone and contains segment crossings away from the tip. The current
+paper therefore does not use it as quantitative validation. The code and data
+remain available for a future loading, size, admissibility, and stability
+study.
 
 ## Reproduce the evidence
 
@@ -136,10 +131,10 @@ The figure command rebuilds the seven current paper figures from the tracked
 analytic and strip inputs.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
 environment below. Figure 7 combines the matching-circle field,
-overlapping-window map, and convergence test. See [FIGURES.md](FIGURES.md)
-for the exact input map.
+overlapping-window map, and convergence test. See
+[docs/FIGURES.md](docs/FIGURES.md) for the exact input map.
 The complete clean-clone workflow and current manuscript numbering are in
-[REPRODUCIBILITY.md](REPRODUCIBILITY.md).
+[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md).
 The claims check also rejects embedded Type 3 fonts and enforces the exact
 eight-figure PDF/PNG inventory. The generators request embedded TrueType fonts
 for publisher preflight compatibility.
@@ -169,7 +164,7 @@ their continuation and mesh metadata (120 sectors, with the two nearest
 angular rays aligned exactly to the far rectangle corners).
 
 Fresh solver output is written beneath `fem/pure_shear/outputs/`,
-`fem/global_local_outputs/`, or the quarantined disk path `fem/outputs/`.
+`fem/global_local_outputs/`, or the focused-disk path `fem/outputs/`.
 These directories are ignored by Git and never substituted silently for the
 curated figure inputs in `data/fem/`.
 
@@ -190,9 +185,10 @@ gate. A full coupled finite-compliance spectrum, normalized extraction
 integrals, mixed endpoint operator, inner axis layer, complete same-grade
 $13/4$ response, and matched higher amplitudes remain open.
 
-See [CODE_MAP.md](CODE_MAP.md) for the evidence level and role of every script,
-and [data/claims/principal_claims.json](data/claims/principal_claims.json) for
-the machine-readable claims ledger.
+See [docs/CODE_MAP.md](docs/CODE_MAP.md) for the evidence level and role of
+every script, and
+[data/claims/principal_claims.json](data/claims/principal_claims.json) for the
+machine-readable claims ledger.
 
 ## License and citation
 

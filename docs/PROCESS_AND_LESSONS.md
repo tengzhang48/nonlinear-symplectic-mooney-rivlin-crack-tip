@@ -126,20 +126,24 @@ An auxiliary focused disk was initially treated as a second validation
 geometry. Its full-arc displacement condition was mathematically well defined
 but physically different from the intended Rivlin–Thomas strip: it imposed
 strong crack-parallel compression and prescribed the outer mouth. At high
-load, the computed upper face intersected itself away from the tip.
+load, the stored upper-face boundary-vertex trace became nonmonotone and
+contained segment crossings away from the tip. This is evidence of folding in
+the sampled trace, not a certified contact result for the continuous P2
+boundary.
 
 This exposed four distinct checks that a small residual norm cannot replace:
 
 - the convenient numerical BVP must be equivalent to the intended physical
   BVP in the loading directions that matter;
 - a stationary discrete solution need not be globally injective or stable;
-- a same-face self-intersection is not opposing-face crack contact; and
-- a locally smooth inner window cannot rescue a globally folded,
-  post-onset branch when no contact or injectivity model is present.
+- a same-face boundary fold is not opposing-face crack contact; and
+- a locally smooth inner window cannot by itself validate a globally folded
+  sampled trace when no contact or injectivity model is present.
 
-The disk solver and data are preserved as quarantined negative provenance, but
-they are excluded from paper claims, figures, and standard tests. The strip is
-the sole FEM evidence.
+The disk solver and data are preserved as an auxiliary cross-geometry
+calculation. They do not enter the paper's quantitative figures or standard
+claims tests. The strip remains the quantitative FEM evidence in the current
+paper.
 
 ## 11. Human judgment sets the stopping line
 
@@ -227,11 +231,11 @@ full-angle fit must account for both, and the available window does not select
 \(C_h=0\). On the intact axis, however, both nuisance contributions vanish
 identically. That observation determined the final matching-circle test.
 
-The same global pure-shear strip supplies a converged displacement trace on an
-interior circle. A tip-refined submodel receives that P2 trace without
-interpolation through a separate geometric parametrization. Across matching
-radius, core size, and angular-resolution checks, the exact-axis estimator
-converges to
+Six tip/core-refined global strips supply converged displacement traces on an
+interior circle. Each accepted profile comes from a same-cell exact-restriction
+solve driven by the complete P2 strip trace, without interpolation through a
+separate geometric parametrization. Across matching-radius, core-size, and
+angular-resolution checks, the exact-axis estimator converges to
 
 \[
 q=1.251529,\qquad
@@ -242,7 +246,8 @@ A free two-power fit recovers a leading power near \(5/4\) and a next power
 near \(7/4\) without fixing either exponent. The test therefore supports the
 predicted asymptotic class and its parameter-free exact-axis amplitude. It
 does not determine the specimen-level values of \(C_s\) or \(C_h\), and the
-one-way submodel is not presented as a two-way global--local coupling.
+separately refined one-way submodel is only a method check. It does not supply
+Figure 7 and is not presented as a two-way global--local coupling.
 
 ## 15. Final release checks are part of the scientific record
 

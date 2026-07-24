@@ -50,9 +50,9 @@ physical claim
   -> hash manifest and release commit.
 ```
 
-`CODE_MAP.md`, `data/claims/principal_claims.json`, and `FIGURES.md` expose the
-three central parts of this graph. A missing edge is a release blocker even if
-the final image looks plausible.
+`docs/CODE_MAP.md`, `data/claims/principal_claims.json`, and
+`docs/FIGURES.md` expose the three central parts of this graph. A missing edge
+is a release blocker even if the final image looks plausible.
 
 ## Update procedure
 
@@ -75,12 +75,12 @@ change as documentation-only merely because the numerical headline survives.
 For a changed theory statement, inspect at least:
 
 ```text
-THEORY_NOTES.md
-CODE_MAP.md
+docs/THEORY_NOTES.md
+docs/CODE_MAP.md
 data/claims/principal_claims.json
 README.md
-FIGURES.md and panel annotations
-PROCESS_AND_LESSONS.md
+docs/FIGURES.md and panel annotations
+docs/PROCESS_AND_LESSONS.md
 ```
 
 For a changed dataset or mesh, inspect the extractor, summary, claims gate,

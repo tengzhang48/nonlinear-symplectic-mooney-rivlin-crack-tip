@@ -57,21 +57,25 @@ Implementation, convergence, and claim boundaries are recorded in
 records live under `data/fem/global_local/`; fresh outputs go to the ignored
 `fem/global_local_outputs/` directory.
 
-## Quarantined auxiliary model: focused disk
+## Auxiliary cross-geometry model: focused disk
 
-The top-level disk mesh and solver files are retained only as negative
-provenance. Their full-arc boundary condition,
+The top-level disk mesh and solver files retain a separate cross-geometry
+boundary-value problem. Their full-arc boundary condition,
 `F_far=diag(lambda^(-1),lambda)`, imposes crack-parallel compression and pins
 the outer mouth. It is not equivalent to the Rivlin–Thomas strip. The stored
-high-load branch also develops a same-upper-face self-intersection, while the
-solver has no contact or global-injectivity constraint.
+high-load upper-face boundary-vertex trace becomes nonmonotone and contains
+segment crossings away from the tip, while the solver has no contact,
+stability, or global-injectivity constraint.
 
 Accordingly:
 
-- disk outputs are not physical validation or a pure-shear surrogate;
+- disk outputs are not current quantitative validation or a pure-shear
+  surrogate;
 - `check_new_signatures.py` is an archival diagnostic, not a standard test;
-- no disk data enter the paper figures or current claim ledger; and
-- rerunning `run_one_case.py` reproduces only this quarantined auxiliary BVP.
+- no disk data enter the paper's quantitative figures or current claim
+  ledger; and
+- rerunning `run_one_case.py` reproduces this auxiliary BVP rather than the
+  strip calculation.
 
 The constitutive convention in both models is
 `W=c1(I1-3)+c2(I2-3)` without an extra factor of one half. The `c2=0` strip

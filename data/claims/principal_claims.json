@@ -65,13 +65,13 @@
       "id": "first-material-rung",
       "status": "closed-on-selected-base",
       "statement": "On the chosen F=0 representative, the first finite material correction is the Lambda=7/4 rung. Its total face traction closes and no new local amplitude is introduced at that rung",
-      "evidence": ["analysis/gate4_first_material_background.py", "THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
+      "evidence": ["analysis/gate4_first_material_background.py", "docs/THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
     },
     {
       "id": "restricted-opening-resonance",
       "status": "restricted-formal-coefficient",
       "statement": "On the chosen F=0 (C_s=0) analytic-axis representative, the audited restricted interaction reaches the Lambda=13/4 opening kernel, corresponding to an r^(5/2) opening coefficient. Its nonzero restricted Fredholm projection forces a logarithmic companion in that formal coefficient. The complete same-grade source, coupled response, and specimen-selected net logarithmic amplitude remain open",
-      "evidence": ["analysis/verify_lambda13_restricted_log.py", "THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
+      "evidence": ["analysis/verify_lambda13_restricted_log.py", "docs/THEORY_NOTES.md", "figures/rendered/fig_asymap.pdf"]
     }
   ],
   "open_work": [

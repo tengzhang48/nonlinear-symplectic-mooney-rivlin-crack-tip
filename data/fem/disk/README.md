@@ -1,8 +1,8 @@
-# Quarantined focused-disk cases
+# Focused-disk auxiliary cases
 
-These four JSON files preserve negative provenance for an auxiliary
-boundary-value problem. They are not paper evidence and are not read by the
-standard claims checks or figure generators.
+These four JSON files preserve an auxiliary cross-geometry boundary-value
+problem. They are not used in the paper's quantitative comparisons and are
+not read by the standard claims checks or figure generators.
 
 The disk model prescribes
 
@@ -17,18 +17,21 @@ compression and also prescribes the outer crack-mouth displacement. At
 `P_xx=-15`, whereas the strip far-ahead state has no imposed horizontal
 contraction.
 
-The stored high-load disk branch is also not globally admissible. Its upper
-face self-intersects away from the tip, and the solver contains no contact,
-global-injectivity, bending, or stability constraint. A smooth local inner
-window cannot repair that global failure.
+On the stored high-load branch, the upper-face boundary-vertex trace becomes
+nonmonotone and contains segment crossings away from the tip. This is a
+discrete folding diagnostic, not a certified self-contact result for the
+continuous P2 boundary. The solver contains no contact, global-injectivity,
+bending, or stability constraint, so the inner and global diagnostics must be
+assessed separately.
 
-The files are retained so the failed auxiliary setup and its outputs remain
-auditable. They must not be cited as a cross-check, validation geometry,
-crack-contact solution, or source for a manuscript figure.
+The files are retained so the auxiliary setup and its outputs remain
+auditable. They should not be cited as quantitative cross-geometry validation,
+a crack-contact solution, or a source for a manuscript figure in the current
+release.
 
-This quarantine applies to the stored boundary-value problem, not to circular
+These limitations apply to the stored boundary-value problem, not to circular
 domains in general. A future disk cross-check could be useful if its remote
 displacement or traction data are redesigned for the intended physical
-loading and its continuation explicitly checks stability, orientation,
-global injectivity, and contact. Such a calculation would be new evidence,
-not a reinterpretation of these files.
+loading and its continuation explicitly checks size ratios, stability,
+orientation, global injectivity, and contact. Such a calculation would be new
+evidence rather than a reinterpretation of these files.

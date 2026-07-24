@@ -32,19 +32,21 @@ blanket proof of nearby scientific claims.
 | `figures/make_fig_r54_axis_convergence.py` | Figure 7 matching-circle field, fit windows, and residual convergence | reads the compact hashed summary and final retained exact-restriction P2 profile |
 | `figures/make_esi_mesh.py` | strip-only ESI mesh figure | fresh mesh construction in the pinned FEniCSx environment |
 
-## Quarantined auxiliary disk calculation
+## Auxiliary cross-geometry calculation: focused disk
 
 | Path | Role | Evidence boundary |
 |---|---|---|
-| `fem/mr_fem_mesh.py`, `fem/mr_fem_solve.py`, `fem/run_one_case.py` | preserve the focused-disk BVP and solver provenance | not pure shear; excluded from paper claims, figures, and standard tests |
+| `fem/mr_fem_mesh.py`, `fem/mr_fem_solve.py`, `fem/run_one_case.py` | preserve the focused-disk BVP and solver provenance | not pure shear; retained for future cross-geometry study rather than current quantitative validation |
 | `fem/check_new_signatures.py` | archival postprocessing of stored disk fields | diagnostic only; not validation |
-| `data/fem/disk/` | four stored disk cases | negative provenance, integrity-locked but scientifically quarantined |
+| `data/fem/disk/` | four stored disk cases | integrity-locked auxiliary provenance outside the current claims and figure lanes |
 
 The disk outer condition prescribes
 `F_far=diag(lambda^(-1),lambda)` around the full arc. It imposes strong
 crack-parallel compression, pins the outer mouth, and is not equivalent to the
-Rivlin–Thomas strip. The high-load branch also develops a same-upper-face
-self-intersection without a contact or global-injectivity model.
+Rivlin–Thomas strip. On the stored high-load branch, the upper-face
+boundary-vertex trace becomes nonmonotone and contains segment crossings away
+from the tip. This is a discrete folding diagnostic, not a certified contact
+or self-intersection result for the continuous P2 boundary.
 
 ## Retained non-paper research calculations
 
@@ -90,4 +92,4 @@ Not established as completed paper results:
 - a full reaction-carrying coupled spectrum and endpoint operator;
 - normalized higher-order extraction integrals;
 - closure of the inner axis layer; or
-- any disk-based physical validation.
+- quantitative physical validation from the current focused-disk calculation.

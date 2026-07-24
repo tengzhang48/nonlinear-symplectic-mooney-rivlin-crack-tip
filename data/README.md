@@ -30,10 +30,11 @@
   `python analysis/profile_mode_audit.py --write`. These finite-window values
   do not establish an asymptotic residual exponent and produce no figure.
 
-- `fem/disk/`: quarantined negative provenance for an auxiliary focused-disk
-  BVP. The outer condition is not equivalent to Rivlin–Thomas pure shear, and
-  the high-load branch is globally inadmissible. These files are excluded from
-  paper claims, figures, and standard tests. See `fem/disk/README.md`.
+- `fem/disk/`: integrity-locked auxiliary provenance for a focused-disk BVP.
+  Its outer condition is not equivalent to Rivlin–Thomas pure shear, and its
+  stored high-load boundary-vertex trace develops folding away from the tip.
+  These files do not enter the paper's quantitative figures or standard
+  claims tests. See `fem/disk/README.md`.
 
 - `claims/principal_claims.json`: compact ledger linking current paper claims
   to equations, code, and stored-data checks.
