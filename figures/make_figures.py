@@ -8,7 +8,7 @@ Outputs:
   fig_plateau      Figure 5: compensated-Jacobian angular comparison
   fig_cratio       Figure 6: material-ratio comparison
   fig_r54_axis_convergence
-                   Figure 7: exact-axis residual convergence
+                   Figure 7: matching circle, windows, and residual convergence
 
 The quarantined disk boundary-value problem, withdrawn profile estimator, and
 historical hierarchy scaffold are deliberately outside this dispatcher.

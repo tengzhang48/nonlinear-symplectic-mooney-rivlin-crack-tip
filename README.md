@@ -132,13 +132,13 @@ must not be interpreted as a collection of independent proofs.
 The figure command rebuilds the seven current paper figures from the tracked
 analytic and strip inputs.
 `figures/make_esi_mesh.py` rebuilds the mesh figure and requires the FEniCSx
-environment below. `figures/make_esi_matching_circle.py` rebuilds the
-matching-circle field and overlapping-window figure from the retained final
-P2 profile. See [FIGURES.md](FIGURES.md) for the exact input map.
+environment below. Figure 7 combines the matching-circle field,
+overlapping-window map, and convergence test. See [FIGURES.md](FIGURES.md)
+for the exact input map.
 The complete clean-clone workflow and current manuscript numbering are in
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 The claims check also rejects embedded Type 3 fonts and enforces the exact
-nine-figure PDF/PNG inventory. The generators request embedded TrueType fonts
+eight-figure PDF/PNG inventory. The generators request embedded TrueType fonts
 for publisher preflight compatibility.
 
 ## Re-run the finite elements

@@ -213,8 +213,8 @@ Public checks and data:
 - `verification/verify_equations.py`
 - `fem/GLOBAL_LOCAL_RESULTS.md`
 - `data/fem/global_local/global_local_campaign_summary_2026-07-23.json`
+- `data/fem/global_local/global_local_profile_lam16_core2p5e6_nt120_rm1e2.npz`
 - `figures/rendered/fig_r54_axis_convergence.*`
-- `figures/rendered/fig_esi_matching_circle.*`
 
 `analysis/profile_mode_audit.py` has a separate numerical role: it reproduces
 the ESI strip table of fitted `b`, raw slopes, and nested target-free `q`

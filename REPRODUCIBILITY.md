@@ -46,13 +46,15 @@ not a count of independent proofs.
 | Figure 4 | `fig_ps_portrait.{pdf,png}` | stored strip full fields; `figures/make_figures.py` |
 | Figure 5 | `fig_plateau.{pdf,png}` | stored strip rays; `figures/make_figures.py` |
 | Figure 6 | `fig_cratio.{pdf,png}` | stored strip full fields; `figures/make_figures.py` |
-| Figure 7 | `fig_r54_axis_convergence.{pdf,png}` | hashed matching-circle campaign summary; `figures/make_fig_r54_axis_convergence.py` |
+| Figure 7 | `fig_r54_axis_convergence.{pdf,png}` | hashed matching-circle campaign summary and final retained P2 profile; `figures/make_fig_r54_axis_convergence.py` |
 | ESI Figure S1 | `fig_esi_mesh.{pdf,png}` | fresh strip mesh construction; `figures/make_esi_mesh.py` |
-| ESI Figure S2 | `fig_esi_matching_circle.{pdf,png}` | retained final P2 matching-circle profile; `figures/make_esi_matching_circle.py` |
 
 The exact file-level inputs are listed in [`FIGURES.md`](FIGURES.md). The
-standard renderer emits exactly the seven paper pairs. The two committed ESI
-pairs are generated separately; only Figure S1 requires FEniCSx.
+standard renderer emits exactly the seven paper pairs. The committed ESI
+mesh pair is generated separately and requires FEniCSx.
+For Figure 7, the retained P2 profile supplies the field and radial-window
+panels (a,b), while the hashed campaign summary supplies the convergence
+panels (c,d). The generator checks that the profile hash matches the summary.
 
 ## 3. Regenerating derived analytic artifacts
 
@@ -133,10 +135,11 @@ To redraw Figure 7 from a fresh campaign summary:
 
 ```bash
 python figures/make_fig_r54_axis_convergence.py \
-  --summary fem/global_local_outputs/global_local_campaign_summary.json
+  --summary fem/global_local_outputs/global_local_campaign_summary.json \
+  --profile fem/global_local_outputs/global_local_profile_lam16_core2p5e6_nt120_rm1e2.npz
 ```
 
-## 6. Rebuilding the ESI figures
+## 6. Rebuilding the ESI figure
 
 With the FEniCSx environment active:
 
@@ -145,12 +148,8 @@ python figures/make_esi_mesh.py
 ```
 
 This constructs the strip mesh afresh and does not read a stored mesh image.
-The matching-circle field/window figure needs only the ordinary analysis
-environment and the retained profile:
-
-```bash
-python figures/make_esi_matching_circle.py
-```
+The matching-circle field and fit-window map are panels (a,b) of main-text
+Figure 7 and are rebuilt by the standard paper-figure command.
 
 ## 7. Reproduced scope
 
@@ -161,7 +160,7 @@ The standard public lane reproduces:
 - the tested-strip $r^{5/4}$ residual class and exact-axis amplitude;
 - the closed $\Lambda=7/4$ first-material rung and restricted
   $\Lambda=13/4$ scalar log channel at their stated scope;
-- all seven current paper figures and both ESI figures; and
+- all seven current paper figures and the ESI mesh figure; and
 - hashes and provenance for the public inputs and outputs.
 
 It does not establish:
@@ -184,7 +183,6 @@ python tests/check_claims.py
 python figures/make_figures.py
 # In the pinned FEniCSx environment when the mesh figure changes:
 python figures/make_esi_mesh.py
-python figures/make_esi_matching_circle.py
 python make_manifest.py
 (cd data/fem/strip && sha256sum -c ARTIFACTS.sha256)
 sha256sum -c MANIFEST.sha256

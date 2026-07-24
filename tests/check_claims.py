@@ -127,7 +127,6 @@ def main() -> None:
         "fig_cratio",
         "fig_r54_axis_convergence",
         "fig_esi_mesh",
-        "fig_esi_matching_circle",
     }
     figure_pdfs = sorted(FIGURES.glob("*.pdf"))
     figure_pngs = sorted(FIGURES.glob("*.png"))

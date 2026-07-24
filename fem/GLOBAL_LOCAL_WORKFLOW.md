@@ -353,7 +353,8 @@ To draw the residual-convergence figure directly from a fresh summary, run
 
 ```bash
 python figures/make_fig_r54_axis_convergence.py \
-  --summary fem/global_local_outputs/global_local_campaign_summary.json
+  --summary fem/global_local_outputs/global_local_campaign_summary.json \
+  --profile fem/global_local_outputs/global_local_profile_lam16_core2p5e6_nt120_rm1e2.npz
 ```
 
 ## 8. What the calculation supports
