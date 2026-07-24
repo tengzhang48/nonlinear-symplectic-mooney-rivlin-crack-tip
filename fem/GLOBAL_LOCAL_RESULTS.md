@@ -5,8 +5,8 @@
 The bounded MPI campaign supports the \(r^{5/4}\) in-plane residual as a
 realized asymptotic class in the pure-shear Mooney--Rivlin specimen. The
 evidence combines matching-radius independence, core convergence, angular
-convergence, agreement with the parameter-free exact-axis amplitude, and a
-full-angle check of the analytical ODE family.
+convergence, agreement with the parameter-free exact-axis amplitude to within
+1.3%, and a full-angle check of the analytical ODE family.
 
 The calculation does not select the analytic-axis member \(C_h=0\), and it
 does not yet provide converged specimen-selected values of \(C_s\) or \(C_h\).
@@ -111,7 +111,7 @@ resolution changes the three values by no more than
 ### The next power need not be fixed
 
 The table above uses the analytically expected \(r^{7/4}\) nuisance column.
-As a separate check, both exponents were freed in
+As a separate check on the final case 4 only, both exponents were freed in
 
 \[
 y_1(r,0)=c_0+A_{\rm ax} r^q+D r^p.
@@ -130,6 +130,9 @@ The holdout RMS error was below \(3.15\times10^{-5}\) of the fitted
 nuisance exponent at \(7/4\). The deterministic check is
 `fem/audit_r54_two_power.py`, and its retained output is
 `data/fem/global_local/r54_axis_two_power_sensitivity.json`.
+The fitted \(p\) is consistent with the \(r^{7/4}\) in-plane slot in the
+\(F=0\) bookkeeping ordering. It does not test that correction's angular
+profile or amplitude.
 
 ## Full-angle field and coefficient scope
 

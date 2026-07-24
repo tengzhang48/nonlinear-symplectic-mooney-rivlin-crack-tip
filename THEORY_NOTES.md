@@ -193,11 +193,15 @@ Y1(r,0) = c0 + A_ax r^q + D r^(7/4)
 ```
 
 without either coefficient. The final core/angular refinement gives
-`q=1.251529` and `A_ax/A_ax,pred=1.012420`. A free two-power audit returns
+`q=1.251529` and `A_ax/A_ax,pred=1.012420`, an amplitude error below 1.3%.
+A free two-power audit of the final case returns
 `1.24980 <= q <= 1.25152`, so the recovered value is not produced by fixing
-the nuisance exponent. The full-angle residual is consistent with the ODE
-family after `Ch` is admitted. The campaign supports the asymptotic class for
-the tested strip but does not select `Cs`, `Ch`, or the analytic-axis member.
+the nuisance exponent. Its next power is consistent with the `r^(7/4)`
+in-plane slot, which checks the radial ordering but not that correction's
+angular profile or amplitude. The full-angle residual is consistent with the
+ODE family after `Ch` is admitted. The campaign supports the asymptotic class
+for the tested strip but does not select `Cs`, `Ch`, or the analytic-axis
+member.
 The six retained profiles come from same-cell exact-restriction consistency
 solves driven by six new global matching-circle strip configurations. Four
 form the plotted core/angular sequence and two test the matching radius. The

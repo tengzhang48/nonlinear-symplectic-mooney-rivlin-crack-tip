@@ -256,6 +256,8 @@ q=1.251529,\qquad
 A_{\rm ax}/A_{\rm ax,pred}=1.012420.
 \]
 
+The amplitude is therefore within 1.3% of the parameter-free prediction.
+
 ### Free two-power audit
 
 [`audit_r54_two_power.py`](audit_r54_two_power.py) replaces the fixed
@@ -265,7 +267,7 @@ A_{\rm ax}/A_{\rm ax,pred}=1.012420.
 Y_1(r,0)=c_0+A_{\rm ax} r^q+D r^{p_{\rm next}},
 \]
 
-and fits both exponents. Across five radial windows it returns
+and fits both exponents. For the final case 4, five radial windows return
 
 \[
 1.24980\le q\le1.25152,\qquad
@@ -273,6 +275,9 @@ and fits both exponents. Across five radial windows it returns
 \]
 
 Thus the recovered \(5/4\) exponent is not created by fixing the next power.
+The fitted \(p_{\rm next}\) is consistent with the \(r^{7/4}\) in-plane slot
+in the \(F=0\) bookkeeping ordering. This does not test that correction's
+angular profile or amplitude.
 
 ### Full-angle channel
 

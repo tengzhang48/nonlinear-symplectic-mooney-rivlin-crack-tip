@@ -73,11 +73,14 @@ used in Figure 7. Systematic core and angular refinement gives
 $$q=1.251529,\qquad
 \frac{A_{\rm ax}}{A_{\rm ax,pred}}=1.012420.$$
 
-A free two-power audit recovers $q$ near $5/4$ without prescribing the next
-exponent. The full-angle residual is consistent with the analytical ODE
-family when its $C_h$ member is admitted. These results support the
-$r^{5/4}$ asymptotic class for the tested $c_1=c_2=1$, $\lambda=1.6$ strip.
-They do not determine specimen-selected values of $C_s$ or $C_h$.
+Thus the final amplitude is within $1.3\%$ of its parameter-free prediction.
+A free two-power audit of the final case recovers $q$ near $5/4$ and a next
+power near $7/4$ without prescribing either exponent. The latter checks the
+radial ordering, not the $7/4$ correction's angular profile or amplitude.
+The full-angle residual is consistent with the analytical ODE family when
+its $C_h$ member is admitted. These results support the $r^{5/4}$ asymptotic
+class for the tested $c_1=c_2=1$, $\lambda=1.6$ strip. They do not determine
+specimen-selected values of $C_s$ or $C_h$.
 
 For a Rivlin–Thomas pure-shear strip of reference height $h$ and grip stretch
 $\lambda$,
@@ -176,8 +179,8 @@ The constrained opening map and null family, Jacobian plateau, energy-release
 relation, pure-shear amplitude chain, closed opening-sector pairing, and
 tested-strip $r^{5/4}$ residual evidence are reproduced here at their declared
 evidence levels. The numerical campaign supports the residual class and its
-parameter-free exact-axis amplitude. Global matching of $C_s$ and $C_h$
-remains open.
+parameter-free exact-axis amplitude to within $1.3\%$. Global matching of
+$C_s$ and $C_h$ remains open.
 
 The paper claim ledger and standard verification runner now include the closed
 $\Lambda=7/4$ first-material calculation and the narrowly scoped restricted

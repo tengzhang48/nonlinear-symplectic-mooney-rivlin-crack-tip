@@ -187,7 +187,9 @@ def main() -> int:
         "interpretation": (
             "The data recover q near 5/4 and a next power near 7/4 without "
             "fixing either exponent. This supports the exact-axis asymptotic "
-            "class but does not select the full-angle Ch=0 branch."
+            "class. The next power checks radial ordering, not the 7/4 "
+            "angular profile or amplitude, and the audit does not select "
+            "the full-angle Ch=0 branch."
         ),
     }
     if not all(record["checks"].values()):

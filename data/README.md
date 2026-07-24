@@ -17,6 +17,11 @@
   residual estimators, and a hashed campaign summary. They support the tested
   \(r^{5/4}\) class but do not select the specimen coefficients \(C_s\) or
   \(C_h\), and they are not outputs of a fully coupled two-way submodel.
+  Estimator JSON files preserve the input paths recorded in the original
+  production staging directory. In this public layout, the same input
+  basenames live beside the estimators in `data/fem/global_local/`; the
+  summarizer resolves those basenames and verifies their recorded SHA-256
+  hashes.
 
 - `derived/profile_mode_audit.json`: strip-only reproduction record for the
   ESI finite-window table at `lambda=1.6` and `2.2`. It stores the fitted
